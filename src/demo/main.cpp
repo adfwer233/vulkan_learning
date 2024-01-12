@@ -1,6 +1,16 @@
 #include "iostream"
 
+#include "application.hpp"
+
 int main() {
-    std::cout << "test" << std::endl;
-    return 0;
+    VulkanDemoApplication app;
+
+    try {
+        app.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
