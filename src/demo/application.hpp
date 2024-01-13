@@ -5,7 +5,8 @@
 #include "glm/glm.hpp"
 
 #define GLFW_INCLUDE_VULKAN
-#include "glfw/glfw3.h"
+#include "GLFW/glfw3.h"
+
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
@@ -37,6 +38,8 @@ private:
     VkDevice device;
     VkQueue graphicsQueue;
 
+    VkSurfaceKHR surface;
+
     void init_window() {
         glfwInit();
 
@@ -53,6 +56,7 @@ private:
     void createInstance();
     void pickPhysicalDevice();
     void createLogicalDevice();
+    void createSurface();
 
     void init_vulkan();
 
