@@ -10,10 +10,10 @@ include(fetch-glfw)
 include(fetch-glm)
 
 # set vulkan SDK
-if(NOT DEFINED ENV{VK_SDK_PATH})
+if(NOT DEFINED ENV{VULKAN_SDK})
     message(FATAL_ERROR "VK_SDK_PATH not defined!")
 endif()
-set(VK_SDK_PATH $ENV{VK_SDK_PATH})
+set(VK_SDK_PATH $ENV{VULKAN_SDK})
 set(VK_SDK_INCLUDE ${VK_SDK_PATH}/Include)
 set(VK_SDK_LIB ${VK_SDK_PATH}/Lib/vulkan-1.lib)
 
