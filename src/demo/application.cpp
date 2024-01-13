@@ -61,8 +61,25 @@ bool VulkanDemoApplication::checkValidationLayerSupport()  {
     return true;
 }
 
+QueueFamilyIndices VulkanDemoApplication::findQueueFamilies(VkPhysicalDevice device) {
+    QueueFamilyIndices indices;
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    for (int i = 0; const auto &queueFamily: queueFamilies) {
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            indices.graphicsFamily = i;
+        }
+        i++;
+    }
+
+    return indices;
+}
+
 void VulkanDemoApplication::pickPhysicalDevice() {
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDeviceGroups(instance, &deviceCount, nullptr);
 
@@ -73,7 +90,7 @@ void VulkanDemoApplication::pickPhysicalDevice() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    auto isDeviceSuitable = [](VkPhysicalDevice device) -> bool {
+    auto isDeviceSuitable = [this](VkPhysicalDevice device) -> bool {
         VkPhysicalDeviceProperties deviceProperties;
         vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
@@ -83,7 +100,11 @@ void VulkanDemoApplication::pickPhysicalDevice() {
         // DISCRETE GPU is suitable
         // return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU and deviceFeatures.geometryShader;
 
-         return deviceProperties.deviceType == deviceFeatures.geometryShader;
+         // return deviceProperties.deviceType == deviceFeatures.geometryShader;
+
+         QueueFamilyIndices indices = findQueueFamilies(device);
+
+         return indices.isComplete();
     };
 
     for (const auto& device: devices) {
@@ -98,12 +119,45 @@ void VulkanDemoApplication::pickPhysicalDevice() {
     }
 }
 
+void VulkanDemoApplication::createLogicalDevice() {
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+    VkDeviceQueueCreateInfo queueCreateInfo {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    queueCreateInfo.queueCount = 1;
+
+    VkPhysicalDeviceFeatures deviceFeatures{};
+
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.enabledExtensionCount = 0;
+
+    if (enableValidationLayers) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    } else {
+        createInfo.enabledLayerCount = 0;
+    }
+
+    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create logical device");
+    }
+
+    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+}
+
 void VulkanDemoApplication::init_vulkan() {
     createInstance();
     pickPhysicalDevice();
+    createLogicalDevice();
 }
 
 void VulkanDemoApplication::clean_up() {
+    vkDestroyDevice(device, nullptr);
     vkDestroyInstance(instance, nullptr);
 
     glfwDestroyWindow(window);

@@ -1,10 +1,19 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 #include "glm/glm.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "glfw/glfw3.h"
+
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+
+    bool isComplete() {
+        return graphicsFamily.has_value();
+    }
+};
 
 class VulkanDemoApplication {
 private:
@@ -24,6 +33,9 @@ private:
 #endif
 
     VkInstance instance;
+    VkPhysicalDevice physicalDevice { VK_NULL_HANDLE };
+    VkDevice device;
+    VkQueue graphicsQueue;
 
     void init_window() {
         glfwInit();
@@ -36,8 +48,11 @@ private:
 
     bool checkValidationLayerSupport();
 
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
     void createInstance();
     void pickPhysicalDevice();
+    void createLogicalDevice();
 
     void init_vulkan();
 
