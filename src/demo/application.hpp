@@ -1,4 +1,6 @@
 #pragma once
+
+#include <vector>
 #include "glm/glm.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -11,6 +13,16 @@ private:
     const uint32_t WIDTH = 800;
     const uint32_t HEIGHT = 600;
 
+    const std::vector<const char*> validationLayers {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+#ifdef NDEBUG
+    const bool enableValidationLayers { false };
+#else
+    const bool enableValidationLayers { true };
+#endif
+
     VkInstance instance;
 
     void init_window() {
@@ -22,7 +34,10 @@ private:
         window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
     }
 
+    bool checkValidationLayerSupport();
+
     void createInstance();
+    void pickPhysicalDevice();
 
     void init_vulkan();
 
