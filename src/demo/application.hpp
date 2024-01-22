@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <optional>
-#include "glm/glm.hpp"
+#include "glm/ext.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
