@@ -20,6 +20,7 @@ set(VK_SDK_INCLUDE ${VK_SDK_PATH}/Include)
 set(VK_SDK_LIB ${VK_SDK_PATH}/Lib/vulkan-1.lib)
 
 add_subdirectory(src/demo)
+add_subdirectory(src/vkl)
 
 target_link_libraries(demo glfw glm ${VK_SDK_LIB})
 
