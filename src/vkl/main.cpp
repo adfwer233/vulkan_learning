@@ -8,11 +8,12 @@
  * The aim of this project is learning vulkan programming, from graphics pipeline to parallel programming using compute
  * shader.
  *
- * # Subpages
- * - \subpage createWindowPage "Creating a window"
+ * # Current Features
+ * - Creating a window
+ * - Physical Devices and Queue Families
  *
  * # Note pages
- * - \subpage notePage1 "Testing Note Page"
+ * - \subpage createWindowPage "Creating a window"
  * - \subpage devicePage "Vulkan Device Introduction"
  */
 
@@ -25,7 +26,10 @@
 /**
  * \page createWindowPage Creating a window
  *
- * Creating a window introduction
+ * To Create a window, we should create a GLFW window and create a vulkan instance.
+ *
+ * We created two class, `VklWindow` and `VklDevice`. Following standard RAII paradigm, we create GLFW window and vulkan
+ * instance in their constructors.
  */
 
 int main() {

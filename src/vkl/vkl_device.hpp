@@ -11,9 +11,22 @@
  *
  * ## Concepts
  *  - Instance
- *      -
- *  - Engine
+ *      - Instance connects application with vulkan library.
  *  - Extension
+ *      - i.e. additional features, such as enable validation layer
+ *
+ *  ## Initialization
+ *
+ *  ### Create Instance
+ *
+ *  When we want to create a "device" instance, the first step is creating a vulkan instance.
+ *
+ *  To create a vulkan instance, i.e. `VkInstance`, we should create a `VkInstanceCreateInfo` struct and fill it, telling
+ *  vulkan engine some messages
+ *
+ *  - Basic application information
+ *  - Required extensions such as validation layer
+ *  - Debug messenger we are going to use
  */
 
 /**
