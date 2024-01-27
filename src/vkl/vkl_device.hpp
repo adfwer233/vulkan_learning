@@ -27,7 +27,38 @@
  *  - Basic application information
  *  - Required extensions such as validation layer
  *  - Debug messenger we are going to use
+ *
+ *  ### Physical Device and Logical Device
+ *
+ *  **Queue Families**: In vulkan, almost every operation should be done through a queue and there are different type
+ *  of queues. Each family of queues allows only a subset of commands. Hence we should query if our devices support
+ *  queue families we want to use.
+ *
+ *  \note Pick Physical Device
+ *
+ *  In this step, we traverse all physical device and pick one satisfying our requirement.
+ *
+ *  \note Create Logical Device
+ *
+ *  Firstly, we get all queue family properties. Then find the indice of graphics queue and present queue.
+ *  With these indices, we can fill a create info struct `VkDeviceCreateInfo` and invoke `vkCreateDevice` to create
+ *  logical device.
+ *
+ *
  */
+
+/**
+ * @brire Queue Family Indices
+ */
+struct QueueFamilyIndices {
+    uint32_t graphicsFamily;
+    uint32_t presentFamily;
+    bool graphicsFamilyHasValue = false;
+    bool presentFamilyHasValue = false;
+    bool isComplete() {
+        return graphicsFamilyHasValue && presentFamilyHasValue;
+    }
+};
 
 /**
  * @brief Vulkan device
@@ -47,6 +78,8 @@ class vklDevice {
     VkQueue graphicsQueue_; /** Graphic Queue  */
     VkQueue presentQueue_;  /** Present Queue  */
 
+    VkPhysicalDeviceProperties properties_; /** Physical device properties */
+
     /**
      * @brief Required Validation Layers
      */
@@ -64,9 +97,16 @@ class vklDevice {
      */
     void createInstance();
     void setupDebugMessenger();
+    void pickPhysicalDevice();
+    void createLogicalDevice();
 
-    std::vector<const char *> getRequiredExtensions() const;
+    [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
 
+    bool isDeviceSuitable(VkPhysicalDevice device);
+
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT createInfo);
 
   public:

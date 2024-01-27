@@ -128,6 +128,7 @@ QueueFamilyIndices VulkanDemoApplication::findQueueFamilies(VkPhysicalDevice dev
 }
 
 VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
+    return VkSurfaceFormatKHR{};
 }
 
 void VulkanDemoApplication::pickPhysicalDevice() {
