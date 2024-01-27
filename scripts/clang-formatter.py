@@ -20,7 +20,7 @@ for dir in target_dirs:
 def run_clang_format(file_list):
     for file_path in file_list:
         print(file_list)
-        subprocess.call(["clang-format", "-i", file_path, "--style=google"])
+        subprocess.call(["clang-format", "-i", file_path, "--style=file"])
 
 
 def split_list_generator(listTemp, n):

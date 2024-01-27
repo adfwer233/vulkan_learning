@@ -3,9 +3,10 @@ project(vkl VERSION 1.0 DESCRIPTION "VulkanLearning" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_FILE main.cpp
-        vklWindow.cpp
+        vkl_window.cpp
         application.cpp
-        vklInstance.cpp)
+        vkl_device.cpp
+)
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
 

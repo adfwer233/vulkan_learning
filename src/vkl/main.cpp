@@ -1,5 +1,5 @@
+#include "application.hpp"
 #include "iostream"
-
 /**
  * \mainpage Learning Vulkan Project
  *
@@ -13,6 +13,7 @@
  *
  * # Note pages
  * - \subpage notePage1 "Testing Note Page"
+ * - \subpage devicePage "Vulkan Device Introduction"
  */
 
 /**
@@ -28,5 +29,14 @@
  */
 
 int main() {
+    Application app{};
 
+    try {
+        app.run();
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    return 0;
 }

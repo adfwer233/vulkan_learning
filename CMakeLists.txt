@@ -23,6 +23,7 @@ add_subdirectory(src/demo)
 add_subdirectory(src/vkl)
 
 target_link_libraries(demo glfw glm ${VK_SDK_LIB})
+target_link_libraries(vkl glfw glm ${VK_SDK_LIB})
 
 message(STATUS "Build documentation open")
 include(build-doxygen)

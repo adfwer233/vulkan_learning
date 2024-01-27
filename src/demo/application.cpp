@@ -1,9 +1,12 @@
-#include <stdexcept>
-#include <set>
 #include "application.hpp"
 
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+#include <set>
+#include <stdexcept>
+
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                      const VkAllocationCallbacks *pAllocator,
+                                      VkDebugUtilsMessengerEXT *pDebugMessenger) {
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     } else {
@@ -11,15 +14,17 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMes
     }
 }
 
-void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+                                   const VkAllocationCallbacks *pAllocator) {
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
     }
 }
 
 void VulkanDemoApplication::setupDebugMessenger() {
-    if (!enableValidationLayers) return;
+    if (!enableValidationLayers)
+        return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
@@ -47,12 +52,12 @@ void VulkanDemoApplication::createInstance() {
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    auto getRequiredExtensions = [&]() -> std::vector<const char*>  {
+    auto getRequiredExtensions = [&]() -> std::vector<const char *> {
         uint32_t glfwExtensionCount = 0;
-        const char** glfwExtensions;
+        const char **glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+        std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
         if (enableValidationLayers) {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -71,28 +76,27 @@ void VulkanDemoApplication::createInstance() {
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
     } else {
         createInfo.enabledLayerCount = 0;
         createInfo.pNext = nullptr;
     }
-
 
     if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
         throw std::runtime_error("failed to create instance!");
     }
 }
 
-bool VulkanDemoApplication::checkValidationLayerSupport()  {
+bool VulkanDemoApplication::checkValidationLayerSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    for (const auto& layerName: validationLayers) {
+    for (const auto &layerName : validationLayers) {
         bool layerFound = false;
-        for (const auto& layerProperties: availableLayers) {
+        for (const auto &layerProperties : availableLayers) {
             if (std::string_view(layerName) == std::string_view(layerProperties.layerName)) {
                 layerFound = true;
                 break;
@@ -113,7 +117,7 @@ QueueFamilyIndices VulkanDemoApplication::findQueueFamilies(VkPhysicalDevice dev
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    for (int i = 0; const auto &queueFamily: queueFamilies) {
+    for (int i = 0; const auto &queueFamily : queueFamilies) {
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             indices.graphicsFamily = i;
         }
@@ -123,8 +127,7 @@ QueueFamilyIndices VulkanDemoApplication::findQueueFamilies(VkPhysicalDevice dev
     return indices;
 }
 
-VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats){
-
+VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
 }
 
 void VulkanDemoApplication::pickPhysicalDevice() {
@@ -146,7 +149,7 @@ void VulkanDemoApplication::pickPhysicalDevice() {
 
         std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-        for (const auto& extension: availableExtensions) {
+        for (const auto &extension : availableExtensions) {
             requiredExtensions.erase(extension.extensionName);
         }
 
@@ -161,7 +164,7 @@ void VulkanDemoApplication::pickPhysicalDevice() {
         uint32_t formatCount;
         vkGetPhysicalDeviceSurfaceFormatsKHR(t_device, surface, &formatCount, nullptr);
 
-        if (formatCount != 0){
+        if (formatCount != 0) {
             details.formats.resize(formatCount);
             vkGetPhysicalDeviceSurfaceFormatsKHR(t_device, surface, &formatCount, details.formats.data());
         }
@@ -171,7 +174,8 @@ void VulkanDemoApplication::pickPhysicalDevice() {
 
         if (presentModeCount != 0) {
             details.presentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(t_device, surface, &presentModeCount, details.presentModes.data());
+            vkGetPhysicalDeviceSurfacePresentModesKHR(t_device, surface, &presentModeCount,
+                                                      details.presentModes.data());
         }
 
         return details;
@@ -194,10 +198,10 @@ void VulkanDemoApplication::pickPhysicalDevice() {
             swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
         }
 
-         return indices.isComplete() and extensionsSupported and swapChainAdequate;
+        return indices.isComplete() and extensionsSupported and swapChainAdequate;
     };
 
-    for (const auto& device_item: devices) {
+    for (const auto &device_item : devices) {
         if (isDeviceSuitable(device_item)) {
             physicalDevice = device_item;
             break;
@@ -213,7 +217,7 @@ void VulkanDemoApplication::createLogicalDevice() {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     float queuePriorities = 1.0f;
-    VkDeviceQueueCreateInfo queueCreateInfo {};
+    VkDeviceQueueCreateInfo queueCreateInfo{};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
     queueCreateInfo.queueCount = 1;
@@ -272,4 +276,3 @@ void VulkanDemoApplication::clean_up() {
 
     glfwTerminate();
 }
-
