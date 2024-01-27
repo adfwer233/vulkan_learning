@@ -51,11 +51,52 @@ void vklDevice::createInstance() {
     }
 }
 
+/**
+ * @brief Destroy debug utils messenger
+ * @param instance
+ * @param debugMessenger
+ * @param pAllocator
+ */
 void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                    const VkAllocationCallbacks *pAllocator) {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
+    }
+}
+
+/**
+ * @brief Create Debug Utils Messenger
+ *
+ * \note Why not directly call function `vkCreateDebugUtilsMessengerEXT`?
+ *
+ * Because this function is a extension function and it is not automatically load, we have to loop its address manually,
+ * which can be done by function `vkGetInstanceProcAddr`
+ *
+ * @param instance
+ * @param pCreateInfo
+ * @param pAllocator
+ * @param pDebugMessenger
+ * @return
+ */
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                      const VkAllocationCallbacks *pAllocator,
+                                      VkDebugUtilsMessengerEXT *pDebugMessenger) {
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    } else {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+}
+
+void vklDevice::setupDebugMessenger() {
+    if (!enableValidationLayers)
+        return;
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
+    if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr, &debugMessenger_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to set up debug messenger!");
     }
 }
 
@@ -72,6 +113,7 @@ vklDevice::~vklDevice() {
 
 vklDevice::vklDevice(vklWindow &window) : window_(window) {
     createInstance();
+    setupDebugMessenger();
 }
 
 /**
