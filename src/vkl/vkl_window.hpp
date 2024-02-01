@@ -11,7 +11,7 @@
  * ## Encapsulation
  */
 
-class vklWindow {
+class VklWindow {
   private:
     uint32_t width_;
     uint32_t height_;
@@ -19,7 +19,9 @@ class vklWindow {
     GLFWwindow *window_{nullptr};
 
   public:
-    vklWindow(int w, int h);
+    VklWindow(int w, int h);
+
+    void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
 
     GLFWwindow *getGLFWwindow() const {
         return this->window_;

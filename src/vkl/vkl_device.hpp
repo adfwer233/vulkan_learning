@@ -61,16 +61,25 @@ struct QueueFamilyIndices {
 };
 
 /**
+ * @brief Swap Chain Support Details
+ */
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
+/**
  * @brief Vulkan device
  */
-class vklDevice {
+class VklDevice {
   private:
     const bool enableValidationLayers = true;
 
     VkInstance instance_;                     /**< Vulkan Instance */
     VkDebugUtilsMessengerEXT debugMessenger_; /** Vulkan Debug Messenger */
     VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
-    vklWindow &window_;         /** Pointer to encapsulated vulkan window */
+    VklWindow &window_;         /** Pointer to encapsulated vulkan window */
     VkCommandPool commandPool_; /** Command Pool */
 
     VkDevice device_;       /** Logical Device */
@@ -97,6 +106,7 @@ class vklDevice {
      */
     void createInstance();
     void setupDebugMessenger();
+    void createSurface();
     void pickPhysicalDevice();
     void createLogicalDevice();
 
@@ -109,15 +119,17 @@ class vklDevice {
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT createInfo);
 
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
   public:
-    explicit vklDevice(vklWindow &window);
-    ~vklDevice();
+    explicit VklDevice(VklWindow &window);
+    ~VklDevice();
 
     // Not copyable or movable
-    vklDevice(const vklDevice &) = delete;
-    vklDevice &operator=(const vklDevice &) = delete;
-    vklDevice(vklDevice &&) = delete;
-    vklDevice &operator=(vklDevice &&) = delete;
+    VklDevice(const VklDevice &) = delete;
+    VklDevice &operator=(const VklDevice &) = delete;
+    VklDevice(VklDevice &&) = delete;
+    VklDevice &operator=(VklDevice &&) = delete;
 
     VkCommandPool getCommandPool() {
         return commandPool_;
@@ -133,5 +145,13 @@ class vklDevice {
     }
     VkQueue presentQueue() {
         return presentQueue_;
+    }
+
+    SwapChainSupportDetails getSwapChainSupport() {
+        return querySwapChainSupport(physicalDevice_);
+    }
+
+    QueueFamilyIndices findPhysicalQueueFamilies() {
+        return findQueueFamilies(physicalDevice_);
     }
 };

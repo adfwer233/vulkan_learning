@@ -3,7 +3,7 @@
 #include <set>
 #include <stdexcept>
 
-void vklDevice::createInstance() {
+void VklDevice::createInstance() {
 
     /*
      * Create VkApplicationInfo
@@ -92,17 +92,17 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMes
     }
 }
 
-void vklDevice::setupDebugMessenger() {
+void VklDevice::setupDebugMessenger() {
     if (!enableValidationLayers)
         return;
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    VkDebugUtilsMessengerCreateInfoEXT createInfo {};
     populateDebugMessengerCreateInfo(createInfo);
     if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr, &debugMessenger_) != VK_SUCCESS) {
         throw std::runtime_error("failed to set up debug messenger!");
     }
 }
 
-vklDevice::~vklDevice() {
+VklDevice::~VklDevice() {
     vkDestroyDevice(device_, nullptr);
 
     if (enableValidationLayers) {
@@ -113,9 +113,10 @@ vklDevice::~vklDevice() {
     vkDestroyInstance(instance_, nullptr);
 }
 
-vklDevice::vklDevice(vklWindow &window) : window_(window) {
+VklDevice::VklDevice(VklWindow &window) : window_(window) {
     createInstance();
     setupDebugMessenger();
+    createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
 }
@@ -128,7 +129,7 @@ vklDevice::vklDevice(vklWindow &window) : window_(window) {
  *
  * @return required extensions
  */
-std::vector<const char *> vklDevice::getRequiredExtensions() const {
+std::vector<const char *> VklDevice::getRequiredExtensions() const {
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -146,7 +147,7 @@ std::vector<const char *> vklDevice::getRequiredExtensions() const {
  * @brief Auxiliary function, populate the debug messenger create info
  * @param createInfo
  */
-void vklDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT createInfo) {
+void VklDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT createInfo) {
     createInfo = {};
 
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -160,7 +161,7 @@ void vklDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfo
     createInfo.pUserData = nullptr;
 }
 
-bool vklDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+bool VklDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -176,13 +177,22 @@ bool vklDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     return requiredExtensions.empty();
 }
 
-bool vklDevice::isDeviceSuitable(VkPhysicalDevice device) {
+bool VklDevice::isDeviceSuitable(VkPhysicalDevice device) {
+    QueueFamilyIndices indices = findQueueFamilies(device);
+
     bool extensionsSupported = checkDeviceExtensionSupport(device);
 
-    return extensionsSupported;
+    bool swapChainAdequate = false;
+
+    if (extensionsSupported) {
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
-void vklDevice::pickPhysicalDevice() {
+void VklDevice::pickPhysicalDevice() {
 
     // enumerate physical devices
 
@@ -210,7 +220,7 @@ void vklDevice::pickPhysicalDevice() {
     std::cout << "physical device: " << properties_.deviceName << std::endl;
 }
 
-QueueFamilyIndices vklDevice::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices VklDevice::findQueueFamilies(VkPhysicalDevice device) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -238,7 +248,7 @@ QueueFamilyIndices vklDevice::findQueueFamilies(VkPhysicalDevice device) {
     return indices;
 }
 
-void vklDevice::createLogicalDevice() {
+void VklDevice::createLogicalDevice() {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice_);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -280,4 +290,33 @@ void vklDevice::createLogicalDevice() {
 
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+}
+
+void VklDevice::createSurface() {
+    window_.createWindowSurface(instance_, &surface_);
+}
+
+SwapChainSupportDetails VklDevice::querySwapChainSupport(VkPhysicalDevice device) {
+    SwapChainSupportDetails details;
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice_, surface_, &details.capabilities);
+
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice_, surface_, &formatCount, nullptr);
+
+    if (formatCount != 0) {
+        details.formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice_, surface_, &formatCount, details.formats.data());
+    }
+
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice_, surface_, &presentModeCount, nullptr);
+
+    if (presentModeCount != 0) {
+        details.presentModes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice_, surface_, &presentModeCount,
+                                                  details.presentModes.data());
+    }
+
+    return details;
 }

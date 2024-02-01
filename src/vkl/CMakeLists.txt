@@ -6,6 +6,7 @@ set(SRC_FILE main.cpp
         vkl_window.cpp
         application.cpp
         vkl_device.cpp
+        vkl_swap_chain.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
