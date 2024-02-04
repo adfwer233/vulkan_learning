@@ -38,10 +38,10 @@ void VklSwapChain::createSwapChain() {
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
     createInfo.imageExtent = extent2D;
 
-    /** specifies the amount of layers each image consist of, always 1 unless in a stereoscopic 3D application*/
+    /* specifies the amount of layers each image consist of, always 1 unless in a stereoscopic 3D application*/
     createInfo.imageArrayLayers = 1;
 
-    /**
+    /*
      * specifies what kind of operations we’ll use the images in the swap chain for.
      *
      * In this case, we are rendering the image. In some other cases such as post-processing, we can use
@@ -53,12 +53,12 @@ void VklSwapChain::createSwapChain() {
     uint32_t queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
 
     if (indices.graphicsFamily != indices.presentFamily) {
-        /** Image can be owned by more than one swap chain*/
+        /* Image can be owned by more than one swap chain*/
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         createInfo.queueFamilyIndexCount = 2;
         createInfo.pQueueFamilyIndices = queueFamilyIndices;
     } else {
-        /** Image can by owned by only one swap chain */
+        /* Image can be owned by only one swap chain */
         createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
         createInfo.queueFamilyIndexCount = 0;     // Optional
         createInfo.pQueueFamilyIndices = nullptr; // Optional
@@ -66,7 +66,7 @@ void VklSwapChain::createSwapChain() {
 
     createInfo.preTransform = swapChainSupportDetails.capabilities.currentTransform;
 
-    /** if alpha bit should be used */
+    /* if alpha bit should be used */
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
     createInfo.presentMode = presentMode;

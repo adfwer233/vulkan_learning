@@ -4,6 +4,15 @@
 
 #include "memory"
 
+/** \page swapChainPage Vulkan Swap Chain
+ * ## Introduction
+ *
+ * ##
+ */
+
+/**
+ * @brief Vulkan swap chain encapsulation
+ */
 class VklSwapChain {
   private:
     /** reference to logical device*/

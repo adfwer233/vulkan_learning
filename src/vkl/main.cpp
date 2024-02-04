@@ -15,6 +15,7 @@
  * # Note pages
  * - \subpage createWindowPage "Creating a window"
  * - \subpage devicePage "Vulkan Device Introduction"
+ * - \subpage swapChainPage "Vulkan Swap Chain"
  */
 
 /**
