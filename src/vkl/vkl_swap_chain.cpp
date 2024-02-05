@@ -2,17 +2,18 @@
 
 #include <iostream>
 
-VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent): device_(device), windowExtent_(windowExtent) {
+VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent) : device_(device), windowExtent_(windowExtent) {
     init();
 }
 
-VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent, std::shared_ptr<VklSwapChain> previous): device_(device), windowExtent_(windowExtent), oldSwapChain_(previous) {
+VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent, std::shared_ptr<VklSwapChain> previous)
+    : device_(device), windowExtent_(windowExtent), oldSwapChain_(previous) {
     init();
     oldSwapChain_ = nullptr;
 }
 
 VklSwapChain::~VklSwapChain() {
-
+    vkDestroySwapchainKHR(device_.device(), swapChain_, nullptr);
 }
 
 void VklSwapChain::createSwapChain() {
@@ -29,7 +30,7 @@ void VklSwapChain::createSwapChain() {
         imageCount = swapChainSupportDetails.capabilities.maxImageCount;
     }
 
-    VkSwapchainCreateInfoKHR createInfo;
+    VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = device_.surface();
 

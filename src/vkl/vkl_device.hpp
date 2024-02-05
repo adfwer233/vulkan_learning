@@ -117,7 +117,7 @@ class VklDevice {
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT createInfo);
+    static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 

@@ -55,7 +55,6 @@ class VklSwapChain {
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
   public:
-
     VklSwapChain(VklDevice &device, VkExtent2D windowExtent);
     VklSwapChain(VklDevice &deviceRef, VkExtent2D windowExtent, std::shared_ptr<VklSwapChain> previous);
 

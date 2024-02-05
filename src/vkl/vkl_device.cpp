@@ -3,13 +3,25 @@
 #include <set>
 #include <stdexcept>
 
+/**
+ * @brief local callback function, debug messenger callback
+ */
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                    VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                    void *pUserData) {
+    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+    return VK_FALSE;
+}
+
 void VklDevice::createInstance() {
 
     /*
      * Create VkApplicationInfo
      */
 
-    VkApplicationInfo applicationInfo;
+    VkApplicationInfo applicationInfo = {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.apiVersion = VK_API_VERSION_1_3;
     applicationInfo.pApplicationName = "Learn Vulkan";
@@ -21,7 +33,7 @@ void VklDevice::createInstance() {
      * Initialize VkInstanceCreateInfo
      */
 
-    VkInstanceCreateInfo instanceCreateInfo;
+    VkInstanceCreateInfo instanceCreateInfo = {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
@@ -33,18 +45,17 @@ void VklDevice::createInstance() {
      * Initialize VkDebugUtilsMessengerCreateInfoEXT
      */
 
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-    debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
 
     if (enableValidationLayers) {
-        instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(validationLayers.size());
-        instanceCreateInfo.ppEnabledExtensionNames = validationLayers.data();
+        instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
         instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
     } else {
-        instanceCreateInfo.enabledExtensionCount = 0;
-        instanceCreateInfo.ppEnabledExtensionNames = nullptr;
+        instanceCreateInfo.enabledLayerCount = 0;
+        instanceCreateInfo.ppEnabledLayerNames = nullptr;
         instanceCreateInfo.pNext = nullptr;
     }
 
@@ -95,7 +106,7 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMes
 void VklDevice::setupDebugMessenger() {
     if (!enableValidationLayers)
         return;
-    VkDebugUtilsMessengerCreateInfoEXT createInfo {};
+    VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
     if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr, &debugMessenger_) != VK_SUCCESS) {
         throw std::runtime_error("failed to set up debug messenger!");
@@ -147,7 +158,7 @@ std::vector<const char *> VklDevice::getRequiredExtensions() const {
  * @brief Auxiliary function, populate the debug messenger create info
  * @param createInfo
  */
-void VklDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT createInfo) {
+void VklDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
     createInfo = {};
 
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -157,8 +168,8 @@ void VklDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfo
                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
-    createInfo.pfnUserCallback = nullptr;
-    createInfo.pUserData = nullptr;
+    createInfo.pfnUserCallback = debugCallback;
+    createInfo.pNext = nullptr;
 }
 
 bool VklDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
@@ -299,23 +310,22 @@ void VklDevice::createSurface() {
 SwapChainSupportDetails VklDevice::querySwapChainSupport(VkPhysicalDevice device) {
     SwapChainSupportDetails details;
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice_, surface_, &details.capabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_, &details.capabilities);
 
     uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice_, surface_, &formatCount, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &formatCount, nullptr);
 
     if (formatCount != 0) {
         details.formats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice_, surface_, &formatCount, details.formats.data());
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &formatCount, details.formats.data());
     }
 
     uint32_t presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice_, surface_, &presentModeCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_, &presentModeCount, nullptr);
 
     if (presentModeCount != 0) {
         details.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice_, surface_, &presentModeCount,
-                                                  details.presentModes.data());
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_, &presentModeCount, details.presentModes.data());
     }
 
     return details;
