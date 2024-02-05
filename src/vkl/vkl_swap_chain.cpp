@@ -13,7 +13,16 @@ VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent, std::shar
 }
 
 VklSwapChain::~VklSwapChain() {
+    for (auto imageView: swapChainImageViews_) {
+        vkDestroyImageView(device_.device(), imageView, nullptr);
+    }
+
     vkDestroySwapchainKHR(device_.device(), swapChain_, nullptr);
+}
+
+void VklSwapChain::init() {
+    createSwapChain();
+    createImageView();
 }
 
 void VklSwapChain::createSwapChain() {
@@ -87,10 +96,6 @@ void VklSwapChain::createSwapChain() {
     swapChainExtent_ = extent2D;
 }
 
-void VklSwapChain::init() {
-    createSwapChain();
-}
-
 VkSurfaceFormatKHR VklSwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
     for (const auto &availableFormat : availableFormats) {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
@@ -124,5 +129,27 @@ VkExtent2D VklSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabi
                                        std::min(capabilities.maxImageExtent.height, actualExtent.height));
 
         return actualExtent;
+    }
+}
+
+void VklSwapChain::createImageView() {
+    swapChainImageViews_.resize(swapChainImages_.size());
+
+    for (size_t i = 0; i < swapChainImages_.size(); i++) {
+        VkImageViewCreateInfo imageViewCreateInfo;
+        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        imageViewCreateInfo.image = swapChainImages_[i];
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        imageViewCreateInfo.format = swapChainImageFormat_;
+        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+        imageViewCreateInfo.subresourceRange.levelCount = 1;
+        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+        imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+        if (vkCreateImageView(device_.device(), &imageViewCreateInfo, nullptr, &swapChainImageViews_[i]) !=
+            VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture image view!");
+        }
     }
 }

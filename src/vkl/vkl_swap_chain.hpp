@@ -25,12 +25,25 @@ class VklSwapChain {
     std::shared_ptr<VklSwapChain> oldSwapChain_;
 
     std::vector<VkImage> swapChainImages_;
+    std::vector<VkImageView> swapChainImageViews_;
 
     VkFormat swapChainImageFormat_;
     VkExtent2D swapChainExtent_;
 
+    /**
+     * @brief initialize swap chain
+     */
     void init();
+
+    /**
+     * @brief Create swap chain
+     */
     void createSwapChain();
+
+    /**
+     * @brief Create image view
+     */
+    void createImageView();
 
     /**
      * @brief auxiliary function,  choose swap surface format form a vector
