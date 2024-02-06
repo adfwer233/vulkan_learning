@@ -109,6 +109,7 @@ class VklDevice {
     void createSurface();
     void pickPhysicalDevice();
     void createLogicalDevice();
+    void createCommandPool();
 
     [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
 

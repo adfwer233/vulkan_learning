@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vkl_device.hpp"
-#include "vkl_swap_chain.hpp"
+#include "vkl_renderer.hpp"
 #include "vkl_window.hpp"
 class Application {
   private:
@@ -10,7 +10,7 @@ class Application {
 
     VklWindow window_{WIDTH, HEIGHT};
     VklDevice device_;
-    VklSwapChain swapChain_{device_, VkExtent2D(WIDTH, HEIGHT)};
+    VklRenderer renderer_{window_, device_};
 
   public:
     Application()

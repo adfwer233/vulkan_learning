@@ -19,7 +19,7 @@ class VklRenderer {
     void recreateSwapChain();
 
   public:
-    VklRenderer(VklWindow &window, VklDevice device);
+    VklRenderer(VklWindow &window, VklDevice &device);
     ~VklRenderer();
 
     VklRenderer(const VklRenderer &) = delete;
