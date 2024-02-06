@@ -24,6 +24,8 @@ class VklSwapChain {
     VkSwapchainKHR swapChain_;
     std::shared_ptr<VklSwapChain> oldSwapChain_;
 
+    VkRenderPass renderPass_;
+
     std::vector<VkImage> swapChainImages_;
     std::vector<VkImageView> swapChainImageViews_;
 
@@ -44,6 +46,11 @@ class VklSwapChain {
      * @brief Create image view
      */
     void createImageView();
+
+    /**
+     * @brief Create render pass (step 3)
+     */
+    void createRenderPass();
 
     /**
      * @brief auxiliary function,  choose swap surface format form a vector
