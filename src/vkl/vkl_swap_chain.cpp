@@ -14,7 +14,7 @@ VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent, std::shar
 }
 
 VklSwapChain::~VklSwapChain() {
-    for (auto imageView: swapChainImageViews_) {
+    for (auto imageView : swapChainImageViews_) {
         vkDestroyImageView(device_.device(), imageView, nullptr);
     }
 
