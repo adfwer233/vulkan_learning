@@ -48,10 +48,10 @@ class VklGraphicsPipeline {
 
     ~VklGraphicsPipeline();
 
-    VklGraphicsPipeline(const VklGraphicsPipeline&) = delete;
-    VklGraphicsPipeline& operator=(const VklGraphicsPipeline&) = delete;
+    VklGraphicsPipeline(const VklGraphicsPipeline &) = delete;
+    VklGraphicsPipeline &operator=(const VklGraphicsPipeline &) = delete;
 
     void bind(VkCommandBuffer commandBuffer);
 
-    static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
+    static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
 };

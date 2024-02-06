@@ -90,5 +90,21 @@ class VklSwapChain {
     VklSwapChain(const VklSwapChain &) = delete;
     VklSwapChain &operator=(const VklSwapChain &) = delete;
 
+    VkFramebuffer getFrameBuffer(int index) {
+        return swapChainFrameBuffers_[index];
+    }
+
+    VkRenderPass getRenderPass() {
+        return renderPass_;
+    }
+
+    VkImageView getImageView(int index) {
+        return swapChainImageViews_[index];
+    }
+
+    float extentAspectRatio() {
+        return static_cast<float>(swapChainExtent_.width) / static_cast<float>(swapChainExtent_.height);
+    }
+
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 };

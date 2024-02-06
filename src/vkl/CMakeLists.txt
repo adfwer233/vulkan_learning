@@ -8,6 +8,7 @@ set(SRC_FILE main.cpp
         vkl_device.cpp
         vkl_swap_chain.cpp
         vkl_graphics_pipeline.cpp
+        vkl_renderer.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})

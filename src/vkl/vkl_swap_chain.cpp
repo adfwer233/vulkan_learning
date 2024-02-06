@@ -18,7 +18,7 @@ VklSwapChain::~VklSwapChain() {
         vkDestroyImageView(device_.device(), imageView, nullptr);
     }
 
-    for (auto frameBuffer: swapChainFrameBuffers_) {
+    for (auto frameBuffer : swapChainFrameBuffers_) {
         vkDestroyFramebuffer(device_.device(), frameBuffer, nullptr);
     }
 
@@ -221,11 +221,8 @@ void VklSwapChain::createFrameBuffers() {
         framebufferInfo.height = swapChainExtent.height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(
-                device_.device(),
-                &framebufferInfo,
-                nullptr,
-                &swapChainFrameBuffers_[i]) != VK_SUCCESS) {
+        if (vkCreateFramebuffer(device_.device(), &framebufferInfo, nullptr, &swapChainFrameBuffers_[i]) !=
+            VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
