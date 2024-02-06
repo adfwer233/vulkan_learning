@@ -32,6 +32,8 @@ class VklSwapChain {
     VkFormat swapChainImageFormat_;
     VkExtent2D swapChainExtent_;
 
+    std::vector<VkFramebuffer> swapChainFrameBuffers_;
+
     /**
      * @brief initialize swap chain
      */
@@ -51,6 +53,11 @@ class VklSwapChain {
      * @brief Create render pass (step 3)
      */
     void createRenderPass();
+
+    /**
+     * @brief Create frame buffers (step 4)
+     */
+    void createFrameBuffers();
 
     /**
      * @brief auxiliary function,  choose swap surface format form a vector
