@@ -44,4 +44,9 @@ class VklRenderer {
         assert(isFrameStarted && "Cannot get frame index when frame not in progress");
         return currentFrameIndex;
     }
+
+    VkCommandBuffer beginFrame();
+    void endFrame();
+    void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
+    void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 };

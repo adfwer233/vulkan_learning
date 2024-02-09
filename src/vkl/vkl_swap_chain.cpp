@@ -227,3 +227,59 @@ void VklSwapChain::createFrameBuffers() {
         }
     }
 }
+
+VkResult VklSwapChain::acquireNextImage(uint32_t *imageIndex) {
+    vkWaitForFences(device_.device(), 1, &inFlightFences_[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+
+    VkResult result = vkAcquireNextImageKHR(device_.device(), swapChain_, std::numeric_limits<uint64_t>::max(),
+                                            imageAvailableSemaphores_[currentFrame], VK_NULL_HANDLE, imageIndex);
+
+    return result;
+}
+VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
+    if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {
+        vkWaitForFences(device_.device(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);
+    }
+    imagesInFlight_[*imageIndex] = inFlightFences_[currentFrame];
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores_[currentFrame]};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = buffers;
+
+    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores_[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    vkResetFences(device_.device(), 1, &inFlightFences_[currentFrame]);
+
+    if (vkQueueSubmit(device_.graphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame]) !=
+        VK_SUCCESS) {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapChain_};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+
+    presentInfo.pImageIndices = imageIndex;
+
+    auto result = vkQueuePresentKHR(device_.presentQueue(), &presentInfo);
+
+    currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    return result;
+}

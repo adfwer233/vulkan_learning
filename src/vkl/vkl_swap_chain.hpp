@@ -34,6 +34,13 @@ class VklSwapChain {
 
     std::vector<VkFramebuffer> swapChainFrameBuffers_;
 
+    std::vector<VkSemaphore> imageAvailableSemaphores_;
+    std::vector<VkSemaphore> renderFinishedSemaphores_;
+    std::vector<VkFence> inFlightFences_;
+    std::vector<VkFence> imagesInFlight_;
+
+    size_t currentFrame = 0;
+
     /**
      * @brief initialize swap chain
      */
@@ -105,6 +112,11 @@ class VklSwapChain {
     float extentAspectRatio() {
         return static_cast<float>(swapChainExtent_.width) / static_cast<float>(swapChainExtent_.height);
     }
+
+    VkExtent2D getSwapChainExtent() { return swapChainExtent_; }
+
+    VkResult acquireNextImage(uint32_t *imageIndex);
+    VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 };
