@@ -103,6 +103,7 @@ void VklRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
+
 void VklRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 }

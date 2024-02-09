@@ -260,8 +260,7 @@ VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint
 
     vkResetFences(device_.device(), 1, &inFlightFences_[currentFrame]);
 
-    if (vkQueueSubmit(device_.graphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame]) !=
-        VK_SUCCESS) {
+    if (vkQueueSubmit(device_.graphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 

@@ -113,7 +113,9 @@ class VklSwapChain {
         return static_cast<float>(swapChainExtent_.width) / static_cast<float>(swapChainExtent_.height);
     }
 
-    VkExtent2D getSwapChainExtent() { return swapChainExtent_; }
+    VkExtent2D getSwapChainExtent() {
+        return swapChainExtent_;
+    }
 
     VkResult acquireNextImage(uint32_t *imageIndex);
     VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
