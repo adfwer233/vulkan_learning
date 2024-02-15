@@ -1,5 +1,7 @@
 #include "vkl_renderer.hpp"
+
 #include <array>
+#include <iostream>
 #include <stdexcept>
 
 VklRenderer::VklRenderer(VklWindow &window, VklDevice &device) : window_(window), device_(device) {
@@ -14,6 +16,7 @@ VklRenderer::~VklRenderer() {
 }
 
 void VklRenderer::recreateSwapChain() {
+    swapChain_ = std::make_unique<VklSwapChain>(device_, window_.getExtent());
 }
 
 void VklRenderer::createCommandBuffers() {

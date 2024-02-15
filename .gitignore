@@ -1,3 +1,7 @@
+# complied shader
+
+**/*.spv
+
 .idea/
 build/
 cmake-build-*/

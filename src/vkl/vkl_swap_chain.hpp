@@ -67,6 +67,11 @@ class VklSwapChain {
     void createFrameBuffers();
 
     /**
+     * @brief Create Sync objects, such as semaphores...
+     */
+    void createSyncObjects();
+
+    /**
      * @brief auxiliary function,  choose swap surface format form a vector
      * @param availableFormats vector of VkSurfaceFormatKHR
      * @return

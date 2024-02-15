@@ -32,6 +32,7 @@ void VklSwapChain::init() {
     createImageView();
     createRenderPass();
     createFrameBuffers();
+    createSyncObjects();
 }
 
 void VklSwapChain::createSwapChain() {
@@ -228,6 +229,28 @@ void VklSwapChain::createFrameBuffers() {
     }
 }
 
+void VklSwapChain::createSyncObjects() {
+    imageAvailableSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
+    renderFinishedSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
+    inFlightFences_.resize(MAX_FRAMES_IN_FLIGHT);
+    imagesInFlight_.resize(swapChainImages_.size(), VK_NULL_HANDLE);
+
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo = {};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        if (vkCreateSemaphore(device_.device(), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(device_.device(), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
+            vkCreateFence(device_.device(), &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create synchronization objects for a frame!");
+        }
+    }
+}
+
 VkResult VklSwapChain::acquireNextImage(uint32_t *imageIndex) {
     vkWaitForFences(device_.device(), 1, &inFlightFences_[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
@@ -236,6 +259,7 @@ VkResult VklSwapChain::acquireNextImage(uint32_t *imageIndex) {
 
     return result;
 }
+
 VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
     if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device_.device(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);

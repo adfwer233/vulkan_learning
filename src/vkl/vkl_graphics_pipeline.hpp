@@ -3,10 +3,6 @@
 #include "string"
 #include "vkl_device.hpp"
 
-#ifndef ENGINE_DIR
-#define ENGINE_DIR "../"
-#endif
-
 struct PipelineConfigInfo {
     PipelineConfigInfo() = default;
     PipelineConfigInfo(const PipelineConfigInfo &) = delete;
@@ -31,7 +27,6 @@ struct PipelineConfigInfo {
 class VklGraphicsPipeline {
   private:
     VklDevice &device_;
-    VkPipeline graphicsPipeline_;
     VkShaderModule vertShaderModule_;
     VkShaderModule fragShaderModule_;
 
@@ -43,6 +38,8 @@ class VklGraphicsPipeline {
     std::vector<char> readFile(const std::string &filepath);
 
   public:
+    VkPipeline graphicsPipeline_;
+
     VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
                         const PipelineConfigInfo &configInfo);
 

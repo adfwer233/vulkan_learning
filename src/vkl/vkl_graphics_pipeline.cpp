@@ -16,7 +16,7 @@ VklGraphicsPipeline::~VklGraphicsPipeline() {
 }
 
 std::vector<char> VklGraphicsPipeline::readFile(const std::string &filepath) {
-    std::string enginePath = ENGINE_DIR + filepath;
+    std::string enginePath = filepath;
     std::ifstream file{enginePath, std::ios::ate | std::ios::binary};
 
     if (!file.is_open()) {
@@ -40,7 +40,7 @@ void VklGraphicsPipeline::createGraphicsPipeline(const std::string &vertFilepath
     auto fragCode = readFile(fragFilepath);
 
     createShaderModule(vertCode, &vertShaderModule_);
-    createShaderModule(fragCode, &vertShaderModule_);
+    createShaderModule(fragCode, &fragShaderModule_);
 
     VkPipelineShaderStageCreateInfo shaderStages[2];
     shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
