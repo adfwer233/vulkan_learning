@@ -2,6 +2,7 @@
 
 #include <array>
 #include <iostream>
+#include <numeric>
 
 VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent) : device_(device), windowExtent_(windowExtent) {
     init();
