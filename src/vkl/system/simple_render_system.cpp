@@ -7,6 +7,10 @@ SimpleRenderSystem::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPas
     createPipeline(renderPass);
 }
 
+SimpleRenderSystem::~SimpleRenderSystem() {
+    vkDestroyPipelineLayout(device_.device(), pipelineLayout_, nullptr);
+}
+
 void SimpleRenderSystem::createPipelineLayout() {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;

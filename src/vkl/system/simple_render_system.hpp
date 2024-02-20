@@ -30,5 +30,7 @@ class SimpleRenderSystem {
     SimpleRenderSystem(const SimpleRenderSystem &) = delete;
     SimpleRenderSystem operator=(const SimpleRenderSystem &) = delete;
 
+    ~SimpleRenderSystem();
+
     void renderObject();
 };

@@ -15,6 +15,14 @@ VklSwapChain::VklSwapChain(VklDevice &device, VkExtent2D windowExtent, std::shar
 }
 
 VklSwapChain::~VklSwapChain() {
+
+    // destroy the sync objects
+    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(device_.device(), this->imageAvailableSemaphores_[i], nullptr);
+        vkDestroySemaphore(device_.device(), this->renderFinishedSemaphores_[i], nullptr);
+        vkDestroyFence(device_.device(), this->inFlightFences_[i], nullptr);
+    }
+
     for (auto imageView : swapChainImageViews_) {
         vkDestroyImageView(device_.device(), imageView, nullptr);
     }

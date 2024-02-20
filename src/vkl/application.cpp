@@ -23,4 +23,6 @@ void Application::run() {
             renderer_.endFrame();
         }
     }
+
+    vkDeviceWaitIdle(device_.device());
 }
