@@ -11,6 +11,8 @@ set(SRC_FILE main.cpp
         vkl_renderer.cpp
         vkl_frame_info.hpp
         system/simple_render_system.cpp
+        vkl_model.cpp
+        vkl_buffer.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})

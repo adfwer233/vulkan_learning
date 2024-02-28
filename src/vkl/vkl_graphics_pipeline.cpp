@@ -1,4 +1,5 @@
 #include "vkl_graphics_pipeline.hpp"
+#include "vkl_model.hpp"
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -162,8 +163,8 @@ void VklGraphicsPipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configIn
     configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags = 0;
 
-    //    configInfo.bindingDescriptions = LveModel::Vertex::getBindingDescriptions();
-    //    configInfo.attributeDescriptions = LveModel::Vertex::getAttributeDescriptions();
+    configInfo.bindingDescriptions = VklModel::Vertex::getBindingDescriptions();
+    configInfo.attributeDescriptions = VklModel::Vertex::getAttributeDescriptions();
 }
 
 void VklGraphicsPipeline::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule) {

@@ -14,8 +14,8 @@
 
 class SimpleRenderSystem {
   private:
-    const std::string vertex_shader_path = std::format("{}/first_triangle_shader.vert.spv", SHADER_DIR);
-    const std::string fragment_shader_path = std::format("{}/first_triangle_shader.frag.spv", SHADER_DIR);
+    const std::string vertex_shader_path = std::format("{}/simple_shader.vert.spv", SHADER_DIR);
+    const std::string fragment_shader_path = std::format("{}/simple_shader.frag.spv", SHADER_DIR);
 
     VklDevice &device_;
     VkPipelineLayout pipelineLayout_;
