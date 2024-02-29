@@ -1,5 +1,3 @@
-#include <iostream>
-#include <format>
 #include "vkl_camera.hpp"
 
 /**
@@ -37,8 +35,6 @@ void Camera::process_keyboard(CameraMovement direction, float deltaTime) {
         position += camera_up_axis * velocity;
     if (direction == UP)
         position -= camera_up_axis * velocity;
-
-    std::cout << std::format("{} {} {} {}\n", position.x, position.y, position.z, deltaTime);
 
     update_camera_vectors();
 }
