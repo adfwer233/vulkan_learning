@@ -34,9 +34,9 @@ void Camera::process_keyboard(CameraMovement direction, float deltaTime) {
     if (direction == RIGHT)
         position += camera_right_axis * velocity;
     if (direction == DOWN)
-        position -= camera_up_axis * velocity;
-    if (direction == UP)
         position += camera_up_axis * velocity;
+    if (direction == UP)
+        position -= camera_up_axis * velocity;
 
     std::cout << std::format("{} {} {} {}\n", position.x, position.y, position.z, deltaTime);
 
@@ -64,7 +64,7 @@ void Camera::process_mouse_movement(float x_offset, float y_offset) {
     y_offset *= mouse_sensitivity;
 
     yaw += x_offset;
-    pitch += y_offset;
+    pitch -= y_offset;
 
     pitch = std::min(pitch, 89.0f);
     pitch = std::max(pitch, -89.0f);
