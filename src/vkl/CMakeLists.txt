@@ -13,6 +13,7 @@ set(SRC_FILE main.cpp
         system/simple_render_system.cpp
         vkl_model.cpp
         vkl_buffer.cpp
+        vkl_camera.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
