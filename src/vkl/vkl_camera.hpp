@@ -19,13 +19,13 @@ enum CameraMovement {
  * @brief Camera class for opengl
  */
 class Camera {
-private:
+  private:
     /**
      * @brief calculates the front vector from the Camera's (updated) Euler Angles
      */
     void update_camera_vectors();
 
-public:
+  public:
     /**
      * @brief position of camera in world coordinate
      */
@@ -82,7 +82,7 @@ public:
     const float mouse_sensitivity;
 
     Camera(glm::vec3 pos, glm::vec3 up, float t_yaw = default_yaw, float t_pitch = default_pitch)
-            : zoom(45), move_speed(2.5), mouse_sensitivity(0.1f) {
+        : zoom(45), move_speed(2.5), mouse_sensitivity(0.1f) {
         position = pos;
         camera_up_axis = up;
         yaw = t_yaw;
@@ -92,6 +92,8 @@ public:
     }
 
     glm::mat4 get_view_transformation() const;
+
+    glm::mat4 get_proj_transformation() const;
 
     /**
      * @brief update camera state with an offset given by mouse scroll

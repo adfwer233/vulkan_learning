@@ -53,4 +53,20 @@ class VklBuffer {
      * @param offset
      */
     void writeToBuffer(void *data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+
+    /**
+     * @brief flush buffer
+     * @param size
+     * @param offset
+     * @return
+     */
+    VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+
+    /**
+     * @brief
+     * @param size
+     * @param offset
+     * @return
+     */
+    VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 };

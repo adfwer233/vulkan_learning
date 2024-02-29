@@ -8,6 +8,10 @@ glm::mat4 Camera::get_view_transformation() const {
     return glm::lookAt(position, position + camera_front, camera_up_axis);
 }
 
+glm::mat4 Camera::get_proj_transformation() const {
+    return glm::perspective(glm::radians(this->zoom), 1.0f, 0.1f, 100.0f);
+}
+
 void Camera::process_mouse_scroll(float offset) {
     zoom -= (float)offset;
     if (zoom < 1.0f)
@@ -45,7 +49,7 @@ void Camera::update_camera_vectors() {
 
     // also re-calculate the Right and Up vector
     camera_right_axis =
-            glm::normalize(glm::cross(camera_front, world_up)); // normalize the vectors, because their length
+        glm::normalize(glm::cross(camera_front, world_up)); // normalize the vectors, because their length
     // gets closer to 0 the more you look up or
     // down which results in slower movement.
     camera_up_axis = glm::normalize(glm::cross(camera_right_axis, camera_front));

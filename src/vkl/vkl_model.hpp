@@ -48,8 +48,8 @@ class VklModel {
      * staging buffer: belong to cpu, used to upload data
      * vertex buffer: only visible to gpu, used in real graphics pipeline
      *
-     * Firstly, we create staging buffer, write data to it. Then create vertex buffer and copy data from the staging buffer
-     * to the vertex buffer.
+     * Firstly, we create staging buffer, write data to it. Then create vertex buffer and copy data from the staging
+     * buffer to the vertex buffer.
      *
      * @param vertices
      */
@@ -61,8 +61,8 @@ class VklModel {
      * staging buffer: belong to cpu, used to upload data
      * vertex buffer: only visible to gpu, used in real graphics pipeline
      *
-     * Firstly, we create staging buffer, write data to it. Then create vertex buffer and copy data from the staging buffer
-     * to the vertex buffer.
+     * Firstly, we create staging buffer, write data to it. Then create vertex buffer and copy data from the staging
+     * buffer to the vertex buffer.
      *
      * @param vertices
      */
