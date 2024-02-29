@@ -67,6 +67,12 @@ class VklModel {
      */
     void createIndexBuffers(const std::vector<uint32_t> &indices);
 
+    /**
+     * @brief create texture image
+     * @param texturePath
+     */
+    void createTextureImage(const std::string texturePath);
+
   public:
     VklModel(VklDevice &device, BuilderFromImmediateData builder);
 

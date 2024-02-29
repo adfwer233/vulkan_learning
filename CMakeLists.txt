@@ -11,6 +11,9 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(fetch-glfw)
 include(fetch-glm)
 include(fetch-assimp)
+include(fetch-stb)
+
+INCLUDE_DIRECTORIES(${stb_SOURCE_DIR})
 
 # set vulkan SDK
 if(NOT DEFINED ENV{VULKAN_SDK})

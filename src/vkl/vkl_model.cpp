@@ -1,4 +1,8 @@
+#include <stdexcept>
 #include "vkl_model.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 VklModel::VklModel(VklDevice &device, VklModel::BuilderFromImmediateData builder) : device_(device) {
     createVertexBuffers(builder.vertices);
@@ -47,6 +51,16 @@ void VklModel::createIndexBuffers(const std::vector<uint32_t> &indices) {
                                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     device_.copyBuffer(stagingBuffer.getBuffer(), indexBuffer_->getBuffer(), bufferSize);
+}
+
+void VklModel::createTextureImage(const std::string texturePath) {
+    int texWidth, texHeight, texChannels;
+    stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+    if (!pixels) {
+        throw std::runtime_error("failed to load texture image!");
+    }
 }
 
 void VklModel::bind(VkCommandBuffer commandBuffer) {
