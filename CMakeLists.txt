@@ -10,6 +10,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(fetch-glfw)
 include(fetch-glm)
+include(fetch-assimp)
 
 # set vulkan SDK
 if(NOT DEFINED ENV{VULKAN_SDK})
@@ -21,7 +22,7 @@ set(VK_SDK_LIB ${VK_SDK_PATH}/Lib/vulkan-1.lib)
 
 add_subdirectory(src/vkl)
 
-target_link_libraries(vkl glfw glm ${VK_SDK_LIB})
+target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp)
 
 message(STATUS "Build documentation open")
 include(build-doxygen)

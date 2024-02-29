@@ -29,7 +29,6 @@ class VklModel {
     struct BuilderFromImmediateData {
         std::vector<Vertex> vertices{};
         std::vector<uint32_t> indices{};
-        void build();
     };
 
   private:
@@ -70,6 +69,7 @@ class VklModel {
 
   public:
     VklModel(VklDevice &device, BuilderFromImmediateData builder);
+
     ~VklModel();
 
     VklModel(const VklModel &) = delete;
