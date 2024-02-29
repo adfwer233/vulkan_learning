@@ -45,3 +45,16 @@ void VklBuffer::writeToBuffer(void *data, VkDeviceSize size, VkDeviceSize offset
         memcpy(memOffset, data, size);
     }
 }
+
+VkDescriptorBufferInfo VklBuffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset) {
+    return VkDescriptorBufferInfo(buffer, offset, size);
+}
+
+VkResult VklBuffer::flush(VkDeviceSize size, VkDeviceSize offset) {
+    VkMappedMemoryRange mappedRange = {};
+    mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+    mappedRange.memory = memory;
+    mappedRange.offset = offset;
+    mappedRange.size = size;
+    return vkFlushMappedMemoryRanges(device_.device(), 1, &mappedRange);
+}

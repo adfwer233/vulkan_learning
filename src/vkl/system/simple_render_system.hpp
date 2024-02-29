@@ -18,14 +18,14 @@ class SimpleRenderSystem {
     const std::string fragment_shader_path = std::format("{}/simple_shader.frag.spv", SHADER_DIR);
 
     VklDevice &device_;
-    VkPipelineLayout pipelineLayout_;
 
-    void createPipelineLayout();
+    void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
     void createPipeline(VkRenderPass renderPass);
 
   public:
     std::unique_ptr<VklGraphicsPipeline> pipeline_;
-    SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass);
+    VkPipelineLayout pipelineLayout_;
+    SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 
     SimpleRenderSystem(const SimpleRenderSystem &) = delete;
     SimpleRenderSystem operator=(const SimpleRenderSystem &) = delete;

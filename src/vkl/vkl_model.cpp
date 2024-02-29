@@ -62,9 +62,9 @@ void VklModel::bind(VkCommandBuffer commandBuffer) {
 
 void VklModel::draw(VkCommandBuffer commandBuffer) {
     if (hasIndexBuffer) {
-        vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0,0);
+        vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
     } else {
-        vkCmdDraw(commandBuffer, vertexCount_, 1, 0 , 0);
+        vkCmdDraw(commandBuffer, vertexCount_, 1, 0, 0);
     }
 }
 
@@ -79,9 +79,11 @@ std::vector<VkVertexInputBindingDescription> VklModel::Vertex::getBindingDescrip
 std::vector<VkVertexInputAttributeDescription> VklModel::Vertex::getAttributeDescriptions() {
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-    attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex, position))});
+    attributeDescriptions.push_back(
+        {0, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex, position))});
     attributeDescriptions.push_back({1, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex, color))});
-    attributeDescriptions.push_back({2, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex, normal))});
+    attributeDescriptions.push_back(
+        {2, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex, normal))});
     attributeDescriptions.push_back({3, 0, VK_FORMAT_R32G32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex, uv))});
 
     return attributeDescriptions;

@@ -14,6 +14,7 @@ set(SRC_FILE main.cpp
         vkl_model.cpp
         vkl_buffer.cpp
         vkl_camera.cpp
+        vkl_descriptor.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
