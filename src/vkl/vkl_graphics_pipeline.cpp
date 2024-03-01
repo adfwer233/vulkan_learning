@@ -123,7 +123,7 @@ void VklGraphicsPipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configIn
     configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     configInfo.multisampleInfo.minSampleShading = 1.0f;          // Optional
     configInfo.multisampleInfo.pSampleMask = nullptr;            // Optional
-    configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE; // Optional
+    configInfo.multisampleInfo.alphaToCoverageEnable = VK_TRUE;  // Optional
     configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;      // Optional
 
     configInfo.colorBlendAttachment.colorWriteMask =
