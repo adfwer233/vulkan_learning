@@ -18,6 +18,7 @@ set(SRC_FILE main.cpp
         utils/keyboard_camera_controller.cpp
         vkl_object.cpp
         io/assimp_loader.cpp
+        vkl_texture.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})

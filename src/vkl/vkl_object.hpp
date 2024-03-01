@@ -3,8 +3,18 @@
 #include "vkl_model.hpp"
 
 class VklObject {
+private:
+    VklDevice &device_;
 public:
-    std::vector<VklModel> models;
+    struct ImportBuilder {
+        std::string modelPath;
+    };
+
+    explicit VklObject(VklDevice &device, ImportBuilder builder);
+
+    ~VklObject();
+
+    std::vector<VklModel*> models;
 
     void render_object();
 };

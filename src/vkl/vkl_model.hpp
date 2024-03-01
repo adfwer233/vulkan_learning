@@ -7,6 +7,7 @@
 
 #include "vkl_buffer.hpp"
 #include "vkl_device.hpp"
+#include "vkl_texture.hpp"
 
 class VklModel {
   public:
@@ -29,6 +30,7 @@ class VklModel {
     struct BuilderFromImmediateData {
         std::vector<Vertex> vertices{};
         std::vector<uint32_t> indices{};
+        std::vector<std::string> texturePaths{};
     };
 
   private:
@@ -36,6 +38,8 @@ class VklModel {
 
     std::unique_ptr<VklBuffer> vertexBuffer_;
     std::unique_ptr<VklBuffer> indexBuffer_;
+
+    std::vector<VklTexture*> textures_;
 
     uint32_t vertexCount_;
     uint32_t indexCount_;
@@ -71,7 +75,7 @@ class VklModel {
      * @brief create texture image
      * @param texturePath
      */
-    void createTextureImage(const std::string texturePath);
+    void createTextureImage(const std::string& texturePath);
 
   public:
     VklModel(VklDevice &device, BuilderFromImmediateData builder);
