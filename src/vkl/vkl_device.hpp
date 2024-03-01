@@ -5,6 +5,7 @@
 
 #include "vector"
 #include "vkl_window.hpp"
+#include "imgui_impl_vulkan.h"
 
 /**
  * \page devicePage Vulkan Device
@@ -181,4 +182,13 @@ class VklDevice {
 
     VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling,
                                  VkFormatFeatureFlags features);
+
+    void fillImGuiInitInfo(ImGui_ImplVulkan_InitInfo &initInfo) {
+        initInfo.Instance = instance_;
+        initInfo.PhysicalDevice = physicalDevice_;
+        initInfo.Device = device_;
+        auto que = findQueueFamilies(physicalDevice_);
+        initInfo.QueueFamily = que.graphicsFamily;
+        initInfo.Queue = graphicsQueue_;
+    }
 };
