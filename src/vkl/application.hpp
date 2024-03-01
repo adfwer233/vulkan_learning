@@ -3,6 +3,11 @@
 #include "vkl_device.hpp"
 #include "vkl_renderer.hpp"
 #include "vkl_window.hpp"
+
+#ifndef DATA_DIR
+#define DATA_DIR "./shader/"
+#endif
+
 class Application {
   private:
     static constexpr int WIDTH = 800;

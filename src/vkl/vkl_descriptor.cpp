@@ -121,6 +121,20 @@ VklDescriptorWriter &VklDescriptorWriter::writeBuffer(uint32_t binding, VkDescri
     return *this;
 }
 
+VklDescriptorWriter& VklDescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo) {
+    auto &bindingDescription = setLayout_.bindings_[binding];
+
+    VkWriteDescriptorSet write{};
+    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    write.descriptorType = bindingDescription.descriptorType;
+    write.dstBinding = binding;
+    write.pImageInfo = imageInfo;
+    write.descriptorCount = 1;
+
+    writes_.push_back(write);
+    return *this;
+}
+
 bool VklDescriptorWriter::build(VkDescriptorSet &set) {
     bool success = pool_.allocateDescriptor(setLayout_.getDescriptorSetLayout(), set);
     if (!success) {

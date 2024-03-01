@@ -33,13 +33,13 @@ class VklModel {
         std::vector<std::string> texturePaths{};
     };
 
+    std::vector<VklTexture*> textures_;
+
   private:
     VklDevice &device_;
 
     std::unique_ptr<VklBuffer> vertexBuffer_;
     std::unique_ptr<VklBuffer> indexBuffer_;
-
-    std::vector<VklTexture*> textures_;
 
     uint32_t vertexCount_;
     uint32_t indexCount_;

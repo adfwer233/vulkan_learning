@@ -12,6 +12,23 @@ Application::~Application() {
 
 void Application::run() {
 
+    /** tmp model data */
+    std::vector<VklModel::Vertex> vertexData = {{{-0.5, -0.5, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {-0.5, 0.5}},
+                                                {{0.5, -0.5, 0.0}, {0.0, 1.0, 1.0}, {0.0, 0.0, 1.0}, {0.5, 0.5}},
+                                                {{0.5, 0.5, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {0.5, -0.5}},
+                                                {{-0.5, 0.5, 0.0}, {0.0, 1.0, 1.0}, {0.0, 0.0, 1.0}, {-0.5, -0.5}}};
+
+    std::vector<uint32_t> indices = {0, 1, 2, 0, 2, 3};
+
+    VklModel::BuilderFromImmediateData builder;
+    builder.vertices = vertexData;
+    builder.indices = indices;
+    builder.texturePaths = {std::format("{}/blending_transparent_window.png", DATA_DIR)};
+
+    VklModel model(device_, builder);
+
+    auto texture = model.textures_[0];
+    auto imageInfo = texture->descriptorInfo();
     /** set uniform buffers */
 
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -23,6 +40,7 @@ void Application::run() {
 
     auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
                                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                               .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
                                .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_)
@@ -33,7 +51,7 @@ void Application::run() {
     std::vector<VkDescriptorSet> globalDescriptorSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < globalDescriptorSets.size(); i++) {
         auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-        VklDescriptorWriter(*globalSetLayout, *globalPool).writeBuffer(0, &bufferInfo).build(globalDescriptorSets[i]);
+        VklDescriptorWriter(*globalSetLayout, *globalPool).writeBuffer(0, &bufferInfo).writeImage(1, &imageInfo).build(globalDescriptorSets[i]);
     }
 
     /** set camera */
@@ -51,19 +69,6 @@ void Application::run() {
     /** render system */
 
     SimpleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
-
-    /** tmp model data */
-    std::vector<VklModel::Vertex> vertexData = {{{0.0, -0.5, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}},
-                                                {{0.5, 0.5, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}},
-                                                {{-0.5, 0.5, 0.0}, {0.0, 1.0, 1.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}}};
-
-    std::vector<uint32_t> indices = {0, 1, 2};
-
-    VklModel::BuilderFromImmediateData builder;
-    builder.vertices = vertexData;
-    builder.indices = indices;
-
-    VklModel model(device_, builder);
 
     float deltaTime = 0, lastFrame = 0;
 
