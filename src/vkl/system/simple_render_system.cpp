@@ -43,5 +43,14 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
         std::make_unique<VklGraphicsPipeline>(device_, vertex_shader_path, fragment_shader_path, pipelineConfigInfo);
 }
 
-void SimpleRenderSystem::renderObject() {
+void SimpleRenderSystem::renderObject(FrameInfo &frameInfo) {
+
+    vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                      pipeline_->graphicsPipeline_);
+
+    vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout_, 0, 1,
+                            frameInfo.pGlobalDescriptorSet, 0, nullptr);
+
+    frameInfo.model.bind(frameInfo.commandBuffer);
+    frameInfo.model.draw(frameInfo.commandBuffer);
 }

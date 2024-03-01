@@ -60,8 +60,8 @@ void Application::run() {
                                .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_)
-                          .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT)
-                          .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT)
+                          .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+                          .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
                           .build();
 
     std::vector<VkDescriptorSet> globalDescriptorSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -160,6 +160,15 @@ void Application::run() {
 
             ImGui::Render();
 
+            FrameInfo frameInfo {
+                    frameIndex,
+                    currentFrame,
+                    commandBuffer,
+                    camera,
+                    &globalDescriptorSets[frameIndex],
+                    model
+            };
+
             renderer_.beginSwapChainRenderPass(commandBuffer);
 
             GlobalUbo ubo{};
@@ -171,15 +180,7 @@ void Application::run() {
             uniformBuffers[frameIndex]->writeToBuffer(&ubo);
             uniformBuffers[frameIndex]->flush();
 
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                              renderSystem.pipeline_->graphicsPipeline_);
-
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderSystem.pipelineLayout_, 0, 1,
-                                    globalDescriptorSets.data(), 0, nullptr);
-
-            model.bind(commandBuffer);
-            model.draw(commandBuffer);
-
+            renderSystem.renderObject(frameInfo);
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
             renderer_.endSwapChainRenderPass(commandBuffer);

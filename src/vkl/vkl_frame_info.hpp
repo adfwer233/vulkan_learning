@@ -5,6 +5,8 @@
 
 #include "vkl_camera.hpp"
 
+#include "vkl_model.hpp"
+
 struct SimplePushConstantData {
     glm::mat4 modelMatrix{1.f};
     glm::mat4 normalMatrix{1.f};
@@ -21,6 +23,6 @@ struct FrameInfo {
     float frameTime;
     VkCommandBuffer commandBuffer;
     Camera &camera;
-    VkDescriptorSet globalDescriptorSet;
-    //    LveGameObject::Map &gameObjects;
+    VkDescriptorSet* pGlobalDescriptorSet;
+    VklModel &model;
 };

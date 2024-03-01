@@ -32,5 +32,5 @@ class SimpleRenderSystem {
 
     ~SimpleRenderSystem();
 
-    void renderObject();
+    void renderObject(FrameInfo &frameInfo);
 };
