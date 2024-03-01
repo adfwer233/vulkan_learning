@@ -121,7 +121,7 @@ VklDescriptorWriter &VklDescriptorWriter::writeBuffer(uint32_t binding, VkDescri
     return *this;
 }
 
-VklDescriptorWriter& VklDescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo) {
+VklDescriptorWriter &VklDescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo *imageInfo) {
     auto &bindingDescription = setLayout_.bindings_[binding];
 
     VkWriteDescriptorSet write{};

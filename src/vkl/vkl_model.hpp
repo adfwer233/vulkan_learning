@@ -33,7 +33,7 @@ class VklModel {
         std::vector<std::string> texturePaths{};
     };
 
-    std::vector<VklTexture*> textures_;
+    std::vector<VklTexture *> textures_;
 
   private:
     VklDevice &device_;
@@ -75,7 +75,7 @@ class VklModel {
      * @brief create texture image
      * @param texturePath
      */
-    void createTextureImage(const std::string& texturePath);
+    void createTextureImage(const std::string &texturePath);
 
   public:
     VklModel(VklDevice &device, BuilderFromImmediateData builder);

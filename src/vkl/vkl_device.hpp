@@ -160,11 +160,15 @@ class VklDevice {
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
                       VkDeviceMemory &bufferMemory);
 
-    void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+    void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+                     VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
 
     void createSampler(VkSampler &sampler);
 
     VkImageView createImageView(VkImage image, VkFormat format);
+
+    void createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image,
+                             VkDeviceMemory &imageMemory);
 
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
@@ -174,4 +178,7 @@ class VklDevice {
 
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+    VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling,
+                                 VkFormatFeatureFlags features);
 };

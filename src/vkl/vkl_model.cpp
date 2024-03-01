@@ -1,5 +1,5 @@
-#include <stdexcept>
 #include "vkl_model.hpp"
+#include <stdexcept>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -9,14 +9,14 @@ VklModel::VklModel(VklDevice &device, VklModel::BuilderFromImmediateData builder
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
 
-    for (const auto& path: builder.texturePaths) {
+    for (const auto &path : builder.texturePaths) {
         createTextureImage(path);
     }
 }
 
 VklModel::~VklModel() {
     /** free texture objects */
-    for (auto texture: textures_) {
+    for (auto texture : textures_) {
         delete texture;
     }
 }
@@ -62,25 +62,29 @@ void VklModel::createIndexBuffers(const std::vector<uint32_t> &indices) {
     device_.copyBuffer(stagingBuffer.getBuffer(), indexBuffer_->getBuffer(), bufferSize);
 }
 
-void VklModel::createTextureImage(const std::string& texturePath) {
+void VklModel::createTextureImage(const std::string &texturePath) {
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc *pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * texChannels;
 
     if (!pixels) {
         throw std::runtime_error("failed to load texture image!");
     }
 
-    VklBuffer stagingBuffer{device_, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+    VklBuffer stagingBuffer{device_, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
     stagingBuffer.map();
     stagingBuffer.writeToBuffer((void *)pixels);
     stagingBuffer.unmap();
 
     auto texture = new VklTexture(device_, texWidth, texHeight, texChannels);
 
-    device_.transitionImageLayout(texture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    device_.copyBufferToImage(stagingBuffer.getBuffer(), texture->image_, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
-    device_.transitionImageLayout(texture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    device_.transitionImageLayout(texture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    device_.copyBufferToImage(stagingBuffer.getBuffer(), texture->image_, static_cast<uint32_t>(texWidth),
+                              static_cast<uint32_t>(texHeight), 1);
+    device_.transitionImageLayout(texture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     this->textures_.push_back(texture);
 

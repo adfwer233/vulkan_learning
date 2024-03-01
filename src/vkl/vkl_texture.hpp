@@ -3,14 +3,14 @@
 #include "vkl_device.hpp"
 
 class VklTexture {
-private:
+  private:
     int texWidth_, texHeight_, texChannels_;
 
     VklDevice &device_;
     VkSampler textureSampler_;
     VkImageView textureImageView;
 
-public:
+  public:
     VkImage image_ = VK_NULL_HANDLE;
     VkDeviceMemory memory_ = VK_NULL_HANDLE;
 

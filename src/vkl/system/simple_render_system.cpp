@@ -2,7 +2,9 @@
 
 #include <stdexcept>
 
-SimpleRenderSystem::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device_(device) {
+SimpleRenderSystem::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
+                                       VkDescriptorSetLayout globalSetLayout)
+    : device_(device) {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }

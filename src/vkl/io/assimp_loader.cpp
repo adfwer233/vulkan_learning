@@ -1,11 +1,11 @@
 #include "assimp_loader.hpp"
 
 #include "assimp/Importer.hpp"
-#include "assimp/scene.h"
 #include "assimp/postprocess.h"
+#include "assimp/scene.h"
 
-#include <iterator>
 #include <format>
+#include <iterator>
 
 void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType type, MeshModel &model) {
     for (auto i = 0; i < material->GetTextureCount(type); i++) {
@@ -16,10 +16,10 @@ void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType typ
 
         model.texturePaths.push_back(path);
 
-//        if (type == aiTextureType::aiTextureType_DIFFUSE)
-//            model.bind_texture(path, TextureType::diffuse_texture);
-//        if (type == aiTextureType::aiTextureType_SPECULAR)
-//            model.bind_texture(path, TextureType::specular_texture);
+        //        if (type == aiTextureType::aiTextureType_DIFFUSE)
+        //            model.bind_texture(path, TextureType::diffuse_texture);
+        //        if (type == aiTextureType::aiTextureType_SPECULAR)
+        //            model.bind_texture(path, TextureType::specular_texture);
     }
 }
 
@@ -38,7 +38,8 @@ MeshModel AssimpLoader::process_mesh(aiMesh *mesh, const aiScene *scene) {
 
     for (auto i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];
-        std::ranges::copy(std::vector{face.mIndices[0], face.mIndices[1], face.mIndices[2]}, std::back_inserter(model.indices));
+        std::ranges::copy(std::vector{face.mIndices[0], face.mIndices[1], face.mIndices[2]},
+                          std::back_inserter(model.indices));
     }
 
     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];

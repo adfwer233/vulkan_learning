@@ -26,10 +26,17 @@ class VklSwapChain {
 
     VkRenderPass renderPass_;
 
+    /* depth resources */
+    std::vector<VkImage> depthImages_;
+    std::vector<VkDeviceMemory> depthImageMemories_;
+    std::vector<VkImageView> depthImageViews_;
+
+    /* swap chain resources */
     std::vector<VkImage> swapChainImages_;
     std::vector<VkImageView> swapChainImageViews_;
 
     VkFormat swapChainImageFormat_;
+    VkFormat swapChainDepthFormat_;
     VkExtent2D swapChainExtent_;
 
     std::vector<VkFramebuffer> swapChainFrameBuffers_;
@@ -47,12 +54,12 @@ class VklSwapChain {
     void init();
 
     /**
-     * @brief Create swap chain
+     * @brief Create swap chain (step 1)
      */
     void createSwapChain();
 
     /**
-     * @brief Create image view
+     * @brief Create image view (step 2)
      */
     void createImageView();
 
@@ -62,12 +69,17 @@ class VklSwapChain {
     void createRenderPass();
 
     /**
-     * @brief Create frame buffers (step 4)
+     * @brief Create depth resources (step 4)
+     */
+    void createDepthResources();
+
+    /**
+     * @brief Create frame buffers (step 5)
      */
     void createFrameBuffers();
 
     /**
-     * @brief Create Sync objects, such as semaphores...
+     * @brief Create Sync objects, such as semaphores... (step 6, last step)
      */
     void createSyncObjects();
 
@@ -92,6 +104,8 @@ class VklSwapChain {
      * @return
      */
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+
+    VkFormat findDepthFormat();
 
   public:
     VklSwapChain(VklDevice &device, VkExtent2D windowExtent);
@@ -120,6 +134,10 @@ class VklSwapChain {
 
     VkExtent2D getSwapChainExtent() {
         return swapChainExtent_;
+    }
+
+    size_t imageCount() {
+        return swapChainImages_.size();
     }
 
     VkResult acquireNextImage(uint32_t *imageIndex);

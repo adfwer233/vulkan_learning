@@ -3,9 +3,10 @@
 #include "vkl_model.hpp"
 
 class VklObject {
-private:
+  private:
     VklDevice &device_;
-public:
+
+  public:
     struct ImportBuilder {
         std::string modelPath;
     };
@@ -14,7 +15,7 @@ public:
 
     ~VklObject();
 
-    std::vector<VklModel*> models;
+    std::vector<VklModel *> models;
 
     void render_object();
 };

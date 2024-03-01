@@ -13,12 +13,22 @@ Application::~Application() {
 void Application::run() {
 
     /** tmp model data */
-    std::vector<VklModel::Vertex> vertexData = {{{-0.5, -0.5, 0.0}, {1.0, 0.0, 0.0}, {0.0, 0.0, 1.0}, {-0.5, 0.5}},
-                                                {{0.5, -0.5, 0.0}, {0.0, 1.0, 1.0}, {0.0, 0.0, 1.0}, {0.5, 0.5}},
-                                                {{0.5, 0.5, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}, {0.5, -0.5}},
-                                                {{-0.5, 0.5, 0.0}, {0.0, 1.0, 1.0}, {0.0, 0.0, 1.0}, {-0.5, -0.5}}};
+    const std::vector<VklModel::Vertex> vertexData = {
+            {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
+            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
+            {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}},
 
-    std::vector<uint32_t> indices = {0, 1, 2, 0, 2, 3};
+            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
+            {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
+            {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}
+    };
+
+    const std::vector<uint32_t> indices = {
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4
+    };
 
     VklModel::BuilderFromImmediateData builder;
     builder.vertices = vertexData;
@@ -51,7 +61,10 @@ void Application::run() {
     std::vector<VkDescriptorSet> globalDescriptorSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < globalDescriptorSets.size(); i++) {
         auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-        VklDescriptorWriter(*globalSetLayout, *globalPool).writeBuffer(0, &bufferInfo).writeImage(1, &imageInfo).build(globalDescriptorSets[i]);
+        VklDescriptorWriter(*globalSetLayout, *globalPool)
+            .writeBuffer(0, &bufferInfo)
+            .writeImage(1, &imageInfo)
+            .build(globalDescriptorSets[i]);
     }
 
     /** set camera */
@@ -68,7 +81,8 @@ void Application::run() {
 
     /** render system */
 
-    SimpleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+    SimpleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(),
+                                    globalSetLayout->getDescriptorSetLayout());
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -98,15 +112,8 @@ void Application::run() {
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                               renderSystem.pipeline_->graphicsPipeline_);
 
-            vkCmdBindDescriptorSets(
-                    commandBuffer,
-                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    renderSystem.pipelineLayout_,
-                    0,
-                    1,
-                    globalDescriptorSets.data(),
-                    0,
-                    nullptr);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, renderSystem.pipelineLayout_, 0, 1,
+                                    globalDescriptorSets.data(), 0, nullptr);
 
             model.bind(commandBuffer);
             model.draw(commandBuffer);
