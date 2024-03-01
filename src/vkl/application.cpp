@@ -155,10 +155,13 @@ void Application::run() {
         if (auto commandBuffer = renderer_.beginFrame()) {
             int frameIndex = renderer_.getFrameIndex();
 
-            if (show_demo_window)
-                ImGui::ShowDemoWindow(&show_demo_window);
-
-            ImGui::Render();
+            ImGui::Begin("Messages");
+            ImGui::SeparatorText("Scene Information");
+            ImGui::LabelText("# Triangles", "0");
+            ImGui::LabelText("Camera Position", std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
+            ImGui::SeparatorText("Performance");
+            ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
+            ImGui::End();
 
             FrameInfo frameInfo {
                     frameIndex,
@@ -181,6 +184,9 @@ void Application::run() {
             uniformBuffers[frameIndex]->flush();
 
             renderSystem.renderObject(frameInfo);
+
+            /* ImGui Rendering */
+            ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
             renderer_.endSwapChainRenderPass(commandBuffer);
