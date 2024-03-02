@@ -177,6 +177,18 @@ void Application::run() {
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
 
+            ImGui::Begin("Picking Result");
+            if (KeyboardCameraController::picking_result.has_value()) {
+                ImGui::SeparatorText("Picking Information");
+                ImGui::LabelText("Object Index", "%d", KeyboardCameraController::picking_result->object_index);
+                ImGui::LabelText("Model Index", "%d", KeyboardCameraController::picking_result->model_index);
+                ImGui::LabelText("Face Index", "%d", KeyboardCameraController::picking_result->face_index);
+                ImGui::LabelText("U", "%.3f", KeyboardCameraController::picking_result->u);
+                ImGui::LabelText("V", "%.3f", KeyboardCameraController::picking_result->v);
+                ImGui::LabelText("W", "%.3f", KeyboardCameraController::picking_result->w);
+            }
+            ImGui::End();
+
             FrameInfo frameInfo {
                     frameIndex,
                     currentFrame,

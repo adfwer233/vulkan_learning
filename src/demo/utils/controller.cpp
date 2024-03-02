@@ -1,6 +1,6 @@
 #include "demo/utils/controller.hpp"
 
-#include "ray_tracer/ray_tracer.hpp"
+#include "ray_tracer/ray_picker.hpp"
 
 #include <iostream>
 #include <format>
@@ -9,6 +9,7 @@ float KeyboardCameraController::mouse_x_pos = 0.0;
 float KeyboardCameraController::mouse_y_pos = 0.0;
 
 std::vector<VklObject*> KeyboardCameraController::objects_;
+std::optional<RayPicker::RayPickingResult> KeyboardCameraController::picking_result;
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {
     camera = &t_camera;
@@ -53,12 +54,8 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
 
         std::cout << std::format("{} {} {}\n", ray.dir.x, ray.dir.y, ray.dir.z);
 
-        RayTracer rayTracer(objects_, ray);
-        auto res = rayTracer.trace();
-
-        if (res.has_value()) {
-            std::cout << "tracer found object" << std::endl;
-        }
+        RayPicker rayTracer(objects_, ray);
+        picking_result = rayTracer.trace();
 
         is_mouse_pressing = true;
     }

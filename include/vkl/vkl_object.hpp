@@ -8,6 +8,8 @@ class VklObject {
     VklDevice &device_;
 
   public:
+    glm::mat4 model_transformation;
+
     struct ImportBuilder {
         std::string modelPath;
     };

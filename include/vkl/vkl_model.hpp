@@ -104,5 +104,5 @@ class VklModel {
 
     void draw(VkCommandBuffer commandBuffer);
 
-    friend class RayTracer;
+    friend class RayPicker;
 };

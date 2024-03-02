@@ -10,6 +10,7 @@ VklObject::VklObject(VklDevice &device, VklObject::ImportBuilder builder) : devi
         this->models.push_back(new VklModel(device, modelBuilder));
     }
 
+    model_transformation = glm::mat4(1.0f);
 }
 
 VklObject::~VklObject() {

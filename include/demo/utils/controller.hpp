@@ -3,6 +3,8 @@
 #include "vkl/vkl_camera.hpp"
 #include "vkl/vkl_object.hpp"
 
+#include "ray_tracer/ray_picker.hpp"
+
 #include "GLFW/glfw3.h"
 
 class KeyboardCameraController {
@@ -21,6 +23,8 @@ class KeyboardCameraController {
     static std::vector<VklObject*> objects_;
 
   public:
+    static std::optional<RayPicker::RayPickingResult> picking_result;
+
     static void setCamera(Camera &t_camera);
 
     static void processInput(GLFWwindow *window, float deltaTime);

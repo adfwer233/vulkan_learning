@@ -1,13 +1,13 @@
-#include "ray_tracer/ray_tracer.hpp"
+#include "ray_tracer/ray_picker.hpp"
 #include "ray_tracer/ray.hpp"
 
 #include <iostream>
 #include <map>
 
-RayTracer::RayTracer(std::vector<VklObject *> &object, Ray ray): objects_(object), ray_(ray) {}
+RayPicker::RayPicker(std::vector<VklObject *> &object, Ray ray): objects_(object), ray_(ray) {}
 
-std::optional<RayTracer::RayTracingResult> RayTracer::trace() {
-    std::map<float, RayTracingResult> param_result_map;
+std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
+    std::map<float, RayPickingResult> param_result_map;
     for (size_t object_index = 0; object_index < objects_.size(); object_index++) {
         auto object = objects_[object_index];
         for (size_t model_index = 0; model_index < object->models.size(); model_index++) {
@@ -28,7 +28,7 @@ std::optional<RayTracer::RayTracingResult> RayTracer::trace() {
             }
         }
     }
-    std::optional<RayTracingResult> result = std::nullopt;
+    std::optional<RayPickingResult> result = std::nullopt;
 
     if (not param_result_map.empty()) {
         auto& [t, res] = *param_result_map.begin();

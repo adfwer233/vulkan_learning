@@ -2,7 +2,7 @@ project(ray_tracer VERSION 1.0 DESCRIPTION "Ray Tracer Module" LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(SRC_FILE ray.cpp ray_tracer.cpp)
+set(SRC_FILE ray.cpp ray_picker.cpp)
 
 add_library(${PROJECT_NAME} ${SRC_FILE})
 
