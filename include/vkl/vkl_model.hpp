@@ -6,9 +6,9 @@
 #include "glm/glm.hpp"
 
 #include "vkl_buffer.hpp"
+#include "vkl_descriptor.hpp"
 #include "vkl_device.hpp"
 #include "vkl_texture.hpp"
-#include "vkl_descriptor.hpp"
 
 class VklModel {
   public:
@@ -23,7 +23,7 @@ class VklModel {
     };
 
     struct FaceIndices {
-        uint32_t i, j ,k;
+        uint32_t i, j, k;
     };
 
     struct BuilderFromFile {

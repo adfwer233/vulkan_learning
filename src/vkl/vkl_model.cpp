@@ -3,13 +3,14 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "vkl/vkl_texture.hpp"
-#include "vkl/vkl_swap_chain.hpp"
 #include "vkl/vkl_frame_info.hpp"
+#include "vkl/vkl_swap_chain.hpp"
+#include "vkl/vkl_texture.hpp"
 
 #include <iostream>
 
-VklModel::VklModel(VklDevice &device, VklModel::BuilderFromImmediateData builder) : device_(device), vertices_(builder.vertices), indices_(builder.indices) {
+VklModel::VklModel(VklDevice &device, VklModel::BuilderFromImmediateData builder)
+    : device_(device), vertices_(builder.vertices), indices_(builder.indices) {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
 
@@ -124,7 +125,7 @@ void VklModel::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescrip
 
     for (int i = 0; i < uniformBuffers.size(); i++) {
         uniformBuffers[i] = std::make_unique<VklBuffer>(
-                device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         uniformBuffers[i]->map();
     }
 

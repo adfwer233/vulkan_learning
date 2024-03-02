@@ -2,8 +2,8 @@
 #include "vkl/vkl_descriptor.hpp"
 #include "vkl/vkl_object.hpp"
 
-#include "vkl/system/simple_render_system.hpp"
 #include "demo/utils/controller.hpp"
+#include "vkl/system/simple_render_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -20,21 +20,17 @@ void Application::run() {
 
     /** tmp model data */
     const std::vector<VklModel::Vertex> vertexData = {
-            {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
-            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
-            {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
-            {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}},
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
+        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
+        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}},
 
-            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
-            {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
-            {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
-            {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}
-    };
+        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
+        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
+        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}};
 
-    const std::vector<VklModel::FaceIndices> indices = {
-            {0, 1, 2}, {2, 3, 0},
-            {4, 5, 6}, {6, 7, 4}
-    };
+    const std::vector<VklModel::FaceIndices> indices = {{0, 1, 2}, {2, 3, 0}, {4, 5, 6}, {6, 7, 4}};
 
     VklModel::BuilderFromImmediateData builder;
     builder.vertices = vertexData;
@@ -53,27 +49,27 @@ void Application::run() {
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < uniformBuffers.size(); i++) {
         uniformBuffers[i] = std::make_unique<VklBuffer>(
-                device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         uniformBuffers[i]->map();
     }
 
     auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .build();
+                               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                               .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+                               .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_)
-            .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-            .build();
+                          .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+                          .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+                          .build();
 
     std::vector<VkDescriptorSet> globalDescriptorSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < globalDescriptorSets.size(); i++) {
         auto bufferInfo = uniformBuffers[i]->descriptorInfo();
         VklDescriptorWriter(*globalSetLayout, *globalPool)
-                .writeBuffer(0, &bufferInfo)
-                .writeImage(1, &imageInfo)
-                .build(globalDescriptorSets[i]);
+            .writeBuffer(0, &bufferInfo)
+            .writeImage(1, &imageInfo)
+            .build(globalDescriptorSets[i]);
     }
 
     object.allocDescriptorSets(*globalSetLayout, *globalPool);
@@ -96,17 +92,17 @@ void Application::run() {
 
     float deltaTime = 0, lastFrame = 0;
 
-    VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-                                          { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } };
+    VkDescriptorPoolSize pool_sizes[] = {{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+                                         {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+                                         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+                                         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+                                         {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
 
     VkDescriptorPoolCreateInfo pool_info = {};
     pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -121,13 +117,14 @@ void Application::run() {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
+    // ImGui::StyleColorsLight();
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForVulkan(window, true);
@@ -144,12 +141,12 @@ void Application::run() {
 
     bool show_demo_window = true;
 
-    std::vector<VklObject*> objects {&object};
+    std::vector<VklObject *> objects{&object};
     KeyboardCameraController::set_objects(objects);
 
     int triangle_num = 0;
 
-    for (const auto object_item: objects) {
+    for (const auto object_item : objects) {
         triangle_num += object_item->get_triangle_num();
     }
 
@@ -172,7 +169,9 @@ void Application::run() {
             ImGui::Begin("Messages");
             ImGui::SeparatorText("Scene Information");
             ImGui::LabelText("# Triangles", "%d", triangle_num);
-            ImGui::LabelText("Camera Position", std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
+            ImGui::LabelText(
+                "Camera Position",
+                std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
             ImGui::SeparatorText("Performance");
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
@@ -206,14 +205,8 @@ void Application::run() {
             }
             ImGui::End();
 
-            FrameInfo frameInfo {
-                    frameIndex,
-                    currentFrame,
-                    commandBuffer,
-                    camera,
-                    &globalDescriptorSets[frameIndex],
-                    model
-            };
+            FrameInfo frameInfo{frameIndex, currentFrame, commandBuffer, camera, &globalDescriptorSets[frameIndex],
+                                model};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
 
@@ -226,22 +219,16 @@ void Application::run() {
             uniformBuffers[frameIndex]->writeToBuffer(&ubo);
             uniformBuffers[frameIndex]->flush();
 
-//            renderSystem.renderObject(frameInfo);
+            //            renderSystem.renderObject(frameInfo);
 
-            for (auto object_item: objects) {
-                for (auto model: object_item->models) {
+            for (auto object_item : objects) {
+                for (auto model : object_item->models) {
                     ubo.model = object.getModelTransformation();
                     model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                     model->uniformBuffers[frameIndex]->flush();
 
                     FrameInfo modelFrameInfo{
-                            frameIndex,
-                            currentFrame,
-                            commandBuffer,
-                            camera,
-                            &model->descriptorSets[frameIndex],
-                            *model
-                    };
+                        frameIndex, currentFrame, commandBuffer, camera, &model->descriptorSets[frameIndex], *model};
 
                     renderSystem.renderObject(modelFrameInfo);
                 }

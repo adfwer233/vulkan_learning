@@ -1,16 +1,16 @@
 #pragma once
 
-#include "vkl/vkl_object.hpp"
 #include "ray.hpp"
-#include <vector>
+#include "vkl/vkl_object.hpp"
 #include <optional>
+#include <vector>
 class RayPicker {
-private:
-    std::vector<VklObject*> objects_;
+  private:
+    std::vector<VklObject *> objects_;
     Ray ray_;
-public:
 
-    RayPicker(std::vector<VklObject*> &object, Ray ray);
+  public:
+    RayPicker(std::vector<VklObject *> &object, Ray ray);
 
     struct RayPickingResult {
         size_t object_index;

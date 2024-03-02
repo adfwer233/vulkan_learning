@@ -4,7 +4,8 @@
 #include <iostream>
 #include <map>
 
-RayPicker::RayPicker(std::vector<VklObject *> &object, Ray ray): objects_(object), ray_(ray) {}
+RayPicker::RayPicker(std::vector<VklObject *> &object, Ray ray) : objects_(object), ray_(ray) {
+}
 
 std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
 
@@ -22,10 +23,9 @@ std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
                 auto &face = model->indices_[face_index];
 
                 auto [flag, t, u, v, w] = object_ray.ray_triangle_intersection(
-                        model_transformation * glm::vec4(model->vertices_[face.i].position, 1.0f),
-                        model_transformation * glm::vec4(model->vertices_[face.j].position, 1.0f),
-                        model_transformation * glm::vec4(model->vertices_[face.k].position, 1.0f)
-                    );
+                    model_transformation * glm::vec4(model->vertices_[face.i].position, 1.0f),
+                    model_transformation * glm::vec4(model->vertices_[face.j].position, 1.0f),
+                    model_transformation * glm::vec4(model->vertices_[face.k].position, 1.0f));
 
                 if (flag) {
                     param_result_map[t] = {object_index, model_index, face_index, t, u, v, w};
@@ -36,10 +36,9 @@ std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
     std::optional<RayPickingResult> result = std::nullopt;
 
     if (not param_result_map.empty()) {
-        auto& [t, res] = *param_result_map.begin();
+        auto &[t, res] = *param_result_map.begin();
         result = res;
     }
 
     return result;
 }
-

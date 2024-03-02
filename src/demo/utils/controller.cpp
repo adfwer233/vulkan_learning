@@ -2,13 +2,13 @@
 
 #include "ray_tracer/ray_picker.hpp"
 
-#include <iostream>
 #include <format>
+#include <iostream>
 
 float KeyboardCameraController::mouse_x_pos = 0.0;
 float KeyboardCameraController::mouse_y_pos = 0.0;
 
-std::vector<VklObject*> KeyboardCameraController::objects_;
+std::vector<VklObject *> KeyboardCameraController::objects_;
 std::optional<RayPicker::RayPickingResult> KeyboardCameraController::picking_result;
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {

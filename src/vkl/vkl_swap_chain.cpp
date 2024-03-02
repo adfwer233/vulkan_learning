@@ -27,15 +27,15 @@ VklSwapChain::~VklSwapChain() {
         vkDestroyImageView(device_.device(), imageView, nullptr);
     }
 
-    for (auto image: depthImages_) {
+    for (auto image : depthImages_) {
         vkDestroyImage(device_.device(), image, nullptr);
     }
 
-    for (auto imageView: depthImageViews_) {
+    for (auto imageView : depthImageViews_) {
         vkDestroyImageView(device_.device(), imageView, nullptr);
     }
 
-    for (auto mem: depthImageMemories_) {
+    for (auto mem : depthImageMemories_) {
         vkFreeMemory(device_.device(), mem, nullptr);
     }
 

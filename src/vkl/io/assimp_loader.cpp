@@ -5,8 +5,8 @@
 #include "assimp/scene.h"
 
 #include <format>
-#include <iterator>
 #include <iostream>
+#include <iterator>
 
 void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType type, MeshModel &model) {
     for (auto i = 0; i < material->GetTextureCount(type); i++) {

@@ -78,7 +78,9 @@ class VklDescriptorPool {
     VklDescriptorPool(const VklDescriptorPool &) = delete;
     VklDescriptorPool &operator=(const VklDescriptorPool &) = delete;
 
-    VkDescriptorPool getDescriptorPool() {return descriptorPool;}
+    VkDescriptorPool getDescriptorPool() {
+        return descriptorPool;
+    }
 
     bool allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet &descriptor) const;
 

@@ -1,7 +1,7 @@
 #include "vkl/vkl_object.hpp"
 
-#include "vkl/io/assimp_loader.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "vkl/io/assimp_loader.hpp"
 
 VklObject::VklObject(VklDevice &device, VklObject::ImportBuilder builder) : device_(device) {
     AssimpLoader assimpLoader;
@@ -11,8 +11,8 @@ VklObject::VklObject(VklDevice &device, VklObject::ImportBuilder builder) : devi
         this->models.push_back(new VklModel(device, modelBuilder));
     }
 
-    modelScaling = glm::vec3 (0.2f, 0.2f, 0.2f);
-    modelTranslation = glm::vec3 (0, 0, 0);
+    modelScaling = glm::vec3(0.2f, 0.2f, 0.2f);
+    modelTranslation = glm::vec3(0, 0, 0);
     modelRotation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
 }
 
@@ -26,14 +26,14 @@ void VklObject::render_object() {
 }
 
 void VklObject::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool) {
-    for (auto model: models) {
+    for (auto model : models) {
         model->allocDescriptorSets(setLayout, pool);
     }
 }
 
 int VklObject::get_triangle_num() {
     int result = 0;
-    for (auto model: models) {
+    for (auto model : models) {
         result += model->get_triangle_num();
     }
     return result;

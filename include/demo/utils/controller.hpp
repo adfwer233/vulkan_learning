@@ -20,7 +20,7 @@ class KeyboardCameraController {
     static float mouse_x_pos;
     static float mouse_y_pos;
 
-    static std::vector<VklObject*> objects_;
+    static std::vector<VklObject *> objects_;
 
   public:
     static std::optional<RayPicker::RayPickingResult> picking_result;

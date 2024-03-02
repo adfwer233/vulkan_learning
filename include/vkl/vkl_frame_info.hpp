@@ -23,6 +23,6 @@ struct FrameInfo {
     float frameTime;
     VkCommandBuffer commandBuffer;
     Camera &camera;
-    VkDescriptorSet* pGlobalDescriptorSet;
+    VkDescriptorSet *pGlobalDescriptorSet;
     VklModel &model;
 };
