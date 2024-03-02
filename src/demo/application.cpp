@@ -179,6 +179,7 @@ void Application::run() {
 
             ImGui::Begin("Picking Result");
             if (KeyboardCameraController::picking_result.has_value()) {
+                auto object_picked = objects[KeyboardCameraController::picking_result->object_index];
                 ImGui::SeparatorText("Picking Information");
                 ImGui::LabelText("Object Index", "%d", KeyboardCameraController::picking_result->object_index);
                 ImGui::LabelText("Model Index", "%d", KeyboardCameraController::picking_result->model_index);
@@ -186,6 +187,22 @@ void Application::run() {
                 ImGui::LabelText("U", "%.3f", KeyboardCameraController::picking_result->u);
                 ImGui::LabelText("V", "%.3f", KeyboardCameraController::picking_result->v);
                 ImGui::LabelText("W", "%.3f", KeyboardCameraController::picking_result->w);
+
+                ImGui::SeparatorText("Object Translation");
+                ImGui::SliderFloat("x", &object_picked->modelTranslation.x, -5.0f, 5.0);
+                ImGui::SliderFloat("y", &object_picked->modelTranslation.y, -5.0f, 5.0);
+                ImGui::SliderFloat("z", &object_picked->modelTranslation.z, -5.0f, 5.0);
+
+                ImGui::SeparatorText("Object Scaling");
+                ImGui::SliderFloat("S x", &object_picked->modelScaling.x, -0.0f, 3.0);
+                ImGui::SliderFloat("S y", &object_picked->modelScaling.y, -0.0f, 3.0);
+                ImGui::SliderFloat("S z", &object_picked->modelScaling.z, -0.0f, 3.0);
+
+                ImGui::SeparatorText("Object Scaling");
+                ImGui::SliderFloat("R w", &object_picked->modelRotation.w, -0.0f, 1.0);
+                ImGui::SliderFloat("R x", &object_picked->modelRotation.x, -0.0f, 1.0);
+                ImGui::SliderFloat("R y", &object_picked->modelRotation.y, -0.0f, 1.0);
+                ImGui::SliderFloat("R z", &object_picked->modelRotation.z, -0.0f, 1.0);
             }
             ImGui::End();
 

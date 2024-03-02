@@ -14,10 +14,6 @@ std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
 
         Ray object_ray = ray_;
         glm::mat4 model_transformation = object->getModelTransformation();
-        glm::mat4 model_inverse = glm::inverse(model_transformation);
-
-        object_ray.base = model_inverse * glm::vec4(object_ray.base, 1.0f);
-        object_ray.dir = model_inverse * glm::vec4(object_ray.dir, 1.0f);
 
         for (size_t model_index = 0; model_index < object->models.size(); model_index++) {
             auto model = object->models[model_index];
@@ -26,9 +22,9 @@ std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
                 auto &face = model->indices_[face_index];
 
                 auto [flag, t, u, v, w] = object_ray.ray_triangle_intersection(
-                        model->vertices_[face.i].position,
-                        model->vertices_[face.j].position,
-                        model->vertices_[face.k].position
+                        model_transformation * glm::vec4(model->vertices_[face.i].position, 1.0f),
+                        model_transformation * glm::vec4(model->vertices_[face.j].position, 1.0f),
+                        model_transformation * glm::vec4(model->vertices_[face.k].position, 1.0f)
                     );
 
                 if (flag) {

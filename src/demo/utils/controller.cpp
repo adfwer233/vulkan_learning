@@ -38,9 +38,11 @@ void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offs
 }
 
 void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int button, int state, int mod) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE and state == GLFW_PRESS) {
 
         std::cout << mouse_x_pos << ' ' << mouse_y_pos << std::endl;
+
+        auto position = camera->position;
 
         auto up = camera->camera_up_axis;
         auto right = camera->camera_right_axis;
@@ -56,9 +58,12 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
 
         RayPicker rayTracer(objects_, ray);
         picking_result = rayTracer.trace();
+    }
 
+    if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
         is_mouse_pressing = true;
     }
+
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_RELEASE) {
         mouse_flag = true;
         is_mouse_pressing = false;
