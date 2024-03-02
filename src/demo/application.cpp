@@ -3,7 +3,7 @@
 #include "vkl/vkl_object.hpp"
 
 #include "vkl/system/simple_render_system.hpp"
-#include "vkl/utils/keyboard_camera_controller.hpp"
+#include "demo/utils/controller.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

@@ -12,7 +12,6 @@ set(SRC_FILE vkl_window.cpp
         vkl_buffer.cpp
         vkl_camera.cpp
         vkl_descriptor.cpp
-        utils/keyboard_camera_controller.cpp
         vkl_object.cpp
         io/assimp_loader.cpp
         vkl_texture.cpp

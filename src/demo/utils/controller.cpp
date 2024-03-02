@@ -1,4 +1,9 @@
-#include "vkl/utils/keyboard_camera_controller.hpp"
+#include "demo/utils/controller.hpp"
+
+#include <iostream>
+
+float KeyboardCameraController::mouse_x_pos = 0.0;
+float KeyboardCameraController::mouse_y_pos = 0.0;
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {
     camera = &t_camera;
@@ -27,8 +32,12 @@ void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offs
 }
 
 void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int button, int state, int mod) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS)
+    if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
+
+        std::cout << mouse_x_pos << ' ' << mouse_y_pos << std::endl;
+
         is_mouse_pressing = true;
+    }
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_RELEASE) {
         mouse_flag = true;
         is_mouse_pressing = false;
@@ -36,23 +45,22 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
 }
 
 void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
+    mouse_x_pos = static_cast<float>(xposIn);
+    mouse_y_pos = static_cast<float>(yposIn);
     if (not is_mouse_pressing)
         return;
 
-    float x_pos = static_cast<float>(xposIn);
-    float y_pos = static_cast<float>(yposIn);
-
     if (mouse_flag) {
-        last_x = x_pos;
-        last_y = y_pos;
+        last_x = mouse_x_pos;
+        last_y = mouse_y_pos;
         mouse_flag = false;
     }
 
-    float x_offset = x_pos - last_x;
-    float y_offset = last_y - y_pos; // reversed since y-coordinates go from bottom to top
+    float x_offset = mouse_x_pos - last_x;
+    float y_offset = last_y - mouse_y_pos; // reversed since y-coordinates go from bottom to top
 
-    last_x = x_pos;
-    last_y = y_pos;
+    last_x = mouse_x_pos;
+    last_y = mouse_y_pos;
 
     camera->process_mouse_movement(x_offset, y_offset);
 }
