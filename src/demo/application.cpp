@@ -209,10 +209,11 @@ void Application::run() {
             uniformBuffers[frameIndex]->writeToBuffer(&ubo);
             uniformBuffers[frameIndex]->flush();
 
-            renderSystem.renderObject(frameInfo);
+//            renderSystem.renderObject(frameInfo);
 
             for (auto object_item: objects) {
                 for (auto model: object_item->models) {
+                    ubo.model = object.getModelTransformation();
                     model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                     model->uniformBuffers[frameIndex]->flush();
 
