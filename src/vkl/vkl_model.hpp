@@ -89,6 +89,8 @@ class VklModel {
     VklModel(const VklModel &) = delete;
     VklModel &operator=(const VklModel &) = delete;
 
+    [[nodiscard]] int get_triangle_num() const;
+
     void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
 
     void bind(VkCommandBuffer commandBuffer);

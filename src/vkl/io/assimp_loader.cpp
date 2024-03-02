@@ -14,15 +14,9 @@ void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType typ
         material->GetTexture(type, i, &str);
 
         std::string path = std::format("{}/{}", this->directory, std::string(str.C_Str()));
-        std::cout << path << std::endl;
 
         if (type == aiTextureType::aiTextureType_DIFFUSE)
             model.texturePaths.push_back(path);
-
-        //        if (type == aiTextureType::aiTextureType_DIFFUSE)
-        //            model.bind_texture(path, TextureType::diffuse_texture);
-        //        if (type == aiTextureType::aiTextureType_SPECULAR)
-        //            model.bind_texture(path, TextureType::specular_texture);
     }
 }
 

@@ -144,6 +144,14 @@ void Application::run() {
 
     bool show_demo_window = true;
 
+    std::vector<VklObject*> objects {&object};
+
+    int triangle_num = 0;
+
+    for (const auto object_item: objects) {
+        triangle_num += object_item->get_triangle_num();
+    }
+
     while (not window_.shouldClose()) {
         glfwPollEvents();
 
@@ -162,7 +170,7 @@ void Application::run() {
 
             ImGui::Begin("Messages");
             ImGui::SeparatorText("Scene Information");
-            ImGui::LabelText("# Triangles", "0");
+            ImGui::LabelText("# Triangles", "%d", triangle_num);
             ImGui::LabelText("Camera Position", std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
             ImGui::SeparatorText("Performance");
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
@@ -190,22 +198,23 @@ void Application::run() {
 
             renderSystem.renderObject(frameInfo);
 
-            for (auto model: object.models) {
-                model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                model->uniformBuffers[frameIndex]->flush();
+            for (auto object_item: objects) {
+                for (auto model: object_item->models) {
+                    model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                    model->uniformBuffers[frameIndex]->flush();
 
-                FrameInfo modelFrameInfo {
-                        frameIndex,
-                        currentFrame,
-                        commandBuffer,
-                        camera,
-                        &model->descriptorSets[frameIndex],
-                        *model
-                };
+                    FrameInfo modelFrameInfo{
+                            frameIndex,
+                            currentFrame,
+                            commandBuffer,
+                            camera,
+                            &model->descriptorSets[frameIndex],
+                            *model
+                    };
 
-                renderSystem.renderObject(modelFrameInfo);
+                    renderSystem.renderObject(modelFrameInfo);
+                }
             }
-
             /* ImGui Rendering */
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);

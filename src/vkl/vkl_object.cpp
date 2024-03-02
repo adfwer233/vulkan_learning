@@ -26,3 +26,11 @@ void VklObject::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescri
         model->allocDescriptorSets(setLayout, pool);
     }
 }
+
+int VklObject::get_triangle_num() {
+    int result = 0;
+    for (auto model: models) {
+        result += model->get_triangle_num();
+    }
+    return result;
+}

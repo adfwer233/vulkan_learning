@@ -128,8 +128,6 @@ void VklModel::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescrip
         uniformBuffers[i]->map();
     }
 
-    std::cout << textures_.size() << std::endl;
-
     for (int i = 0; i < descriptorSets.size(); i++) {
         auto bufferInfo = uniformBuffers[i]->descriptorInfo();
         auto imageInfo = textures_[0]->descriptorInfo();
@@ -138,6 +136,12 @@ void VklModel::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescrip
             .writeImage(1, &imageInfo)
             .build(descriptorSets[i]);
     }
+}
+
+int VklModel::get_triangle_num() const {
+    int result = 0;
+    result += vertexCount_ / 3;
+    return result;
 }
 
 std::vector<VkVertexInputBindingDescription> VklModel::Vertex::getBindingDescriptions() {
