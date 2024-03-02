@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-VklModel::VklModel(VklDevice &device, VklModel::BuilderFromImmediateData builder) : device_(device) {
+VklModel::VklModel(VklDevice &device, VklModel::BuilderFromImmediateData builder) : device_(device), vertices_(builder.vertices), indices_(builder.indices) {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
 
@@ -43,14 +43,14 @@ void VklModel::createVertexBuffers(const std::vector<Vertex> &vertices) {
     device_.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer_->getBuffer(), bufferSize);
 }
 
-void VklModel::createIndexBuffers(const std::vector<uint32_t> &indices) {
-    indexCount_ = static_cast<uint32_t>(indices.size());
+void VklModel::createIndexBuffers(const std::vector<FaceIndices> &indices) {
+    indexCount_ = static_cast<uint32_t>(indices.size()) * 3;
     hasIndexBuffer = indexCount_ > 0;
 
     if (not hasIndexBuffer)
         return;
 
-    uint32_t indexSize = sizeof(std::remove_reference<decltype(indices)>::type::value_type);
+    uint32_t indexSize = sizeof(uint32_t);
     VkDeviceSize bufferSize = indexSize * indexCount_;
 
     VklBuffer stagingBuffer{device_, indexSize, indexCount_, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,

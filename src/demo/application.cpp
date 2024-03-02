@@ -31,9 +31,9 @@ void Application::run() {
             {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}
     };
 
-    const std::vector<uint32_t> indices = {
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4
+    const std::vector<VklModel::FaceIndices> indices = {
+            {0, 1, 2}, {2, 3, 0},
+            {4, 5, 6}, {6, 7, 4}
     };
 
     VklModel::BuilderFromImmediateData builder;
@@ -145,6 +145,7 @@ void Application::run() {
     bool show_demo_window = true;
 
     std::vector<VklObject*> objects {&object};
+    KeyboardCameraController::set_objects(objects);
 
     int triangle_num = 0;
 

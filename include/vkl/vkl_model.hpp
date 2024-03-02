@@ -22,15 +22,19 @@ class VklModel {
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
     };
 
+    struct FaceIndices {
+        uint32_t i, j ,k;
+    };
+
     struct BuilderFromFile {
         std::vector<Vertex> vertices{};
-        std::vector<uint32_t> indices{};
+        std::vector<FaceIndices> indices{};
         void build(const std::string &filepath);
     };
 
     struct BuilderFromImmediateData {
         std::vector<Vertex> vertices{};
-        std::vector<uint32_t> indices{};
+        std::vector<FaceIndices> indices{};
         std::vector<std::string> texturePaths{};
     };
 
@@ -41,6 +45,9 @@ class VklModel {
 
   private:
     VklDevice &device_;
+
+    std::vector<Vertex> vertices_{};
+    std::vector<FaceIndices> indices_{};
 
     std::unique_ptr<VklBuffer> vertexBuffer_;
     std::unique_ptr<VklBuffer> indexBuffer_;
@@ -73,7 +80,7 @@ class VklModel {
      *
      * @param vertices
      */
-    void createIndexBuffers(const std::vector<uint32_t> &indices);
+    void createIndexBuffers(const std::vector<FaceIndices> &indices);
 
     /**
      * @brief create texture image
@@ -96,4 +103,6 @@ class VklModel {
     void bind(VkCommandBuffer commandBuffer);
 
     void draw(VkCommandBuffer commandBuffer);
+
+    friend class RayTracer;
 };

@@ -1,9 +1,14 @@
 #include "demo/utils/controller.hpp"
 
+#include "ray_tracer/ray_tracer.hpp"
+
 #include <iostream>
+#include <format>
 
 float KeyboardCameraController::mouse_x_pos = 0.0;
 float KeyboardCameraController::mouse_y_pos = 0.0;
+
+std::vector<VklObject*> KeyboardCameraController::objects_;
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {
     camera = &t_camera;
@@ -36,6 +41,25 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
 
         std::cout << mouse_x_pos << ' ' << mouse_y_pos << std::endl;
 
+        auto up = camera->camera_up_axis;
+        auto right = camera->camera_right_axis;
+
+        auto base_on_viewport = camera->position + camera->camera_front * 0.1f - up * 0.0414f - right * 0.0414f;
+        up = up * 0.0414f / float(1024 / 2);
+        right = right * 0.0414f / float(1024 / 2);
+        base_on_viewport = base_on_viewport + up * float(mouse_y_pos) + right * float(mouse_x_pos);
+
+        Ray ray(camera->position, base_on_viewport - camera->position);
+
+        std::cout << std::format("{} {} {}\n", ray.dir.x, ray.dir.y, ray.dir.z);
+
+        RayTracer rayTracer(objects_, ray);
+        auto res = rayTracer.trace();
+
+        if (res.has_value()) {
+            std::cout << "tracer found object" << std::endl;
+        }
+
         is_mouse_pressing = true;
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_RELEASE) {
@@ -63,4 +87,8 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
     last_y = mouse_y_pos;
 
     camera->process_mouse_movement(x_offset, y_offset);
+}
+
+void KeyboardCameraController::set_objects(decltype(objects_) object) {
+    objects_ = object;
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "vkl/vkl_camera.hpp"
+#include "vkl/vkl_object.hpp"
+
 #include "GLFW/glfw3.h"
 
 class KeyboardCameraController {
@@ -16,6 +18,8 @@ class KeyboardCameraController {
     static float mouse_x_pos;
     static float mouse_y_pos;
 
+    static std::vector<VklObject*> objects_;
+
   public:
     static void setCamera(Camera &t_camera);
 
@@ -26,4 +30,6 @@ class KeyboardCameraController {
     static void mouse_button_callback(GLFWwindow *window, int button, int state, int mod);
 
     static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
+
+    static void set_objects(decltype(objects_) object);
 };
