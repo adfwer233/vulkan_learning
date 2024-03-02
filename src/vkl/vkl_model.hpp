@@ -8,6 +8,7 @@
 #include "vkl_buffer.hpp"
 #include "vkl_device.hpp"
 #include "vkl_texture.hpp"
+#include "vkl_descriptor.hpp"
 
 class VklModel {
   public:
@@ -34,6 +35,9 @@ class VklModel {
     };
 
     std::vector<VklTexture *> textures_;
+
+    std::vector<std::unique_ptr<VklBuffer>> uniformBuffers;
+    std::vector<VkDescriptorSet> descriptorSets;
 
   private:
     VklDevice &device_;
@@ -84,6 +88,8 @@ class VklModel {
 
     VklModel(const VklModel &) = delete;
     VklModel &operator=(const VklModel &) = delete;
+
+    void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
 
     void bind(VkCommandBuffer commandBuffer);
 

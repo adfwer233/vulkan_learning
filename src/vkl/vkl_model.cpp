@@ -4,6 +4,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "vkl_texture.hpp"
+#include "vkl_swap_chain.hpp"
+#include "vkl_frame_info.hpp"
+
+#include <iostream>
 
 VklModel::VklModel(VklDevice &device, VklModel::BuilderFromImmediateData builder) : device_(device) {
     createVertexBuffers(builder.vertices);
@@ -71,6 +75,10 @@ void VklModel::createTextureImage(const std::string &texturePath) {
         throw std::runtime_error("failed to load texture image!");
     }
 
+    if (texChannels == 3) {
+        throw std::runtime_error("unsupported texture info");
+    }
+
     VklBuffer stagingBuffer{device_, imageSize, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
     stagingBuffer.map();
@@ -107,6 +115,28 @@ void VklModel::draw(VkCommandBuffer commandBuffer) {
         vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
     } else {
         vkCmdDraw(commandBuffer, vertexCount_, 1, 0, 0);
+    }
+}
+
+void VklModel::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool) {
+    uniformBuffers.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+    descriptorSets.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    for (int i = 0; i < uniformBuffers.size(); i++) {
+        uniformBuffers[i] = std::make_unique<VklBuffer>(
+                device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        uniformBuffers[i]->map();
+    }
+
+    std::cout << textures_.size() << std::endl;
+
+    for (int i = 0; i < descriptorSets.size(); i++) {
+        auto bufferInfo = uniformBuffers[i]->descriptorInfo();
+        auto imageInfo = textures_[0]->descriptorInfo();
+        VklDescriptorWriter(setLayout, pool)
+            .writeBuffer(0, &bufferInfo)
+            .writeImage(1, &imageInfo)
+            .build(descriptorSets[i]);
     }
 }
 

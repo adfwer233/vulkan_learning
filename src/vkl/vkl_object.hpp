@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vkl_model.hpp"
+#include "vkl_swap_chain.hpp"
 
 class VklObject {
   private:
@@ -16,6 +17,8 @@ class VklObject {
     ~VklObject();
 
     std::vector<VklModel *> models;
+
+    void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
 
     void render_object();
 };

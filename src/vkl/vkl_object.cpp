@@ -9,6 +9,7 @@ VklObject::VklObject(VklDevice &device, VklObject::ImportBuilder builder) : devi
     for (auto modelBuilder : modelBuilders) {
         this->models.push_back(new VklModel(device, modelBuilder));
     }
+
 }
 
 VklObject::~VklObject() {
@@ -18,4 +19,10 @@ VklObject::~VklObject() {
 }
 
 void VklObject::render_object() {
+}
+
+void VklObject::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool) {
+    for (auto model: models) {
+        model->allocDescriptorSets(setLayout, pool);
+    }
 }

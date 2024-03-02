@@ -6,6 +6,7 @@
 
 #include <format>
 #include <iterator>
+#include <iostream>
 
 void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType type, MeshModel &model) {
     for (auto i = 0; i < material->GetTextureCount(type); i++) {
@@ -13,8 +14,10 @@ void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType typ
         material->GetTexture(type, i, &str);
 
         std::string path = std::format("{}/{}", this->directory, std::string(str.C_Str()));
+        std::cout << path << std::endl;
 
-        model.texturePaths.push_back(path);
+        if (type == aiTextureType::aiTextureType_DIFFUSE)
+            model.texturePaths.push_back(path);
 
         //        if (type == aiTextureType::aiTextureType_DIFFUSE)
         //            model.bind_texture(path, TextureType::diffuse_texture);
@@ -28,9 +31,9 @@ MeshModel AssimpLoader::process_mesh(aiMesh *mesh, const aiScene *scene) {
 
     for (auto i = 0; i < mesh->mNumVertices; i++) {
         decltype(model.vertices)::value_type vertex;
-        vertex.position = {mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z};
+        vertex.position = {mesh->mVertices[i].x, -mesh->mVertices[i].y, mesh->mVertices[i].z};
         if (mesh->HasNormals())
-            vertex.normal = {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z};
+            vertex.normal = {mesh->mNormals[i].x, -mesh->mNormals[i].y, mesh->mNormals[i].z};
         if (mesh->mTextureCoords[0])
             vertex.uv = {mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y};
         model.vertices.push_back(vertex);

@@ -1,6 +1,6 @@
 #include "application.hpp"
 #include "vkl_descriptor.hpp"
-#include "vkl_model.hpp"
+#include "vkl_object.hpp"
 
 #include "system/simple_render_system.hpp"
 #include "utils/keyboard_camera_controller.hpp"
@@ -43,6 +43,9 @@ void Application::run() {
 
     VklModel model(device_, builder);
 
+    VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
+    VklObject object(device_, objectBuilder);
+
     auto texture = model.textures_[0];
     auto imageInfo = texture->descriptorInfo();
     /** set uniform buffers */
@@ -60,8 +63,8 @@ void Application::run() {
                                .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_)
-                          .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
-                          .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+                          .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+                          .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
                           .build();
 
     std::vector<VkDescriptorSet> globalDescriptorSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -72,6 +75,8 @@ void Application::run() {
             .writeImage(1, &imageInfo)
             .build(globalDescriptorSets[i]);
     }
+
+    object.allocDescriptorSets(*globalSetLayout, *globalPool);
 
     /** set camera */
 
@@ -184,6 +189,22 @@ void Application::run() {
             uniformBuffers[frameIndex]->flush();
 
             renderSystem.renderObject(frameInfo);
+
+            for (auto model: object.models) {
+                model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                model->uniformBuffers[frameIndex]->flush();
+
+                FrameInfo modelFrameInfo {
+                        frameIndex,
+                        currentFrame,
+                        commandBuffer,
+                        camera,
+                        &model->descriptorSets[frameIndex],
+                        *model
+                };
+
+                renderSystem.renderObject(modelFrameInfo);
+            }
 
             /* ImGui Rendering */
             ImGui::Render();
