@@ -1,4 +1,4 @@
-#include "vkl_swap_chain.hpp"
+#include "vkl/vkl_swap_chain.hpp"
 
 #include <array>
 #include <iostream>

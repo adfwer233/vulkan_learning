@@ -1,9 +1,9 @@
 #include "application.hpp"
-#include "vkl_descriptor.hpp"
-#include "vkl_object.hpp"
+#include "vkl/vkl_descriptor.hpp"
+#include "vkl/vkl_object.hpp"
 
-#include "system/simple_render_system.hpp"
-#include "utils/keyboard_camera_controller.hpp"
+#include "vkl/system/simple_render_system.hpp"
+#include "vkl/utils/keyboard_camera_controller.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -53,27 +53,27 @@ void Application::run() {
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < uniformBuffers.size(); i++) {
         uniformBuffers[i] = std::make_unique<VklBuffer>(
-            device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+                device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         uniformBuffers[i]->map();
     }
 
     auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
-                               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                               .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                               .build();
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_)
-                          .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                          .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                          .build();
+            .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+            .build();
 
     std::vector<VkDescriptorSet> globalDescriptorSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < globalDescriptorSets.size(); i++) {
         auto bufferInfo = uniformBuffers[i]->descriptorInfo();
         VklDescriptorWriter(*globalSetLayout, *globalPool)
-            .writeBuffer(0, &bufferInfo)
-            .writeImage(1, &imageInfo)
-            .build(globalDescriptorSets[i]);
+                .writeBuffer(0, &bufferInfo)
+                .writeImage(1, &imageInfo)
+                .build(globalDescriptorSets[i]);
     }
 
     object.allocDescriptorSets(*globalSetLayout, *globalPool);

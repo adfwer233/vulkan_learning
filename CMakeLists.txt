@@ -39,6 +39,7 @@ target_include_directories(imgui PUBLIC ${VK_SDK_INCLUDE})
 target_include_directories(imgui PUBLIC ${GLFW_SOURCE_DIR}/include)
 
 add_subdirectory(src/vkl)
+add_subdirectory(src/demo)
 
 target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui)
 

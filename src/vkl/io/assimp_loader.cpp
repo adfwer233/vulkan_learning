@@ -1,4 +1,4 @@
-#include "assimp_loader.hpp"
+#include "vkl/io/assimp_loader.hpp"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"

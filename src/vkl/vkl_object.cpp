@@ -1,6 +1,6 @@
-#include "vkl_object.hpp"
+#include "vkl/vkl_object.hpp"
 
-#include "io/assimp_loader.hpp"
+#include "vkl/io/assimp_loader.hpp"
 
 VklObject::VklObject(VklDevice &device, VklObject::ImportBuilder builder) : device_(device) {
     AssimpLoader assimpLoader;

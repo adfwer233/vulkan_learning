@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "../vkl_model.hpp"
+#include "vkl/vkl_model.hpp"
 
 #include "assimp/material.h"
 #include "assimp/mesh.h"

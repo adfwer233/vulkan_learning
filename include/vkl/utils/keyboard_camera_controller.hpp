@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../vkl_camera.hpp"
+#include "vkl/vkl_camera.hpp"
 #include "GLFW/glfw3.h"
 
 class KeyboardCameraController {

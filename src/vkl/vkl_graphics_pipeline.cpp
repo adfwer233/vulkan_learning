@@ -1,5 +1,5 @@
-#include "vkl_graphics_pipeline.hpp"
-#include "vkl_model.hpp"
+#include "vkl/vkl_graphics_pipeline.hpp"
+#include "vkl/vkl_model.hpp"
 #include <fstream>
 #include <iostream>
 #include <stdexcept>

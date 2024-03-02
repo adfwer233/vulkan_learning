@@ -1,4 +1,4 @@
-#include "vkl_buffer.hpp"
+#include "vkl/vkl_buffer.hpp"
 
 #include <cstring>
 

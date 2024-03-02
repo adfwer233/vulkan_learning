@@ -1,4 +1,4 @@
-#include "keyboard_camera_controller.hpp"
+#include "vkl/utils/keyboard_camera_controller.hpp"
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {
     camera = &t_camera;

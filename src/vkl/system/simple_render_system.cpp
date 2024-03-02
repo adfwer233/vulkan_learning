@@ -1,4 +1,4 @@
-#include "simple_render_system.hpp"
+#include "vkl/system/simple_render_system.hpp"
 
 #include <stdexcept>
 

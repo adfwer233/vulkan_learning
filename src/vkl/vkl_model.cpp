@@ -1,11 +1,11 @@
-#include "vkl_model.hpp"
+#include "vkl/vkl_model.hpp"
 #include <stdexcept>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "vkl_texture.hpp"
-#include "vkl_swap_chain.hpp"
-#include "vkl_frame_info.hpp"
+#include "vkl/vkl_texture.hpp"
+#include "vkl/vkl_swap_chain.hpp"
+#include "vkl/vkl_frame_info.hpp"
 
 #include <iostream>
 

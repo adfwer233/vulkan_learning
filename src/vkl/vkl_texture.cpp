@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "vkl_texture.hpp"
+#include "vkl/vkl_texture.hpp"
 
 VklTexture::VklTexture(VklDevice &device, int texWidth, int texHeight, int texChannels) : device_(device) {
     if (texChannels == 3) {

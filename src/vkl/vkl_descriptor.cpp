@@ -1,4 +1,4 @@
-#include "vkl_descriptor.hpp"
+#include "vkl/vkl_descriptor.hpp"
 #include <stdexcept>
 
 VklDescriptorSetLayout::Builder &VklDescriptorSetLayout::Builder::addBinding(uint32_t binding,

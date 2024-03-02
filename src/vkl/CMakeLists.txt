@@ -1,15 +1,12 @@
-project(vkl VERSION 1.0 DESCRIPTION "VulkanLearning" LANGUAGES CXX)
+project(vkl VERSION 1.0 DESCRIPTION "Vulkan Learning Project Engine" LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(SRC_FILE main.cpp
-        vkl_window.cpp
-        application.cpp
+set(SRC_FILE vkl_window.cpp
         vkl_device.cpp
         vkl_swap_chain.cpp
         vkl_graphics_pipeline.cpp
         vkl_renderer.cpp
-        vkl_frame_info.hpp
         system/simple_render_system.cpp
         vkl_model.cpp
         vkl_buffer.cpp
@@ -21,8 +18,9 @@ set(SRC_FILE main.cpp
         vkl_texture.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SRC_FILE})
+add_library(${PROJECT_NAME} ${SRC_FILE})
 
+add_definitions(-DSHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shader")
 add_definitions(-DDATA_DIR="${CMAKE_SOURCE_DIR}/data")
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)

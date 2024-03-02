@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../vkl_frame_info.hpp"
-#include "../vkl_graphics_pipeline.hpp"
+#include "vkl/vkl_frame_info.hpp"
+#include "vkl/vkl_graphics_pipeline.hpp"
 
 #include <format>
 #include <iostream>
