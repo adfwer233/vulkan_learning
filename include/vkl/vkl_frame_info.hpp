@@ -5,7 +5,6 @@
 
 #include "vkl_camera.hpp"
 
-#include "vkl_model.hpp"
 
 struct SimplePushConstantData {
     glm::mat4 modelMatrix{1.f};

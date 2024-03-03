@@ -19,7 +19,7 @@ Application::~Application() {
 void Application::run() {
 
     /** tmp model data */
-    const std::vector<VklModel::Vertex> vertexData = {
+    const std::vector<Vertex3D> vertexData = {
         {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
         {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
         {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
@@ -87,7 +87,7 @@ void Application::run() {
     glfwSetMouseButtonCallback(window, KeyboardCameraController::mouse_button_callback);
 
     /** render system */
-    SimpleRenderSystem<VklModel::Vertex> renderSystem(device_, renderer_.getSwapChainRenderPass(),
+    SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, renderer_.getSwapChainRenderPass(),
                                     globalSetLayout->getDescriptorSetLayout());
 
     float deltaTime = 0, lastFrame = 0;

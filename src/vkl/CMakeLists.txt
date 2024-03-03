@@ -5,11 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(SRC_FILE vkl_window.cpp
         vkl_device.cpp
         vkl_swap_chain.cpp
-        vkl_graphics_pipeline.cpp
         vkl_renderer.cpp
-        system/simple_render_system.cpp
-        vkl_model.cpp
         vkl_buffer.cpp
+        vkl_model.cpp
         vkl_camera.cpp
         vkl_descriptor.cpp
         vkl_object.cpp
