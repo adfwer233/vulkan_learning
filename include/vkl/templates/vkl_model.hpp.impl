@@ -142,7 +142,7 @@ void VklModelTemplate<VertexType>::allocDescriptorSets(VklDescriptorSetLayout &s
     if (textures_.empty()) {
         for (int i = 0; i < descriptorSets.size(); i++) {
             auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-            VklDescriptorWriter(setLayout, pool).writeBuffer(0, &bufferInfo).build(descriptorSets[i]);
+            VklDescriptorWriter(setLayout, pool).build(descriptorSets[i]);
         }
     } else {
         for (int i = 0; i < descriptorSets.size(); i++) {
