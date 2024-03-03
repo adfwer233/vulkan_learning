@@ -3,44 +3,67 @@
 #include "vkl/vkl_object.hpp"
 
 #include "vkl/system/simple_render_system.hpp"
+#include "particle/system/particle_render_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
+#include "particle/particle.hpp"
+
 #include <functional>
+#include <random>
 
-struct Particle {
+#ifndef PARTICLE_SHADER_DIR
+#define PARTICLE_SHADER_DIR "./shader/"
+#endif
 
-};
+using VklParticleModel = VklModelTemplate<Particle>;
 
 Application::~Application() {
 }
 
 void Application::run() {
 
-    VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
-    VklObject object(device_, objectBuilder);
+    std::default_random_engine rndEngine((unsigned)time(nullptr));
+    std::uniform_real_distribution<float> rndDist(0.0f, 1.0f);
+
+    // Initial particle positions on a circle
+    std::vector<Particle> particles(1000);
+    for (auto& particle : particles) {
+        float r = 0.25f * sqrt(rndDist(rndEngine)) * 4;
+        float theta = rndDist(rndEngine) * 2.0f * 3.14159265358979323846f;
+        float x = r * cos(theta) * HEIGHT / WIDTH;
+        float y = r * sin(theta);
+        particle.position = glm::vec2(x, y);
+        particle.velocity = glm::normalize(glm::vec2(x,y)) * 0.00025f;
+        particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
+    }
+
+    VklParticleModel::BuilderFromImmediateData builder;
+    builder.vertices = particles;
+
+    VklParticleModel model(device_, builder);
 
     auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_)
             .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
             .build();
 
-    object.allocDescriptorSets(*globalSetLayout, *globalPool);
+    model.allocDescriptorSets(*globalSetLayout, *globalPool);
 
     /** set camera */
 
-    Camera camera({0, 0, 3}, {0, 1, 0});
+    Camera camera({0, 0, 1}, {0, 1, 0});
 
     GLFWwindow *window = window_.getGLFWwindow();
 
     float deltaTime = 0, lastFrame = 0;
+
+    ParticleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
 
     VkDescriptorPoolSize pool_sizes[] = {{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
                                          {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
@@ -91,13 +114,7 @@ void Application::run() {
 
     bool show_demo_window = true;
 
-    std::vector<VklObject *> objects{&object};
-
     int triangle_num = 0;
-
-    for (const auto object_item : objects) {
-        triangle_num += object_item->get_triangle_num();
-    }
 
     while (not window_.shouldClose()) {
         glfwPollEvents();
@@ -124,6 +141,12 @@ void Application::run() {
             ImGui::End();
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
+
+            FrameInfo<VklParticleModel> frameInfo {
+                frameIndex, currentFrame, commandBuffer, camera, &model.descriptorSets[frameIndex], model
+            };
+
+            renderSystem.renderObject(frameInfo);
 
             /* ImGui Rendering */
             ImGui::Render();

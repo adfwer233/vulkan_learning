@@ -5,6 +5,7 @@
 
 #include "vkl_camera.hpp"
 
+#include "templates/vkl_concept.hpp"
 
 struct SimplePushConstantData {
     glm::mat4 modelMatrix{1.f};
@@ -17,11 +18,12 @@ struct GlobalUbo {
     glm::mat4 proj;
 };
 
+template<VklRenderable RenderableModel>
 struct FrameInfo {
     int frameIndex;
     float frameTime;
     VkCommandBuffer commandBuffer;
     Camera &camera;
     VkDescriptorSet *pGlobalDescriptorSet;
-    VklModel &model;
+    RenderableModel &model;
 };

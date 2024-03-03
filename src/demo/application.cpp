@@ -205,7 +205,7 @@ void Application::run() {
             }
             ImGui::End();
 
-            FrameInfo frameInfo{frameIndex, currentFrame, commandBuffer, camera, &globalDescriptorSets[frameIndex],
+            FrameInfo<VklModel> frameInfo{frameIndex, currentFrame, commandBuffer, camera, &globalDescriptorSets[frameIndex],
                                 model};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
@@ -227,7 +227,7 @@ void Application::run() {
                     model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                     model->uniformBuffers[frameIndex]->flush();
 
-                    FrameInfo modelFrameInfo{
+                    FrameInfo<VklModel> modelFrameInfo{
                         frameIndex, currentFrame, commandBuffer, camera, &model->descriptorSets[frameIndex], *model};
 
                     renderSystem.renderObject(modelFrameInfo);

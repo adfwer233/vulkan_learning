@@ -4,11 +4,13 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_FILE main.cpp
         application.cpp
+        system/particle_render_system.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
 
 add_definitions(-DDATA_DIR="${CMAKE_SOURCE_DIR}/data")
+add_definitions(-DPARTICLE_SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shader")
 
 add_subdirectory(shader)
 

@@ -34,14 +34,18 @@ void ParticleRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetL
 void ParticleRenderSystem::createPipeline(VkRenderPass renderPass) {
     PipelineConfigInfo pipelineConfigInfo{};
 
-    VklGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfigInfo);
+    VklGraphicsPipeline<Particle>::defaultPipelineConfigInfo(pipelineConfigInfo);
+
+    pipelineConfigInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    pipelineConfigInfo.depthStencilInfo.depthTestEnable = VK_FALSE;
+    pipelineConfigInfo.colorBlendAttachment.blendEnable = VK_TRUE;
+
     pipelineConfigInfo.renderPass = renderPass;
     pipelineConfigInfo.pipelineLayout = pipelineLayout_;
-    pipeline_ =
-            std::make_unique<VklGraphicsPipeline>(device_, vertex_shader_path, fragment_shader_path, pipelineConfigInfo);
+    pipeline_ = std::make_unique<VklGraphicsPipeline<Particle>>(device_, vertex_shader_path, fragment_shader_path, pipelineConfigInfo);
 }
 
-void ParticleRenderSystem::renderObject(FrameInfo &frameInfo) {
+void ParticleRenderSystem::renderObject(FrameInfo<VklModelTemplate<Particle>> &frameInfo) {
 
     vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);
 

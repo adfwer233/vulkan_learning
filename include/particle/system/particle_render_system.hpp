@@ -6,6 +6,9 @@
 #include "vkl/vkl_frame_info.hpp"
 #include "vkl/vkl_graphics_pipeline.hpp"
 
+#include "particle/particle.hpp"
+#include "vkl/templates/vkl_concept.hpp"
+
 #ifndef PARTICLE_SHADER_DIR
 #define PARTICLE_SHADER_DIR "./shader/"
 #endif
@@ -21,7 +24,7 @@ private:
     void createPipeline(VkRenderPass renderPass);
 
 public:
-    std::unique_ptr<VklGraphicsPipeline> pipeline_;
+    std::unique_ptr<VklGraphicsPipeline<Particle>> pipeline_;
     VkPipelineLayout pipelineLayout_;
 
     ParticleRenderSystem(VklDevice &device_, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
@@ -31,5 +34,5 @@ public:
 
     ~ParticleRenderSystem();
 
-    void renderObject(FrameInfo &frameInfo);
+    void renderObject(FrameInfo<VklModelTemplate<Particle>> &frameInfo);
 };
