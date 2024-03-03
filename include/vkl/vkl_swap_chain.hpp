@@ -141,7 +141,8 @@ class VklSwapChain {
     }
 
     VkResult acquireNextImage(uint32_t *imageIndex);
-    VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex, std::vector<VkSemaphore> toWait = std::vector<VkSemaphore>());
+    VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex,
+                                  std::vector<VkSemaphore> toWait = std::vector<VkSemaphore>());
 
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 };

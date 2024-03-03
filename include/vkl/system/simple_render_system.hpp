@@ -14,8 +14,7 @@
 #define SHADER_DIR "./shader/"
 #endif
 
-template<VklVertexType VertexType>
-class SimpleRenderSystem {
+template <VklVertexType VertexType> class SimpleRenderSystem {
   private:
     std::string vertex_shader_path_, fragment_shader_path_;
 
@@ -27,15 +26,16 @@ class SimpleRenderSystem {
   public:
     std::unique_ptr<VklGraphicsPipeline<VertexType>> pipeline_;
     VkPipelineLayout pipelineLayout_{};
-    SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::string vertex_shader_path = std::format("{}/simple_shader.vert.spv", SHADER_DIR), std::string fragment_shader_path = std::format("{}/simple_shader.frag.spv", SHADER_DIR));
+    SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
+                       std::string vertex_shader_path = std::format("{}/simple_shader.vert.spv", SHADER_DIR),
+                       std::string fragment_shader_path = std::format("{}/simple_shader.frag.spv", SHADER_DIR));
 
     SimpleRenderSystem(const SimpleRenderSystem &) = delete;
     SimpleRenderSystem operator=(const SimpleRenderSystem &) = delete;
 
     ~SimpleRenderSystem();
 
-    template<VklRenderable ModelType>
-    void renderObject(FrameInfo<ModelType> &frameInfo);
+    template <VklRenderable ModelType> void renderObject(FrameInfo<ModelType> &frameInfo);
 };
 
 #include "simple_render_system.hpp.impl"

@@ -19,11 +19,13 @@ struct Particle {
         return bindingDescriptions;
     }
 
-    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions(){
+    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-        attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32_SFLOAT, static_cast<uint32_t>(offsetof(Particle, position))});
-        attributeDescriptions.push_back({1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, static_cast<uint32_t>(offsetof(Particle, color))});
+        attributeDescriptions.push_back(
+            {0, 0, VK_FORMAT_R32G32_SFLOAT, static_cast<uint32_t>(offsetof(Particle, position))});
+        attributeDescriptions.push_back(
+            {1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, static_cast<uint32_t>(offsetof(Particle, color))});
 
         return attributeDescriptions;
     }

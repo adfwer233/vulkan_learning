@@ -4,23 +4,24 @@
 #include <iostream>
 #include <stdexcept>
 
-template<VklVertexType VertexType>
+template <VklVertexType VertexType>
 VklGraphicsPipeline<VertexType>::VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath,
-                                         const std::string &fragFilepath, const PipelineConfigInfo &configInfo)
+                                                     const std::string &fragFilepath,
+                                                     const PipelineConfigInfo &configInfo)
     : VklPipeline(device) {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
 }
 
-template<VklVertexType VertexType>
-VklGraphicsPipeline<VertexType>::~VklGraphicsPipeline() {
+template <VklVertexType VertexType> VklGraphicsPipeline<VertexType>::~VklGraphicsPipeline() {
     vkDestroyShaderModule(device_.device(), vertShaderModule_, nullptr);
     vkDestroyShaderModule(device_.device(), fragShaderModule_, nullptr);
     vkDestroyPipeline(device_.device(), graphicsPipeline_, nullptr);
 }
 
-template<VklVertexType VertexType>
-void VklGraphicsPipeline<VertexType>::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
-                                                 const PipelineConfigInfo &configInfo) {
+template <VklVertexType VertexType>
+void VklGraphicsPipeline<VertexType>::createGraphicsPipeline(const std::string &vertFilepath,
+                                                             const std::string &fragFilepath,
+                                                             const PipelineConfigInfo &configInfo) {
 
     auto vertCode = readFile(vertFilepath);
     auto fragCode = readFile(fragFilepath);
@@ -80,7 +81,7 @@ void VklGraphicsPipeline<VertexType>::createGraphicsPipeline(const std::string &
     }
 }
 
-template<VklVertexType VertexType>
+template <VklVertexType VertexType>
 void VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo) {
     configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;

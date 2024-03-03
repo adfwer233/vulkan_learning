@@ -2,7 +2,8 @@
 
 #include <fstream>
 
-void VklComputePipeline::createComputePipeline(const std::string &compFilePath, const ComputePipelineConfigInfo &configInfo) {
+void VklComputePipeline::createComputePipeline(const std::string &compFilePath,
+                                               const ComputePipelineConfigInfo &configInfo) {
     auto computeShaderCode = readFile(compFilePath);
     createShaderModule(computeShaderCode, &computeShaderModule_);
 
@@ -17,13 +18,15 @@ void VklComputePipeline::createComputePipeline(const std::string &compFilePath, 
     pipelineCreateInfo.layout = configInfo.computePipelineLayout;
     pipelineCreateInfo.stage = computeShaderStageInfo;
 
-    if (vkCreateComputePipelines(device_.device(), VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &computePipeline_) != VK_SUCCESS) {
+    if (vkCreateComputePipelines(device_.device(), VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr,
+                                 &computePipeline_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create compute pipeline");
     }
 }
 
 VklComputePipeline::VklComputePipeline(VklDevice &device, const std::string &compFilePath,
-                                       const ComputePipelineConfigInfo &configInfo): VklPipeline(device) {
+                                       const ComputePipelineConfigInfo &configInfo)
+    : VklPipeline(device) {
     createComputePipeline(compFilePath, configInfo);
 }
 
@@ -31,6 +34,3 @@ VklComputePipeline::~VklComputePipeline() {
     vkDestroyShaderModule(device_.device(), computeShaderModule_, nullptr);
     vkDestroyPipeline(device_.device(), computePipeline_, nullptr);
 }
-
-
-

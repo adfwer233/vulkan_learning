@@ -5,8 +5,7 @@
 
 #include "vkl/templates/vkl_concept.hpp"
 
-template<VklVertexType VertexType>
-class VklGraphicsPipeline: public VklPipeline{
+template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeline {
   private:
     VkShaderModule vertShaderModule_{};
     VkShaderModule fragShaderModule_{};

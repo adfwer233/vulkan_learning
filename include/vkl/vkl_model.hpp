@@ -26,22 +26,22 @@ struct Vertex3D {
         return bindingDescriptions;
     }
 
-    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions(){
+    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
         attributeDescriptions.push_back(
-                {0, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3D, position))});
-        attributeDescriptions.push_back({1, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3D, color))});
+            {0, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3D, position))});
         attributeDescriptions.push_back(
-                {2, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3D, normal))});
+            {1, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3D, color))});
+        attributeDescriptions.push_back(
+            {2, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3D, normal))});
         attributeDescriptions.push_back({3, 0, VK_FORMAT_R32G32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3D, uv))});
 
         return attributeDescriptions;
     }
 };
 
-template<typename VertexType>
-class VklModelTemplate {
+template <typename VertexType> class VklModelTemplate {
 
   public:
     typedef VertexType vertex_type;
@@ -128,7 +128,9 @@ class VklModelTemplate {
 
     void draw(VkCommandBuffer commandBuffer);
 
-    VkBuffer getVertexBuffer(size_t index) {return vertexBuffer_[index]->getBuffer();};
+    VkBuffer getVertexBuffer(size_t index) {
+        return vertexBuffer_[index]->getBuffer();
+    };
 
     friend class RayPicker;
 };

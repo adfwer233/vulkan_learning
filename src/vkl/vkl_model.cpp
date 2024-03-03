@@ -2,5 +2,5 @@
 #include "stb_image.h"
 
 /**
-* This file is created for resolving cyclic including issue in VklModel template class
-*/
+ * This file is created for resolving cyclic including issue in VklModel template class
+ */

@@ -18,8 +18,7 @@ struct GlobalUbo {
     glm::mat4 proj;
 };
 
-template<VklRenderable RenderableModel>
-struct FrameInfo {
+template <VklRenderable RenderableModel> struct FrameInfo {
     int frameIndex;
     float frameTime;
     VkCommandBuffer commandBuffer;

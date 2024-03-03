@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <format>
+#include <string>
 
 #include "vkl/vkl_frame_info.hpp"
 #include "vkl/vkl_graphics_pipeline.hpp"
@@ -14,7 +14,7 @@
 #endif
 
 class ParticleRenderSystem {
-private:
+  private:
     const std::string vertex_shader_path = std::format("{}/particle.vert.spv", PARTICLE_SHADER_DIR);
     const std::string fragment_shader_path = std::format("{}/particle.frag.spv", PARTICLE_SHADER_DIR);
 
@@ -23,7 +23,7 @@ private:
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
     void createPipeline(VkRenderPass renderPass);
 
-public:
+  public:
     std::unique_ptr<VklGraphicsPipeline<Particle>> pipeline_;
     VkPipelineLayout pipelineLayout_;
 

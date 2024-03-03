@@ -2,20 +2,20 @@
 
 #include <stdexcept>
 
-template<VklVertexType VertexType>
+template <VklVertexType VertexType>
 SimpleRenderSystem<VertexType>::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
-                                       VkDescriptorSetLayout globalSetLayout, std::string vertex_shader_path, std::string fragment_shader_path)
+                                                   VkDescriptorSetLayout globalSetLayout,
+                                                   std::string vertex_shader_path, std::string fragment_shader_path)
     : device_(device), vertex_shader_path_(vertex_shader_path), fragment_shader_path_(fragment_shader_path) {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }
 
-template<VklVertexType VertexType>
-SimpleRenderSystem<VertexType>::~SimpleRenderSystem() {
+template <VklVertexType VertexType> SimpleRenderSystem<VertexType>::~SimpleRenderSystem() {
     vkDestroyPipelineLayout(device_.device(), pipelineLayout_, nullptr);
 }
 
-template<VklVertexType VertexType>
+template <VklVertexType VertexType>
 void SimpleRenderSystem<VertexType>::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -36,19 +36,18 @@ void SimpleRenderSystem<VertexType>::createPipelineLayout(VkDescriptorSetLayout 
     }
 }
 
-template<VklVertexType VertexType>
-void SimpleRenderSystem<VertexType>::createPipeline(VkRenderPass renderPass) {
+template <VklVertexType VertexType> void SimpleRenderSystem<VertexType>::createPipeline(VkRenderPass renderPass) {
     PipelineConfigInfo pipelineConfigInfo{};
 
     VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(pipelineConfigInfo);
     pipelineConfigInfo.renderPass = renderPass;
     pipelineConfigInfo.pipelineLayout = pipelineLayout_;
-    pipeline_ =
-        std::make_unique<VklGraphicsPipeline<VertexType>>(device_, vertex_shader_path_, fragment_shader_path_, pipelineConfigInfo);
+    pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, vertex_shader_path_, fragment_shader_path_,
+                                                                  pipelineConfigInfo);
 }
 
-template<VklVertexType VertexType>
-template<VklRenderable ModelType>
+template <VklVertexType VertexType>
+template <VklRenderable ModelType>
 void SimpleRenderSystem<VertexType>::renderObject(FrameInfo<ModelType> &frameInfo) {
 
     vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);

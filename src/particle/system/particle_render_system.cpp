@@ -1,8 +1,8 @@
 #include "particle/system/particle_render_system.hpp"
 
 ParticleRenderSystem::ParticleRenderSystem(VklDevice &device, VkRenderPass renderPass,
-                                       VkDescriptorSetLayout globalSetLayout)
-        : device_(device) {
+                                           VkDescriptorSetLayout globalSetLayout)
+    : device_(device) {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }
@@ -42,7 +42,8 @@ void ParticleRenderSystem::createPipeline(VkRenderPass renderPass) {
 
     pipelineConfigInfo.renderPass = renderPass;
     pipelineConfigInfo.pipelineLayout = pipelineLayout_;
-    pipeline_ = std::make_unique<VklGraphicsPipeline<Particle>>(device_, vertex_shader_path, fragment_shader_path, pipelineConfigInfo);
+    pipeline_ = std::make_unique<VklGraphicsPipeline<Particle>>(device_, vertex_shader_path, fragment_shader_path,
+                                                                pipelineConfigInfo);
 }
 
 void ParticleRenderSystem::renderObject(FrameInfo<VklModelTemplate<Particle>> &frameInfo) {

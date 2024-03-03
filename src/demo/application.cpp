@@ -88,7 +88,7 @@ void Application::run() {
 
     /** render system */
     SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, renderer_.getSwapChainRenderPass(),
-                                    globalSetLayout->getDescriptorSetLayout());
+                                                           globalSetLayout->getDescriptorSetLayout());
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -205,8 +205,8 @@ void Application::run() {
             }
             ImGui::End();
 
-            FrameInfo<VklModel> frameInfo{frameIndex, currentFrame, commandBuffer, camera, &globalDescriptorSets[frameIndex],
-                                model};
+            FrameInfo<VklModel> frameInfo{
+                frameIndex, currentFrame, commandBuffer, camera, &globalDescriptorSets[frameIndex], model};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
 

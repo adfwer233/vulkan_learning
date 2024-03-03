@@ -2,9 +2,9 @@
 #include "vkl/vkl_descriptor.hpp"
 #include "vkl/vkl_object.hpp"
 
-#include "vkl/system/simple_render_system.hpp"
 #include "particle/system/particle_render_system.hpp"
 #include "particle/system/particle_simulation_system.hpp"
+#include "vkl/system/simple_render_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -32,13 +32,13 @@ void Application::run() {
 
     // Initial particle positions on a circle
     std::vector<Particle> particles(1024);
-    for (auto& particle : particles) {
+    for (auto &particle : particles) {
         float r = 0.25f * sqrt(radiusDist(rndEngine));
         float theta = rndDist(rndEngine) * 2.0f * 3.14159265358979323846f;
         float x = r * cos(theta) * HEIGHT / WIDTH;
         float y = r * sin(theta);
         particle.position = glm::vec2(x, y);
-        particle.velocity = glm::normalize(glm::vec2(x,y)) * 0.025f;
+        particle.velocity = glm::normalize(glm::vec2(x, y)) * 0.025f;
         particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
     }
 
@@ -48,12 +48,10 @@ void Application::run() {
     VklParticleModel model(device_, builder);
 
     auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            .build();
+                               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                               .build();
 
-    auto globalPool = VklDescriptorPool::Builder(device_)
-            .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-            .build();
+    auto globalPool = VklDescriptorPool::Builder(device_).setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200).build();
 
     model.allocDescriptorSets(*globalSetLayout, *globalPool);
 
@@ -65,7 +63,8 @@ void Application::run() {
 
     float deltaTime = 0, lastFrame = 0;
 
-    ParticleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+    ParticleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(),
+                                      globalSetLayout->getDescriptorSetLayout());
 
     ParticleSimulationSystem computeSystem(device_, model);
 
@@ -138,8 +137,8 @@ void Application::run() {
             ImGui::SeparatorText("Scene Information");
             ImGui::LabelText("# Triangles", "%d", triangle_num);
             ImGui::LabelText(
-                    "Camera Position",
-                    std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
+                "Camera Position",
+                std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
             ImGui::SeparatorText("Performance");
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
@@ -149,13 +148,11 @@ void Application::run() {
 
             auto commandBuffer = renderer_.beginFrame();
 
-            FrameInfo<VklParticleModel> frameInfo {
-                frameIndex, currentFrame, commandBuffer, camera, &model.descriptorSets[frameIndex], model
-            };
+            FrameInfo<VklParticleModel> frameInfo{
+                frameIndex, currentFrame, commandBuffer, camera, &model.descriptorSets[frameIndex], model};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
             renderSystem.renderObject(frameInfo);
-
 
             /* ImGui Rendering */
             ImGui::Render();

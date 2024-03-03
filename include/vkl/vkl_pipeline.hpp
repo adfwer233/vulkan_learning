@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <fstream>
 #include "vkl_device.hpp"
+#include <fstream>
+#include <string>
+#include <vector>
 
 struct PipelineConfigInfo {
     PipelineConfigInfo() = default;
@@ -27,7 +27,7 @@ struct PipelineConfigInfo {
 };
 
 class VklPipeline {
-protected:
+  protected:
     VklDevice &device_;
 
     void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule) {
@@ -59,5 +59,5 @@ protected:
         return buffer;
     }
 
-    explicit VklPipeline(VklDevice &device): device_(device) {};
+    explicit VklPipeline(VklDevice &device) : device_(device){};
 };

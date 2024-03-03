@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <format>
+#include <string>
 
 #include "vkl/vkl_frame_info.hpp"
 #include "vkl/vkl_graphics_pipeline.hpp"
@@ -16,12 +16,12 @@
 #endif
 
 class ParticleSimulationSystem {
-public:
+  public:
     struct UniformBufferObject {
         float deltaTime = 1.0f;
     };
 
-private:
+  private:
     const std::string comp_shader_path = std::format("{}/particle.comp.spv", PARTICLE_SHADER_DIR);
 
     VklDevice &device_;
@@ -50,8 +50,8 @@ private:
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers_;
 
     void recordComputeCommandBuffer(size_t frameIndex);
-public:
 
+  public:
     std::vector<VkSemaphore> computeFinishedSemaphores;
     std::vector<VkFence> computeInFlightFences;
 

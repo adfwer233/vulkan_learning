@@ -6,9 +6,9 @@
 #include "vkl/vkl_swap_chain.hpp"
 #include "vkl/vkl_texture.hpp"
 
-template<typename VertexType>
+template <typename VertexType>
 VklModelTemplate<VertexType>::VklModelTemplate(VklDevice &device, VklModelTemplate::BuilderFromImmediateData builder)
-        : device_(device), vertices_(builder.vertices), indices_(builder.indices) {
+    : device_(device), vertices_(builder.vertices), indices_(builder.indices) {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
 
@@ -17,15 +17,14 @@ VklModelTemplate<VertexType>::VklModelTemplate(VklDevice &device, VklModelTempla
     }
 }
 
-template<typename VertexType>
-VklModelTemplate<VertexType>::~VklModelTemplate() {
+template <typename VertexType> VklModelTemplate<VertexType>::~VklModelTemplate() {
     /** free texture objects */
     for (auto texture : textures_) {
         delete texture;
     }
 }
 
-template<typename VertexType>
+template <typename VertexType>
 void VklModelTemplate<VertexType>::createVertexBuffers(const std::vector<VertexType> &vertices) {
     vertexCount_ = static_cast<uint32_t>(vertices.size());
     uint32_t vertexSize = sizeof(std::remove_reference<decltype(vertices)>::type::value_type);
@@ -38,10 +37,10 @@ void VklModelTemplate<VertexType>::createVertexBuffers(const std::vector<VertexT
     stagingBuffer.writeToBuffer((void *)vertices.data());
 
     for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-        auto vertexBuffer = std::make_unique<VklBuffer>(device_, vertexSize, vertexCount_,
-                                                        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
-                                                        VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        auto vertexBuffer = std::make_unique<VklBuffer>(
+            device_, vertexSize, vertexCount_,
+            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
         device_.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
 
@@ -49,7 +48,7 @@ void VklModelTemplate<VertexType>::createVertexBuffers(const std::vector<VertexT
     }
 }
 
-template<typename VertexType>
+template <typename VertexType>
 void VklModelTemplate<VertexType>::createIndexBuffers(const std::vector<FaceIndices> &indices) {
     indexCount_ = static_cast<uint32_t>(indices.size()) * 3;
     hasIndexBuffer = indexCount_ > 0;
@@ -67,10 +66,9 @@ void VklModelTemplate<VertexType>::createIndexBuffers(const std::vector<FaceIndi
     stagingBuffer.writeToBuffer((void *)indices.data());
 
     for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-        auto indexBuffer = std::make_unique<VklBuffer>(device_, indexSize, indexCount_,
-                                                       VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
-                                                       VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        auto indexBuffer = std::make_unique<VklBuffer>(
+            device_, indexSize, indexCount_, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
         device_.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 
@@ -78,8 +76,7 @@ void VklModelTemplate<VertexType>::createIndexBuffers(const std::vector<FaceIndi
     }
 }
 
-template<typename VertexType>
-void VklModelTemplate<VertexType>::createTextureImage(const std::string &texturePath) {
+template <typename VertexType> void VklModelTemplate<VertexType>::createTextureImage(const std::string &texturePath) {
     int texWidth, texHeight, texChannels;
     stbi_uc *pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * texChannels;
@@ -112,8 +109,7 @@ void VklModelTemplate<VertexType>::createTextureImage(const std::string &texture
     stbi_image_free(pixels);
 }
 
-template<typename VertexType>
-void VklModelTemplate<VertexType>::bind(VkCommandBuffer commandBuffer) {
+template <typename VertexType> void VklModelTemplate<VertexType>::bind(VkCommandBuffer commandBuffer) {
     VkBuffer buffers[] = {vertexBuffer_[0]->getBuffer()};
     VkDeviceSize offsets[] = {0};
 
@@ -124,8 +120,7 @@ void VklModelTemplate<VertexType>::bind(VkCommandBuffer commandBuffer) {
     }
 }
 
-template<typename VertexType>
-void VklModelTemplate<VertexType>::draw(VkCommandBuffer commandBuffer) {
+template <typename VertexType> void VklModelTemplate<VertexType>::draw(VkCommandBuffer commandBuffer) {
     if (hasIndexBuffer) {
         vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
     } else {
@@ -133,38 +128,35 @@ void VklModelTemplate<VertexType>::draw(VkCommandBuffer commandBuffer) {
     }
 }
 
-template<typename VertexType>
+template <typename VertexType>
 void VklModelTemplate<VertexType>::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool) {
     uniformBuffers.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     descriptorSets.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
 
     for (int i = 0; i < uniformBuffers.size(); i++) {
         uniformBuffers[i] = std::make_unique<VklBuffer>(
-                device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         uniformBuffers[i]->map();
     }
 
     if (textures_.empty()) {
         for (int i = 0; i < descriptorSets.size(); i++) {
             auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-            VklDescriptorWriter(setLayout, pool)
-                    .writeBuffer(0, &bufferInfo)
-                    .build(descriptorSets[i]);
+            VklDescriptorWriter(setLayout, pool).writeBuffer(0, &bufferInfo).build(descriptorSets[i]);
         }
     } else {
         for (int i = 0; i < descriptorSets.size(); i++) {
             auto bufferInfo = uniformBuffers[i]->descriptorInfo();
             auto imageInfo = textures_[0]->descriptorInfo();
             VklDescriptorWriter(setLayout, pool)
-                    .writeBuffer(0, &bufferInfo)
-                    .writeImage(1, &imageInfo)
-                    .build(descriptorSets[i]);
+                .writeBuffer(0, &bufferInfo)
+                .writeImage(1, &imageInfo)
+                .build(descriptorSets[i]);
         }
     }
 }
 
-template<typename VertexType>
-int VklModelTemplate<VertexType>::get_triangle_num() const {
+template <typename VertexType> int VklModelTemplate<VertexType>::get_triangle_num() const {
     int result = 0;
     result += vertexCount_ / 3;
     return result;

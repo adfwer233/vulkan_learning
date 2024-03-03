@@ -5,7 +5,7 @@ import threading
 
 print("running clang format")
 
-file_extends = ["*.hpp", "*.cpp", "*.cuh", "*.cu"]
+file_extends = ["*.hpp", "*.cpp", "*.cuh", "*.cu", "*.hpp.impl"]
 
 target_dirs = [".\\src", ".\\include"]
 

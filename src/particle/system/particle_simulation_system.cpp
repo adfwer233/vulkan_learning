@@ -1,7 +1,8 @@
-#include <array>
 #include "particle/system/particle_simulation_system.hpp"
+#include <array>
 
-ParticleSimulationSystem::ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle> &model): device_(device), model(model) {
+ParticleSimulationSystem::ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle> &model)
+    : device_(device), model(model) {
     createComputeDescriptorSetLayout();
     createPipelineLayout();
     createPipeline();
@@ -13,8 +14,7 @@ ParticleSimulationSystem::ParticleSimulationSystem(VklDevice &device, VklModelTe
 }
 
 void ParticleSimulationSystem::createComputeDescriptorSetLayout() {
-    std::vector<VkDescriptorSetLayoutBinding> layoutBindings(3)
-    ;
+    std::vector<VkDescriptorSetLayoutBinding> layoutBindings(3);
     layoutBindings[0].binding = 0;
     layoutBindings[0].descriptorCount = 1;
     layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -38,7 +38,8 @@ void ParticleSimulationSystem::createComputeDescriptorSetLayout() {
     layoutInfo.bindingCount = 3;
     layoutInfo.pBindings = layoutBindings.data();
 
-    if (vkCreateDescriptorSetLayout(device_.device(), &layoutInfo, nullptr, &computeDescriptorSetLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(device_.device(), &layoutInfo, nullptr, &computeDescriptorSetLayout) !=
+        VK_SUCCESS) {
         throw std::runtime_error("failed to create compute descriptor set layout!");
     }
 }
@@ -55,8 +56,8 @@ void ParticleSimulationSystem::createPipelineLayout() {
 }
 
 void ParticleSimulationSystem::createPipeline() {
-    ComputePipelineConfigInfo configInfo{ computeDescriptorSetLayout, pipelineLayout_};
-    this->pipeline_ = std::make_unique<VklComputePipeline>(device_, comp_shader_path ,configInfo);
+    ComputePipelineConfigInfo configInfo{computeDescriptorSetLayout, pipelineLayout_};
+    this->pipeline_ = std::make_unique<VklComputePipeline>(device_, comp_shader_path, configInfo);
 }
 
 void ParticleSimulationSystem::createCommandBuffer() {
@@ -72,8 +73,6 @@ void ParticleSimulationSystem::createCommandBuffer() {
         throw std::runtime_error("failed to allocate compute command buffers!");
     }
 }
-
-
 
 void ParticleSimulationSystem::createSyncObjects() {
     computeFinishedSemaphores.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -104,7 +103,8 @@ void ParticleSimulationSystem::recordComputeCommandBuffer(size_t frameIndex) {
 
     vkCmdBindPipeline(computeCommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_->computePipeline_);
 
-    vkCmdBindDescriptorSets(computeCommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout_, 0, 1, &computeDescriptorSets[frameIndex], 0, nullptr);
+    vkCmdBindDescriptorSets(computeCommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout_, 0, 1,
+                            &computeDescriptorSets[frameIndex], 0, nullptr);
 
     vkCmdDispatch(computeCommandBuffers[frameIndex], 1024 / 256, 1, 1);
 
@@ -117,7 +117,9 @@ void ParticleSimulationSystem::createUniformBuffers() {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
     for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-        auto buffer = std::make_unique<VklBuffer>(device_, sizeof(UniformBufferObject), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        auto buffer =
+            std::make_unique<VklBuffer>(device_, sizeof(UniformBufferObject), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         buffer->map();
         uniformBuffers_.push_back(std::move(buffer));
     }
@@ -200,7 +202,6 @@ void ParticleSimulationSystem::createComputeDescriptorSets() {
     }
 }
 
-
 void ParticleSimulationSystem::computeSubmission(size_t frameIndex, float deltaTime) {
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -233,11 +234,11 @@ void ParticleSimulationSystem::updateUniformBuffer(uint32_t frameIndex, float de
 }
 
 ParticleSimulationSystem::~ParticleSimulationSystem() {
-    for (auto semaphore: this->computeFinishedSemaphores) {
+    for (auto semaphore : this->computeFinishedSemaphores) {
         vkDestroySemaphore(device_.device(), semaphore, nullptr);
     }
 
-    for (auto fence: this->computeInFlightFences) {
+    for (auto fence : this->computeInFlightFences) {
         vkDestroyFence(device_.device(), fence, nullptr);
     }
 
