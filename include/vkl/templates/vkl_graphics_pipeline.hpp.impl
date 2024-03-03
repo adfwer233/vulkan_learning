@@ -7,7 +7,7 @@
 template<VklVertexType VertexType>
 VklGraphicsPipeline<VertexType>::VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath,
                                          const std::string &fragFilepath, const PipelineConfigInfo &configInfo)
-    : device_(device) {
+    : VklPipeline(device) {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
 }
 
@@ -16,25 +16,6 @@ VklGraphicsPipeline<VertexType>::~VklGraphicsPipeline() {
     vkDestroyShaderModule(device_.device(), vertShaderModule_, nullptr);
     vkDestroyShaderModule(device_.device(), fragShaderModule_, nullptr);
     vkDestroyPipeline(device_.device(), graphicsPipeline_, nullptr);
-}
-
-template<VklVertexType VertexType>
-std::vector<char> VklGraphicsPipeline<VertexType>::readFile(const std::string &filepath) {
-    std::string enginePath = filepath;
-    std::ifstream file{enginePath, std::ios::ate | std::ios::binary};
-
-    if (!file.is_open()) {
-        throw std::runtime_error("failed to open file: " + enginePath);
-    }
-
-    size_t fileSize = static_cast<size_t>(file.tellg());
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-    return buffer;
 }
 
 template<VklVertexType VertexType>
@@ -170,16 +151,4 @@ void VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(PipelineConfigIn
 
     configInfo.bindingDescriptions = VertexType::getBindingDescriptions();
     configInfo.attributeDescriptions = VertexType::getAttributeDescriptions();
-}
-
-template<VklVertexType VertexType>
-void VklGraphicsPipeline<VertexType>::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule) {
-    VkShaderModuleCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-
-    if (vkCreateShaderModule(device_.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create shader module");
-    }
 }
