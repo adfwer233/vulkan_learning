@@ -110,3 +110,7 @@ void VklRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
 void VklRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 }
+
+void VklRenderer::addSemaphoreToWait(VkSemaphore semaphore) {
+    this->semaphoreToWait.push_back(semaphore);
+}

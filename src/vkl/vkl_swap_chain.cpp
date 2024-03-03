@@ -358,7 +358,7 @@ VkResult VklSwapChain::acquireNextImage(uint32_t *imageIndex) {
     return result;
 }
 
-VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
+VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex, std::vector<VkSemaphore> toWait) {
     if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device_.device(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);
     }
@@ -367,10 +367,12 @@ VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores_[currentFrame]};
+    std::vector<VkSemaphore> waitSemaphores = {imageAvailableSemaphores_[currentFrame]};
+    std::ranges::copy(toWait, std::back_inserter(waitSemaphores));
+
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitSemaphores = waitSemaphores.data();
     submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;

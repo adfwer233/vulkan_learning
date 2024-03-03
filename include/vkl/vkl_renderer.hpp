@@ -18,6 +18,12 @@ class VklRenderer {
     void createCommandBuffers();
     void recreateSwapChain();
 
+    /**
+     * When using computer shader to perform computation before rendering, graphics submit should wait
+     * then computering submit finished. So, a list of additional semaphores is needed.
+     */
+    std::vector<VkSemaphore> semaphoreToWait{};
+
   public:
     VklRenderer(VklWindow &window, VklDevice &device);
     ~VklRenderer();
@@ -44,6 +50,8 @@ class VklRenderer {
         assert(isFrameStarted && "Cannot get frame index when frame not in progress");
         return currentFrameIndex;
     }
+
+    void addSemaphoreToWait(VkSemaphore semaphore);
 
     VkCommandBuffer beginFrame();
     void endFrame();
