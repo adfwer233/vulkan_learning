@@ -233,5 +233,15 @@ void ParticleSimulationSystem::updateUniformBuffer(uint32_t frameIndex, float de
 }
 
 ParticleSimulationSystem::~ParticleSimulationSystem() {
+    for (auto semaphore: this->computeFinishedSemaphores) {
+        vkDestroySemaphore(device_.device(), semaphore, nullptr);
+    }
 
+    for (auto fence: this->computeInFlightFences) {
+        vkDestroyFence(device_.device(), fence, nullptr);
+    }
+
+    vkDestroyPipelineLayout(device_.device(), pipelineLayout_, nullptr);
+    vkDestroyDescriptorSetLayout(device_.device(), computeDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorPool(device_.device(), descriptorPool, nullptr);
 }
