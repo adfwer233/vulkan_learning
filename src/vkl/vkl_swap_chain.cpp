@@ -370,8 +370,8 @@ VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint
     std::vector<VkSemaphore> waitSemaphores = {imageAvailableSemaphores_[currentFrame]};
     std::ranges::copy(toWait, std::back_inserter(waitSemaphores));
 
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount = 1;
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
     submitInfo.pWaitSemaphores = waitSemaphores.data();
     submitInfo.pWaitDstStageMask = waitStages;
 

@@ -252,6 +252,10 @@ QueueFamilyIndices VklDevice::findQueueFamilies(VkPhysicalDevice device) {
             indices.presentFamily = i;
             indices.presentFamilyHasValue = true;
         }
+        if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+            indices.computeFamily = i;
+            indices.computeFamilyHasValue = true;
+        }
         if (indices.isComplete()) {
             break;
         }
@@ -303,6 +307,7 @@ void VklDevice::createLogicalDevice() {
 
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+    vkGetDeviceQueue(device_, indices.computeFamily, 0, &computeQueue_);
 }
 
 void VklDevice::createSurface() {

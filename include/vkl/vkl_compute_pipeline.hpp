@@ -12,10 +12,11 @@ struct ComputePipelineConfigInfo {
 class VklComputePipeline: public VklPipeline {
 private:
     VkShaderModule computeShaderModule_{};
-    VkPipeline computePipeline_;
 
     void createComputePipeline(const std::string &compFilePath, const ComputePipelineConfigInfo &configInfo);
+
 public:
+    VkPipeline computePipeline_;
 
     VklComputePipeline(VklDevice &device, const std::string &compFilePath, const ComputePipelineConfigInfo &configInfo);
 

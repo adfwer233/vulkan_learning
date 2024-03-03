@@ -73,8 +73,8 @@ class VklModelTemplate {
     std::vector<VertexType> vertices_{};
     std::vector<FaceIndices> indices_{};
 
-    std::unique_ptr<VklBuffer> vertexBuffer_;
-    std::unique_ptr<VklBuffer> indexBuffer_;
+    std::vector<std::unique_ptr<VklBuffer>> vertexBuffer_;
+    std::vector<std::unique_ptr<VklBuffer>> indexBuffer_;
 
     uint32_t vertexCount_;
     uint32_t indexCount_;
@@ -127,6 +127,8 @@ class VklModelTemplate {
     void bind(VkCommandBuffer commandBuffer);
 
     void draw(VkCommandBuffer commandBuffer);
+
+    VkBuffer getVertexBuffer(size_t index) {return vertexBuffer_[index]->getBuffer();};
 
     friend class RayPicker;
 };

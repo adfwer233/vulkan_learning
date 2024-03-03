@@ -47,11 +47,11 @@ class VklRenderer {
     }
 
     int getFrameIndex() const {
-        assert(isFrameStarted && "Cannot get frame index when frame not in progress");
+        // assert(isFrameStarted && "Cannot get frame index when frame not in progress");
         return currentFrameIndex;
     }
 
-    void addSemaphoreToWait(VkSemaphore semaphore);
+    void setSemaphoreToWait(VkSemaphore semaphore);
 
     VkCommandBuffer beginFrame();
     void endFrame();

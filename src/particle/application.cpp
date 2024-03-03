@@ -4,6 +4,7 @@
 
 #include "vkl/system/simple_render_system.hpp"
 #include "particle/system/particle_render_system.hpp"
+#include "particle/system/particle_simulation_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -27,16 +28,17 @@ void Application::run() {
 
     std::default_random_engine rndEngine((unsigned)time(nullptr));
     std::uniform_real_distribution<float> rndDist(0.0f, 1.0f);
+    std::uniform_real_distribution<float> radiusDist(0.5f, 1.0f);
 
     // Initial particle positions on a circle
-    std::vector<Particle> particles(1000);
+    std::vector<Particle> particles(1024);
     for (auto& particle : particles) {
-        float r = 0.25f * sqrt(rndDist(rndEngine)) * 4;
+        float r = 0.25f * sqrt(radiusDist(rndEngine));
         float theta = rndDist(rndEngine) * 2.0f * 3.14159265358979323846f;
         float x = r * cos(theta) * HEIGHT / WIDTH;
         float y = r * sin(theta);
         particle.position = glm::vec2(x, y);
-        particle.velocity = glm::normalize(glm::vec2(x,y)) * 0.00025f;
+        particle.velocity = glm::normalize(glm::vec2(x,y)) * 0.025f;
         particle.color = glm::vec4(rndDist(rndEngine), rndDist(rndEngine), rndDist(rndEngine), 1.0f);
     }
 
@@ -64,6 +66,8 @@ void Application::run() {
     float deltaTime = 0, lastFrame = 0;
 
     ParticleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout());
+
+    ParticleSimulationSystem computeSystem(device_, model);
 
     VkDescriptorPoolSize pool_sizes[] = {{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
                                          {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
@@ -127,7 +131,7 @@ void Application::run() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        if (auto commandBuffer = renderer_.beginFrame()) {
+        if (true) {
             int frameIndex = renderer_.getFrameIndex();
 
             ImGui::Begin("Messages");
@@ -140,13 +144,18 @@ void Application::run() {
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
 
-            renderer_.beginSwapChainRenderPass(commandBuffer);
+            computeSystem.computeSubmission(frameIndex, deltaTime);
+            renderer_.setSemaphoreToWait(computeSystem.computeFinishedSemaphores[frameIndex]);
+
+            auto commandBuffer = renderer_.beginFrame();
 
             FrameInfo<VklParticleModel> frameInfo {
                 frameIndex, currentFrame, commandBuffer, camera, &model.descriptorSets[frameIndex], model
             };
 
+            renderer_.beginSwapChainRenderPass(commandBuffer);
             renderSystem.renderObject(frameInfo);
+
 
             /* ImGui Rendering */
             ImGui::Render();

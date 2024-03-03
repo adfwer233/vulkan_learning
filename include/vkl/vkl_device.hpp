@@ -54,10 +54,14 @@
 struct QueueFamilyIndices {
     uint32_t graphicsFamily;
     uint32_t presentFamily;
+    uint32_t computeFamily;
+
     bool graphicsFamilyHasValue = false;
     bool presentFamilyHasValue = false;
+    bool computeFamilyHasValue = false;
+
     bool isComplete() {
-        return graphicsFamilyHasValue && presentFamilyHasValue;
+        return graphicsFamilyHasValue && presentFamilyHasValue && computeFamilyHasValue;
     }
 };
 
@@ -87,6 +91,7 @@ class VklDevice {
     VkSurfaceKHR surface_;  /** Vulkan Surface */
     VkQueue graphicsQueue_; /** Graphic Queue  */
     VkQueue presentQueue_;  /** Present Queue  */
+    VkQueue computeQueue_;  /** Compute Queue */
 
     VkPhysicalDeviceProperties properties_; /** Physical device properties */
 
@@ -142,11 +147,15 @@ class VklDevice {
     VkSurfaceKHR surface() {
         return surface_;
     }
+
     VkQueue graphicsQueue() {
         return graphicsQueue_;
     }
     VkQueue presentQueue() {
         return presentQueue_;
+    }
+    VkQueue computeQueue() {
+        return computeQueue_;
     }
 
     SwapChainSupportDetails getSwapChainSupport() {

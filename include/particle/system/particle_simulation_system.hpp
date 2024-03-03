@@ -16,6 +16,11 @@
 #endif
 
 class ParticleSimulationSystem {
+public:
+    struct UniformBufferObject {
+        float deltaTime = 1.0f;
+    };
+
 private:
     const std::string comp_shader_path = std::format("{}/particle.comp.spv", PARTICLE_SHADER_DIR);
 
@@ -24,23 +29,38 @@ private:
     std::unique_ptr<VklComputePipeline> pipeline_;
     VkPipelineLayout pipelineLayout_;
 
+    VkDescriptorPool descriptorPool;
     VkDescriptorSetLayout computeDescriptorSetLayout;
+    std::vector<VkDescriptorSet> computeDescriptorSets;
 
     std::vector<VkCommandBuffer> computeCommandBuffers;
 
     void createComputeDescriptorSetLayout();
     void createPipelineLayout();
     void createPipeline();
+    void createUniformBuffers();
+    void createDescriptorPool();
+    void createComputeDescriptorSets();
     void createCommandBuffer();
+    void createSyncObjects();
 
+    void updateUniformBuffer(uint32_t frameIndex, float deltaTime);
+
+    VklModelTemplate<Particle> &model;
+    std::vector<std::unique_ptr<VklBuffer>> uniformBuffers_;
+
+    void recordComputeCommandBuffer(size_t frameIndex);
 public:
 
-    ParticleSimulationSystem(VklDevice &device_, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+    std::vector<VkSemaphore> computeFinishedSemaphores;
+    std::vector<VkFence> computeInFlightFences;
+
+    ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle> &model);
 
     ParticleSimulationSystem(const ParticleSimulationSystem &) = delete;
     ParticleSimulationSystem operator=(const ParticleSimulationSystem &) = delete;
 
     ~ParticleSimulationSystem();
 
-    void PerformComputation();
+    void computeSubmission(size_t frameIndex, float deltaTime);
 };

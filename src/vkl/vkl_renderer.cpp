@@ -65,7 +65,7 @@ void VklRenderer::endFrame() {
         throw std::runtime_error("failed to record command buffer!");
     }
 
-    auto result = swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex);
+    auto result = swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex, this->semaphoreToWait);
     //    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
     //        window_.wasWindowResized()) {
     //        window_.resetWindowResizedFlag();
@@ -111,6 +111,7 @@ void VklRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 }
 
-void VklRenderer::addSemaphoreToWait(VkSemaphore semaphore) {
+void VklRenderer::setSemaphoreToWait(VkSemaphore semaphore) {
+    this->semaphoreToWait.clear();
     this->semaphoreToWait.push_back(semaphore);
 }
