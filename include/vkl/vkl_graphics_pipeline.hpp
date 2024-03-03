@@ -3,6 +3,8 @@
 #include "string"
 #include "vkl_device.hpp"
 
+#include "vkl/templates/vkl_concept.hpp"
+
 struct PipelineConfigInfo {
     PipelineConfigInfo() = default;
     PipelineConfigInfo(const PipelineConfigInfo &) = delete;
@@ -24,11 +26,12 @@ struct PipelineConfigInfo {
     uint32_t subpass = 0;
 };
 
+template<VklVertexType VertexType>
 class VklGraphicsPipeline {
   private:
     VklDevice &device_;
-    VkShaderModule vertShaderModule_;
-    VkShaderModule fragShaderModule_;
+    VkShaderModule vertShaderModule_{};
+    VkShaderModule fragShaderModule_{};
 
     void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
                                 const PipelineConfigInfo &configInfo);
@@ -38,7 +41,7 @@ class VklGraphicsPipeline {
     std::vector<char> readFile(const std::string &filepath);
 
   public:
-    VkPipeline graphicsPipeline_;
+    VkPipeline graphicsPipeline_{};
 
     VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
                         const PipelineConfigInfo &configInfo);
@@ -52,3 +55,5 @@ class VklGraphicsPipeline {
 
     static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
 };
+
+#include "templates/vkl_graphics_pipeline.hpp.impl"

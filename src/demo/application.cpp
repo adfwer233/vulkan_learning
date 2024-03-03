@@ -87,7 +87,7 @@ void Application::run() {
     glfwSetMouseButtonCallback(window, KeyboardCameraController::mouse_button_callback);
 
     /** render system */
-    SimpleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(),
+    SimpleRenderSystem<VklModel::Vertex> renderSystem(device_, renderer_.getSwapChainRenderPass(),
                                     globalSetLayout->getDescriptorSetLayout());
 
     float deltaTime = 0, lastFrame = 0;

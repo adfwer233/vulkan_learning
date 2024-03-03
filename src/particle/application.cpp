@@ -10,10 +10,15 @@
 
 #include <functional>
 
+struct Particle {
+
+};
+
 Application::~Application() {
 }
 
 void Application::run() {
+
     VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
     VklObject object(device_, objectBuilder);
 
