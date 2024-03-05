@@ -26,12 +26,14 @@ Application::~Application() {
 
 void Application::run() {
 
+    const size_t particle_number = 2048000;
+
     std::default_random_engine rndEngine((unsigned)time(nullptr));
     std::uniform_real_distribution<float> rndDist(0.0f, 1.0f);
     std::uniform_real_distribution<float> radiusDist(0.5f, 1.0f);
 
     // Initial particle positions on a circle
-    std::vector<Particle> particles(1024);
+    std::vector<Particle> particles(particle_number);
     for (auto &particle : particles) {
         float r = 0.25f * sqrt(radiusDist(rndEngine));
         float theta = rndDist(rndEngine) * 2.0f * 3.14159265358979323846f;
@@ -64,7 +66,7 @@ void Application::run() {
     ParticleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(),
                                       globalSetLayout->getDescriptorSetLayout());
 
-    ParticleSimulationSystem computeSystem(device_, model);
+    ParticleSimulationSystem computeSystem(device_, model, particle_number);
 
     VkDescriptorPoolSize pool_sizes[] = {{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
                                          {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
@@ -133,7 +135,7 @@ void Application::run() {
 
             ImGui::Begin("Messages");
             ImGui::SeparatorText("Scene Information");
-            ImGui::LabelText("# Triangles", "%d", triangle_num);
+            ImGui::LabelText("# Particles", "%d", particle_number);
             ImGui::LabelText(
                 "Camera Position",
                 std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());

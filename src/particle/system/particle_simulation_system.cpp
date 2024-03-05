@@ -1,8 +1,8 @@
 #include "particle/system/particle_simulation_system.hpp"
 #include <array>
 
-ParticleSimulationSystem::ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle> &model)
-    : device_(device), model(model) {
+ParticleSimulationSystem::ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle> &model, size_t particle_number)
+    : device_(device), model(model), particle_number_(particle_number) {
     createComputeDescriptorSetLayout();
     createPipelineLayout();
     createPipeline();
@@ -106,7 +106,7 @@ void ParticleSimulationSystem::recordComputeCommandBuffer(size_t frameIndex) {
     vkCmdBindDescriptorSets(computeCommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout_, 0, 1,
                             &computeDescriptorSets[frameIndex], 0, nullptr);
 
-    vkCmdDispatch(computeCommandBuffers[frameIndex], 1024 / 256, 1, 1);
+    vkCmdDispatch(computeCommandBuffers[frameIndex], particle_number_ / 256, 1, 1);
 
     if (vkEndCommandBuffer(computeCommandBuffers[frameIndex]) != VK_SUCCESS) {
         throw std::runtime_error("failed to record compute command buffer!");
@@ -175,7 +175,7 @@ void ParticleSimulationSystem::createComputeDescriptorSets() {
         VkDescriptorBufferInfo storageBufferInfoLastFrame{};
         storageBufferInfoLastFrame.buffer = model.getVertexBuffer((i - 1) % VklSwapChain::MAX_FRAMES_IN_FLIGHT);
         storageBufferInfoLastFrame.offset = 0;
-        storageBufferInfoLastFrame.range = sizeof(Particle) * 1024;
+        storageBufferInfoLastFrame.range = sizeof(Particle) * particle_number_;
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[1].dstSet = computeDescriptorSets[i];
@@ -188,7 +188,7 @@ void ParticleSimulationSystem::createComputeDescriptorSets() {
         VkDescriptorBufferInfo storageBufferInfoCurrentFrame{};
         storageBufferInfoCurrentFrame.buffer = model.getVertexBuffer(i);
         storageBufferInfoCurrentFrame.offset = 0;
-        storageBufferInfoCurrentFrame.range = sizeof(Particle) * 1024;
+        storageBufferInfoCurrentFrame.range = sizeof(Particle) * particle_number_;
 
         descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[2].dstSet = computeDescriptorSets[i];

@@ -9,5 +9,5 @@ void main() {
     if (length(coord) > 0.5)
         outColor = vec4(fragColor, 0);
     else
-        outColor = vec4(fragColor, 1.0 - 0.5 * length(coord));
+        outColor = vec4(fragColor, 0.5 - 0.5 * length(coord));
 }
