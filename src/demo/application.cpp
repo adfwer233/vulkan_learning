@@ -1,6 +1,7 @@
 #include "application.hpp"
 #include "vkl/vkl_descriptor.hpp"
 #include "vkl/vkl_object.hpp"
+#include "vkl/vkl_scene.hpp"
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/simple_render_system.hpp"
@@ -40,7 +41,6 @@ void Application::run() {
     VklModel model(device_, builder);
 
     VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
-    VklObject object(device_, objectBuilder);
 
     auto texture = model.textures_[0];
     auto imageInfo = texture->descriptorInfo();
@@ -72,13 +72,16 @@ void Application::run() {
             .build(globalDescriptorSets[i]);
     }
 
-    object.allocDescriptorSets(*globalSetLayout, *globalPool);
-
     /** set camera */
 
-    Camera camera({0, 0, 3}, {0, 1, 0});
+    VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
+    scene.addObject(objectBuilder);
 
-    KeyboardCameraController::setCamera(camera);
+    for (auto& object: scene.objects) {
+        object->allocDescriptorSets(*globalSetLayout, *globalPool);
+    }
+
+    KeyboardCameraController::setCamera(scene.camera);
 
     GLFWwindow *window = window_.getGLFWwindow();
 
@@ -141,16 +144,9 @@ void Application::run() {
 
     bool show_demo_window = true;
 
-    std::vector<VklObject *> objects{&object};
-    KeyboardCameraController::set_objects(objects);
-
-    PointLight pointLight;
-    pointLight.position = {0, 0, 10, 0};
-    pointLight.color = {1, 1, 1, 0};
-
+    KeyboardCameraController::set_scene(scene);
     int triangle_num = 0;
-
-    for (const auto object_item : objects) {
+    for (const auto &object_item : scene.objects) {
         triangle_num += object_item->get_triangle_num();
     }
 
@@ -175,15 +171,15 @@ void Application::run() {
             ImGui::LabelText("# Triangles", "%d", triangle_num);
             ImGui::LabelText(
                 "Camera Position",
-                std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
-            ImGui::LabelText("Point Light Position", std::format("{:.3f}, {:.3f}, {:.3f}", pointLight.position.x, pointLight.position.y, pointLight.position.z).c_str());
+                std::format("{:.3f}, {:.3f}, {:.3f}", scene.camera.position.x, scene.camera.position.y, scene.camera.position.z).c_str());
+            ImGui::LabelText("Point Light Position", std::format("{:.3f}, {:.3f}, {:.3f}", scene.pointLight.position.x, scene.pointLight.position.y, scene.pointLight.position.z).c_str());
             ImGui::SeparatorText("Performance");
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
 
             ImGui::Begin("Picking Result");
             if (KeyboardCameraController::picking_result.has_value()) {
-                auto object_picked = objects[KeyboardCameraController::picking_result->object_index];
+                auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
                 ImGui::SeparatorText("Picking Information");
                 ImGui::LabelText("Object Index", "%d", KeyboardCameraController::picking_result->object_index);
                 ImGui::LabelText("Model Index", "%d", KeyboardCameraController::picking_result->model_index);
@@ -211,29 +207,29 @@ void Application::run() {
             ImGui::End();
 
             FrameInfo<VklModel> frameInfo{
-                frameIndex, currentFrame, commandBuffer, camera, &globalDescriptorSets[frameIndex], model};
+                frameIndex, currentFrame, commandBuffer, scene.camera, &globalDescriptorSets[frameIndex], model};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
 
             GlobalUbo ubo{};
 
-            ubo.view = camera.get_view_transformation();
-            ubo.proj = camera.get_proj_transformation();
+            ubo.view = scene.camera.get_view_transformation();
+            ubo.proj = scene.camera.get_proj_transformation();
             ubo.model = glm::mat4(1.0f);
-            ubo.pointLight = pointLight;
-            ubo.cameraPos = camera.position;
+            ubo.pointLight = scene.pointLight;
+            ubo.cameraPos = scene.camera.position;
 
             uniformBuffers[frameIndex]->writeToBuffer(&ubo);
             uniformBuffers[frameIndex]->flush();
 
-            for (auto object_item : objects) {
+            for (auto &object_item : scene.objects) {
                 for (auto model : object_item->models) {
-                    ubo.model = object.getModelTransformation();
+                    ubo.model = object_item->getModelTransformation();
                     model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                     model->uniformBuffers[frameIndex]->flush();
 
                     FrameInfo<VklModel> modelFrameInfo{
-                        frameIndex, currentFrame, commandBuffer, camera, &model->descriptorSets[frameIndex], *model};
+                        frameIndex, currentFrame, commandBuffer, scene.camera, &model->descriptorSets[frameIndex], *model};
 
                     renderSystem.renderObject(modelFrameInfo);
                 }

@@ -4,14 +4,14 @@
 #include <iostream>
 #include <map>
 
-RayPicker::RayPicker(std::vector<VklObject *> &object, Ray ray) : objects_(object), ray_(ray) {
+RayPicker::RayPicker(VklScene &scene, Ray ray) : scene_(scene), ray_(ray) {
 }
 
 std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
 
     std::map<float, RayPickingResult> param_result_map;
-    for (size_t object_index = 0; object_index < objects_.size(); object_index++) {
-        auto object = objects_[object_index];
+    for (size_t object_index = 0; object_index < scene_.objects.size(); object_index++) {
+        auto& object =scene_.objects[object_index];
 
         Ray object_ray = ray_;
         glm::mat4 model_transformation = object->getModelTransformation();

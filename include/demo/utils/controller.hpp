@@ -6,6 +6,7 @@
 #include "ray_tracer/ray_picker.hpp"
 
 #include "GLFW/glfw3.h"
+#include "vkl/vkl_scene.hpp"
 
 class KeyboardCameraController {
   private:
@@ -20,7 +21,7 @@ class KeyboardCameraController {
     static float mouse_x_pos;
     static float mouse_y_pos;
 
-    static std::vector<VklObject *> objects_;
+    static std::optional<std::reference_wrapper<VklScene>> scene_;
 
   public:
     static std::optional<RayPicker::RayPickingResult> picking_result;
@@ -35,5 +36,5 @@ class KeyboardCameraController {
 
     static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 
-    static void set_objects(decltype(objects_) object);
+    static void set_scene(VklScene& scene);
 };

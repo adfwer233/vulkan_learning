@@ -2,15 +2,17 @@
 
 #include "ray.hpp"
 #include "vkl/vkl_object.hpp"
+#include "vkl/vkl_scene.hpp"
+
 #include <optional>
 #include <vector>
 class RayPicker {
   private:
-    std::vector<VklObject *> objects_;
+    VklScene &scene_;
     Ray ray_;
 
   public:
-    RayPicker(std::vector<VklObject *> &object, Ray ray);
+    RayPicker(VklScene &scene, Ray ray);
 
     struct RayPickingResult {
         size_t object_index;

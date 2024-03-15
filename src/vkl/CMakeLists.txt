@@ -14,6 +14,7 @@ set(SRC_FILE vkl_window.cpp
         io/assimp_loader.cpp
         vkl_texture.cpp
         vkl_compute_pipeline.cpp
+        vkl_scene.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})
