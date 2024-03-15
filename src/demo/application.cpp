@@ -2,10 +2,12 @@
 #include "vkl/vkl_descriptor.hpp"
 #include "vkl/vkl_object.hpp"
 #include "vkl/vkl_scene.hpp"
+#include "vkl/vkl_box.hpp"
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/simple_render_system.hpp"
 #include "vkl/system/simple_wireframe_render_system.hpp"
+#include "vkl/system/line_render_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -32,7 +34,7 @@ void Application::run() {
         {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
         {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}};
 
-    const std::vector<VklModel::FaceIndices> indices = {{0, 1, 2}, {2, 3, 0}, {4, 5, 6}, {6, 7, 4}};
+    const std::vector<VklModel::index_type> indices = {{0, 1, 2}, {2, 3, 0}, {4, 5, 6}, {6, 7, 4}};
 
     VklModel::BuilderFromImmediateData builder;
     builder.vertices = vertexData;
@@ -78,6 +80,9 @@ void Application::run() {
     VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
     scene.addObject(objectBuilder);
 
+    auto boxModel = VklBoxModel(device_, VklBox::getStandardBox());
+    boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
+
     for (auto& object: scene.objects) {
         object->allocDescriptorSets(*globalSetLayout, *globalPool);
     }
@@ -96,6 +101,8 @@ void Application::run() {
 
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(device_, renderer_.getSwapChainRenderPass(),
                                                                              globalSetLayout->getDescriptorSetLayout());
+
+    LineRenderSystem<VklBoxModel::vertex_type> lineRenderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -210,9 +217,6 @@ void Application::run() {
             }
             ImGui::End();
 
-            FrameInfo<VklModel> frameInfo{
-                frameIndex, currentFrame, commandBuffer, scene.camera, &globalDescriptorSets[frameIndex], model};
-
             renderer_.beginSwapChainRenderPass(commandBuffer);
 
             GlobalUbo ubo{};
@@ -223,9 +227,6 @@ void Application::run() {
             ubo.pointLight = scene.pointLight;
             ubo.cameraPos = scene.camera.position;
 
-            uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-            uniformBuffers[frameIndex]->flush();
-
             for (auto &object_item : scene.objects) {
                 for (auto model : object_item->models) {
                     ubo.model = object_item->getModelTransformation();
@@ -235,9 +236,16 @@ void Application::run() {
                     FrameInfo<VklModel> modelFrameInfo{
                         frameIndex, currentFrame, commandBuffer, scene.camera, &model->descriptorSets[frameIndex], *model};
 
-                    wireFrameRenderSystem.renderObject(modelFrameInfo);
+                    renderSystem.renderObject(modelFrameInfo);
                 }
             }
+
+            boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+            boxModel.uniformBuffers[frameIndex]->flush();
+            FrameInfo<VklBoxModel> boxFrameInfo {
+                frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex], boxModel
+            };
+            lineRenderSystem.renderObject(boxFrameInfo);
 
             /* ImGui Rendering */
             ImGui::Render();

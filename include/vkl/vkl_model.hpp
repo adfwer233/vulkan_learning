@@ -41,24 +41,38 @@ struct Vertex3D {
     }
 };
 
-template <typename VertexType> class VklModelTemplate {
+struct TriangleIndex{
+    uint32_t i, j, k;
+    static uint32_t vertexCount() {return 3;}
+};
+
+struct LineIndex {
+    uint32_t i, j;
+    static uint32_t vertexCount() {return 2;}
+};
+
+template <typename T>
+concept VklIndexType = IsAnyOf<T, TriangleIndex, LineIndex> && requires {
+    T::vertexCount();
+};
+
+
+template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex> class VklModelTemplate {
 
   public:
     typedef VertexType vertex_type;
 
-    struct FaceIndices {
-        uint32_t i, j, k;
-    };
+    typedef IndexType index_type;
 
     struct BuilderFromFile {
         std::vector<VertexType> vertices{};
-        std::vector<FaceIndices> indices{};
+        std::vector<IndexType> indices{};
         void build(const std::string &filepath);
     };
 
     struct BuilderFromImmediateData {
         std::vector<VertexType> vertices{};
-        std::vector<FaceIndices> indices{};
+        std::vector<IndexType> indices{};
         std::vector<std::string> texturePaths{};
     };
 
@@ -71,7 +85,7 @@ template <typename VertexType> class VklModelTemplate {
     VklDevice &device_;
 
     std::vector<VertexType> vertices_{};
-    std::vector<FaceIndices> indices_{};
+    std::vector<IndexType> indices_{};
 
     std::vector<std::unique_ptr<VklBuffer>> vertexBuffer_;
     std::vector<std::unique_ptr<VklBuffer>> indexBuffer_;
@@ -104,7 +118,7 @@ template <typename VertexType> class VklModelTemplate {
      *
      * @param vertices
      */
-    void createIndexBuffers(const std::vector<FaceIndices> &indices);
+    void createIndexBuffers(const std::vector<IndexType> &indices);
 
     /**
      * @brief create texture image

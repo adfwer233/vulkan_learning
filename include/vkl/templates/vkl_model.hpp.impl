@@ -6,8 +6,8 @@
 #include "vkl/vkl_swap_chain.hpp"
 #include "vkl/vkl_texture.hpp"
 
-template <typename VertexType>
-VklModelTemplate<VertexType>::VklModelTemplate(VklDevice &device, VklModelTemplate::BuilderFromImmediateData builder)
+template <VklVertexType VertexType, VklIndexType IndexType>
+VklModelTemplate<VertexType, IndexType>::VklModelTemplate(VklDevice &device, VklModelTemplate::BuilderFromImmediateData builder)
     : device_(device), vertices_(builder.vertices), indices_(builder.indices) {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
@@ -17,15 +17,15 @@ VklModelTemplate<VertexType>::VklModelTemplate(VklDevice &device, VklModelTempla
     }
 }
 
-template <typename VertexType> VklModelTemplate<VertexType>::~VklModelTemplate() {
+template <VklVertexType VertexType, VklIndexType IndexType> VklModelTemplate<VertexType, IndexType>::~VklModelTemplate() {
     /** free texture objects */
     for (auto texture : textures_) {
         delete texture;
     }
 }
 
-template <typename VertexType>
-void VklModelTemplate<VertexType>::createVertexBuffers(const std::vector<VertexType> &vertices) {
+template <VklVertexType VertexType, VklIndexType IndexType>
+void VklModelTemplate<VertexType, IndexType>::createVertexBuffers(const std::vector<VertexType> &vertices) {
     vertexCount_ = static_cast<uint32_t>(vertices.size());
     uint32_t vertexSize = sizeof(std::remove_reference<decltype(vertices)>::type::value_type);
     VkDeviceSize bufferSize = vertexSize * vertexCount_;
@@ -48,9 +48,9 @@ void VklModelTemplate<VertexType>::createVertexBuffers(const std::vector<VertexT
     }
 }
 
-template <typename VertexType>
-void VklModelTemplate<VertexType>::createIndexBuffers(const std::vector<FaceIndices> &indices) {
-    indexCount_ = static_cast<uint32_t>(indices.size()) * 3;
+template <VklVertexType VertexType, VklIndexType IndexType>
+void VklModelTemplate<VertexType, IndexType>::createIndexBuffers(const std::vector<IndexType> &indices) {
+    indexCount_ = static_cast<uint32_t>(indices.size()) * IndexType::vertexCount();
     hasIndexBuffer = indexCount_ > 0;
 
     if (not hasIndexBuffer)
@@ -76,7 +76,7 @@ void VklModelTemplate<VertexType>::createIndexBuffers(const std::vector<FaceIndi
     }
 }
 
-template <typename VertexType> void VklModelTemplate<VertexType>::createTextureImage(const std::string &texturePath) {
+template <VklVertexType VertexType, VklIndexType IndexType> void VklModelTemplate<VertexType, IndexType>::createTextureImage(const std::string &texturePath) {
     int texWidth, texHeight, texChannels;
     stbi_uc *pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * texChannels;
@@ -109,7 +109,7 @@ template <typename VertexType> void VklModelTemplate<VertexType>::createTextureI
     stbi_image_free(pixels);
 }
 
-template <typename VertexType> void VklModelTemplate<VertexType>::bind(VkCommandBuffer commandBuffer) {
+template <VklVertexType VertexType, VklIndexType IndexType> void VklModelTemplate<VertexType, IndexType>::bind(VkCommandBuffer commandBuffer) {
     VkBuffer buffers[] = {vertexBuffer_[0]->getBuffer()};
     VkDeviceSize offsets[] = {0};
 
@@ -120,7 +120,7 @@ template <typename VertexType> void VklModelTemplate<VertexType>::bind(VkCommand
     }
 }
 
-template <typename VertexType> void VklModelTemplate<VertexType>::draw(VkCommandBuffer commandBuffer) {
+template <VklVertexType VertexType, VklIndexType IndexType> void VklModelTemplate<VertexType, IndexType>::draw(VkCommandBuffer commandBuffer) {
     if (hasIndexBuffer) {
         vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
     } else {
@@ -128,8 +128,8 @@ template <typename VertexType> void VklModelTemplate<VertexType>::draw(VkCommand
     }
 }
 
-template <typename VertexType>
-void VklModelTemplate<VertexType>::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool) {
+template <VklVertexType VertexType, VklIndexType IndexType>
+void VklModelTemplate<VertexType, IndexType>::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool) {
     uniformBuffers.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
     descriptorSets.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
 
@@ -142,7 +142,7 @@ void VklModelTemplate<VertexType>::allocDescriptorSets(VklDescriptorSetLayout &s
     if (textures_.empty()) {
         for (int i = 0; i < descriptorSets.size(); i++) {
             auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-            VklDescriptorWriter(setLayout, pool).build(descriptorSets[i]);
+            VklDescriptorWriter(setLayout, pool).writeBuffer(0, &bufferInfo).build(descriptorSets[i]);
         }
     } else {
         for (int i = 0; i < descriptorSets.size(); i++) {
@@ -156,8 +156,8 @@ void VklModelTemplate<VertexType>::allocDescriptorSets(VklDescriptorSetLayout &s
     }
 }
 
-template <typename VertexType> int VklModelTemplate<VertexType>::get_triangle_num() const {
+template <VklVertexType VertexType, VklIndexType IndexType> int VklModelTemplate<VertexType, IndexType>::get_triangle_num() const {
     int result = 0;
-    result += vertexCount_ / 3;
+    result += vertexCount_ / IndexType::vertexCount();
     return result;
 }
