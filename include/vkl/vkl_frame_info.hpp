@@ -12,10 +12,18 @@ struct SimplePushConstantData {
     glm::mat4 normalMatrix{1.f};
 };
 
+struct PointLight {
+    glm::vec4 position;
+    glm::vec4 color;
+};
+
 struct GlobalUbo {
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
+
+    glm::vec3 cameraPos;
+    PointLight pointLight;
 };
 
 template <VklRenderable RenderableModel> struct FrameInfo {

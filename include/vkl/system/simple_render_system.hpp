@@ -28,7 +28,7 @@ template <VklVertexType VertexType> class SimpleRenderSystem {
     VkPipelineLayout pipelineLayout_{};
     SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
                        std::string vertex_shader_path = std::format("{}/simple_shader.vert.spv", SHADER_DIR),
-                       std::string fragment_shader_path = std::format("{}/simple_shader.frag.spv", SHADER_DIR));
+                       std::string fragment_shader_path = std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
 
     SimpleRenderSystem(const SimpleRenderSystem &) = delete;
     SimpleRenderSystem operator=(const SimpleRenderSystem &) = delete;

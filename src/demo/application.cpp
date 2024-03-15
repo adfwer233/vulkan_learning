@@ -144,6 +144,10 @@ void Application::run() {
     std::vector<VklObject *> objects{&object};
     KeyboardCameraController::set_objects(objects);
 
+    PointLight pointLight;
+    pointLight.position = {0, 0, 10, 0};
+    pointLight.color = {1, 1, 1, 0};
+
     int triangle_num = 0;
 
     for (const auto object_item : objects) {
@@ -172,6 +176,7 @@ void Application::run() {
             ImGui::LabelText(
                 "Camera Position",
                 std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
+            ImGui::LabelText("Point Light Position", std::format("{:.3f}, {:.3f}, {:.3f}", pointLight.position.x, pointLight.position.y, pointLight.position.z).c_str());
             ImGui::SeparatorText("Performance");
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
@@ -215,11 +220,11 @@ void Application::run() {
             ubo.view = camera.get_view_transformation();
             ubo.proj = camera.get_proj_transformation();
             ubo.model = glm::mat4(1.0f);
+            ubo.pointLight = pointLight;
+            ubo.cameraPos = camera.position;
 
             uniformBuffers[frameIndex]->writeToBuffer(&ubo);
             uniformBuffers[frameIndex]->flush();
-
-            //            renderSystem.renderObject(frameInfo);
 
             for (auto object_item : objects) {
                 for (auto model : object_item->models) {
@@ -233,6 +238,7 @@ void Application::run() {
                     renderSystem.renderObject(modelFrameInfo);
                 }
             }
+
             /* ImGui Rendering */
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
