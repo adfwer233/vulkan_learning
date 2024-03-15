@@ -3,6 +3,7 @@
 #include "vkl/vkl_object.hpp"
 #include "vkl/vkl_scene.hpp"
 #include "vkl/vkl_box.hpp"
+#include "vkl/vkl_box_model.hpp"
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/simple_render_system.hpp"
@@ -80,7 +81,7 @@ void Application::run() {
     VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
     scene.addObject(objectBuilder);
 
-    auto boxModel = VklBoxModel(device_, VklBox::getStandardBox());
+    auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
     boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
 
     for (auto& object: scene.objects) {
@@ -102,7 +103,7 @@ void Application::run() {
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(device_, renderer_.getSwapChainRenderPass(),
                                                                              globalSetLayout->getDescriptorSetLayout());
 
-    LineRenderSystem<VklBoxModel::vertex_type> lineRenderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
+    LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -191,6 +192,7 @@ void Application::run() {
             ImGui::Begin("Picking Result");
             if (KeyboardCameraController::picking_result.has_value()) {
                 auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
+                auto model_picked = object_picked->models[KeyboardCameraController::picking_result->model_index];
                 ImGui::SeparatorText("Picking Information");
                 ImGui::LabelText("Object Index", "%d", KeyboardCameraController::picking_result->object_index);
                 ImGui::LabelText("Model Index", "%d", KeyboardCameraController::picking_result->model_index);
@@ -240,13 +242,22 @@ void Application::run() {
                 }
             }
 
-            boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-            boxModel.uniformBuffers[frameIndex]->flush();
-            FrameInfo<VklBoxModel> boxFrameInfo {
-                frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex], boxModel
-            };
-            lineRenderSystem.renderObject(boxFrameInfo);
+            if (KeyboardCameraController::picking_result.has_value()) {
+                auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
+                auto &model_picked = object_picked->models[KeyboardCameraController::picking_result->model_index];
+                auto box = model_picked->box;
+                box.apply_transform(object_picked->getModelTransformation());
+                auto box_trans = box.get_box_transformation();
 
+                ubo.model = box_trans;
+                boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                boxModel.uniformBuffers[frameIndex]->flush();
+                FrameInfo<VklBoxModel3D> boxFrameInfo{
+                        frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
+                        boxModel
+                };
+                lineRenderSystem.renderObject(boxFrameInfo);
+            }
             /* ImGui Rendering */
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);

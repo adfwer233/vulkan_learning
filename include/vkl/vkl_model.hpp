@@ -9,6 +9,9 @@
 #include "vkl_descriptor.hpp"
 #include "vkl_device.hpp"
 #include "vkl_texture.hpp"
+#include "vkl_box.hpp"
+
+#include "templates/vkl_index.hpp"
 
 #include "templates/vkl_concept.hpp"
 
@@ -41,23 +44,13 @@ struct Vertex3D {
     }
 };
 
-struct TriangleIndex{
-    uint32_t i, j, k;
-    static uint32_t vertexCount() {return 3;}
-};
-
-struct LineIndex {
-    uint32_t i, j;
-    static uint32_t vertexCount() {return 2;}
-};
-
 template <typename T>
-concept VklIndexType = IsAnyOf<T, TriangleIndex, LineIndex> && requires {
-    T::vertexCount();
+concept VklBoxType = requires (T t) {
+    t.min_position;
+    t.max_position;
 };
 
-
-template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex> class VklModelTemplate {
+template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex, VklBoxType BoxType = VklBox3D> class VklModelTemplate {
 
   public:
     typedef VertexType vertex_type;
@@ -80,6 +73,8 @@ template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex> clas
 
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers;
     std::vector<VkDescriptorSet> descriptorSets;
+
+    BoxType box;  /** Axis aligned bounding box, has not transformed */
 
   private:
     VklDevice &device_;
