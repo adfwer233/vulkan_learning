@@ -5,6 +5,7 @@
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/simple_render_system.hpp"
+#include "vkl/system/simple_wireframe_render_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -92,6 +93,9 @@ void Application::run() {
     /** render system */
     SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, renderer_.getSwapChainRenderPass(),
                                                            globalSetLayout->getDescriptorSetLayout());
+
+    SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(device_, renderer_.getSwapChainRenderPass(),
+                                                                             globalSetLayout->getDescriptorSetLayout());
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -231,7 +235,7 @@ void Application::run() {
                     FrameInfo<VklModel> modelFrameInfo{
                         frameIndex, currentFrame, commandBuffer, scene.camera, &model->descriptorSets[frameIndex], *model};
 
-                    renderSystem.renderObject(modelFrameInfo);
+                    wireFrameRenderSystem.renderObject(modelFrameInfo);
                 }
             }
 

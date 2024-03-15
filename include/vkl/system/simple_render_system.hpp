@@ -14,7 +14,16 @@
 #define SHADER_DIR "./shader/"
 #endif
 
-template <VklVertexType VertexType> class SimpleRenderSystem {
+template <typename T>
+concept VklPipelineModifierType = requires(PipelineConfigInfo &pipelineConfigInfo) {
+    T::modifyPipeline(pipelineConfigInfo);
+};
+
+struct NullPipelineModifier {
+    static void modifyPipeline(PipelineConfigInfo &configInfo) {}
+};
+
+template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType = NullPipelineModifier> class SimpleRenderSystem {
   private:
     std::string vertex_shader_path_, fragment_shader_path_;
 
