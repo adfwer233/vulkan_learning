@@ -100,8 +100,11 @@ void Application::run() {
     SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, renderer_.getSwapChainRenderPass(),
                                                            globalSetLayout->getDescriptorSetLayout());
 
+    SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(device_, renderer_.getSwapChainRenderPass(),
+                                                           globalSetLayout->getDescriptorSetLayout(), std::format("{}/simple_shader.vert.spv", SHADER_DIR), std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
+
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(device_, renderer_.getSwapChainRenderPass(),
-                                                                             globalSetLayout->getDescriptorSetLayout());
+                                                                             globalSetLayout->getDescriptorSetLayout(), std::format("{}/simple_shader.vert.spv", SHADER_DIR), std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
 
     LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
 
@@ -162,6 +165,8 @@ void Application::run() {
         triangle_num += object_item->get_triangle_num();
     }
 
+    int render_mode = 0;
+
     while (not window_.shouldClose()) {
         glfwPollEvents();
 
@@ -189,14 +194,22 @@ void Application::run() {
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
 
+            ImGui::Begin("Rendering Options");
+            ImGui::RadioButton("Raw", &render_mode, 0);
+            ImGui::SameLine();
+            ImGui::RadioButton("Wire Frame", &render_mode, 1);
+            ImGui::SameLine();
+            ImGui::RadioButton("With Texture", &render_mode, 2);
+            ImGui::End();
+
             ImGui::Begin("Picking Result");
             if (KeyboardCameraController::picking_result.has_value()) {
                 auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
                 auto model_picked = object_picked->models[KeyboardCameraController::picking_result->model_index];
                 ImGui::SeparatorText("Picking Information");
-                ImGui::LabelText("Object Index", "%d", KeyboardCameraController::picking_result->object_index);
-                ImGui::LabelText("Model Index", "%d", KeyboardCameraController::picking_result->model_index);
-                ImGui::LabelText("Face Index", "%d", KeyboardCameraController::picking_result->face_index);
+                ImGui::LabelText("Object Index", "%zu", KeyboardCameraController::picking_result->object_index);
+                ImGui::LabelText("Model Index", "%zu", KeyboardCameraController::picking_result->model_index);
+                ImGui::LabelText("Face Index", "%zu", KeyboardCameraController::picking_result->face_index);
                 ImGui::LabelText("U", "%.3f", KeyboardCameraController::picking_result->u);
                 ImGui::LabelText("V", "%.3f", KeyboardCameraController::picking_result->v);
                 ImGui::LabelText("W", "%.3f", KeyboardCameraController::picking_result->w);
@@ -238,7 +251,13 @@ void Application::run() {
                     FrameInfo<VklModel> modelFrameInfo{
                         frameIndex, currentFrame, commandBuffer, scene.camera, &model->descriptorSets[frameIndex], *model};
 
-                    renderSystem.renderObject(modelFrameInfo);
+                    if (render_mode == 0) {
+                        rawRenderSystem.renderObject(modelFrameInfo);
+                    } else if (render_mode == 1) {
+                        wireFrameRenderSystem.renderObject(modelFrameInfo);
+                    } else if (render_mode == 2) {
+                        renderSystem.renderObject(modelFrameInfo);
+                    }
                 }
             }
 
