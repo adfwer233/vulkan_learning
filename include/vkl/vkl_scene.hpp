@@ -12,7 +12,7 @@ class VklScene {
     VklScene(VklDevice &device, glm::vec3 camera_pos, glm::vec3 camera_up)
         : device_(device), camera(camera_pos, camera_up) {
         pointLight.position = {0, 0, 10, 0};
-        pointLight.color = {1, 1, 1, 0};
+        pointLight.color = {1.0, 1.0, 1.0, 1.0};
     };
 
     std::vector<std::unique_ptr<VklObject>> objects;

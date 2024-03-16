@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+#include "vkl_buffer.hpp"
+#include "vkl_descriptor.hpp"
+
 #include "glm/ext/matrix_transform.hpp"
 
 struct Vertex3DRaw {
