@@ -6,6 +6,7 @@
 #include <numeric>
 
 class VklBVH {
+public:
 
 struct AABB {
     glm::vec3 min, max;

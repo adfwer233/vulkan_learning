@@ -10,6 +10,9 @@
 #include "vkl/system/simple_render_system.hpp"
 #include "vkl/system/simple_wireframe_render_system.hpp"
 
+#include "vkl/bvh/vkl_bvh.hpp"
+#include "vkl/ray_tracing/vkl_cpu_ray_tracer.hpp"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
@@ -209,6 +212,11 @@ void Application::run() {
             ImGui::RadioButton("Wire Frame", &render_mode, 1);
             ImGui::SameLine();
             ImGui::RadioButton("With Texture", &render_mode, 2);
+
+            if (ImGui::Button("Ray Trace")) {
+                VklCpuRayTracer cpuRayTracer(scene);
+                cpuRayTracer.performRayTracing();
+            }
             ImGui::End();
 
             ImGui::Begin("Picking Result");

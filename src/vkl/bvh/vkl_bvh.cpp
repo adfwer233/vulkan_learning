@@ -13,14 +13,17 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
     for (size_t i = 0; i < scene_.objects.size(); i++) {
         auto &object = scene_.objects[i];
         for (size_t j = 0; j < object->models.size(); j++) {
-            auto model = object->models[i];
-
-            for (size_t k = 0; k < model->indices_.size(); i++) {
+            auto model = object->models[j];
+            auto trans = object->getModelTransformation();
+            for (size_t k = 0; k < model->indices_.size(); k++) {
                 auto tri_indices = model->indices_[k];
                 BVHObject bvhObject;
                 bvhObject.object_index = objects.size();
-                bvhObject.triangle = VklBVHGPUModel::Triangle{model->vertices_[tri_indices.i].position, model->vertices_[tri_indices.j].position, model->vertices_[tri_indices.k].position, 0};
-
+                bvhObject.triangle = VklBVHGPUModel::Triangle {
+                    trans * glm::vec4(model->vertices_[tri_indices.i].position, 1.0f),
+                    trans * glm::vec4(model->vertices_[tri_indices.j].position, 1.0f),
+                    trans * glm::vec4(model->vertices_[tri_indices.k].position, 1.0f), 0
+                };
                 objects.push_back(bvhObject);
             }
         }
@@ -34,6 +37,7 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
     root.index = nodeCounter;
     root.objects = objects;
     nodeCounter++;
+    nodeStack.push(root);
 
     while(!nodeStack.empty()) {
         BVHNode currentNode = nodeStack.top();
@@ -90,6 +94,7 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
         } else {
             gpuNode.objectIndex = -1;
         }
+        output.push_back(gpuNode);
     }
 
     return output;
