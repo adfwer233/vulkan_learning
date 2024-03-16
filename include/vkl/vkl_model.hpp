@@ -143,6 +143,7 @@ class VklModelTemplate {
     };
 
     friend class RayPicker;
+    friend class VklBVH;
 };
 
 using VklModel = VklModelTemplate<Vertex3D>;
