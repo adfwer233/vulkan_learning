@@ -16,6 +16,7 @@ set(SRC_FILE vkl_window.cpp
         vkl_compute_pipeline.cpp
         vkl_scene.cpp
         bvh/vkl_bvh.cpp
+        system/path_tracing_compute_system.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})
