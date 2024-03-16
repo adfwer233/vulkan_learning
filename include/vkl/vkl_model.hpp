@@ -5,11 +5,11 @@
 
 #include "glm/glm.hpp"
 
+#include "vkl_box.hpp"
 #include "vkl_buffer.hpp"
 #include "vkl_descriptor.hpp"
 #include "vkl_device.hpp"
 #include "vkl_texture.hpp"
-#include "vkl_box.hpp"
 
 #include "templates/vkl_index.hpp"
 
@@ -45,12 +45,13 @@ struct Vertex3D {
 };
 
 template <typename T>
-concept VklBoxType = requires (T t) {
+concept VklBoxType = requires(T t) {
     t.min_position;
     t.max_position;
 };
 
-template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex, VklBoxType BoxType = VklBox3D> class VklModelTemplate {
+template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex, VklBoxType BoxType = VklBox3D>
+class VklModelTemplate {
 
   public:
     typedef VertexType vertex_type;
@@ -74,7 +75,7 @@ template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex, VklB
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers;
     std::vector<VkDescriptorSet> descriptorSets;
 
-    BoxType box;  /** Axis aligned bounding box, has not transformed */
+    BoxType box; /** Axis aligned bounding box, has not transformed */
 
   private:
     VklDevice &device_;

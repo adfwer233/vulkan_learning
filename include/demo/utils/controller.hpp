@@ -36,5 +36,5 @@ class KeyboardCameraController {
 
     static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 
-    static void set_scene(VklScene& scene);
+    static void set_scene(VklScene &scene);
 };

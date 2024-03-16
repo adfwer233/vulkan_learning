@@ -8,9 +8,9 @@
 
 #include "particle/particle.hpp"
 
+#include <format>
 #include <functional>
 #include <random>
-#include <format>
 
 #ifndef PARTICLE_SHADER_DIR
 #define PARTICLE_SHADER_DIR "./shader/"
@@ -24,7 +24,6 @@ void Application::run() {
     auto globalSetLayout = VklDescriptorSetLayout::Builder(device_).build();
 
     auto globalPool = VklDescriptorPool::Builder(device_).setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200).build();
-
 
     /** set camera */
 
@@ -102,8 +101,8 @@ void Application::run() {
             ImGui::Begin("Messages");
             ImGui::SeparatorText("Scene Information");
             ImGui::LabelText(
-                    "Camera Position",
-                    std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
+                "Camera Position",
+                std::format("{:.3f}, {:.3f}, {:.3f}", camera.position.x, camera.position.y, camera.position.z).c_str());
             ImGui::SeparatorText("Performance");
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();

@@ -11,7 +11,7 @@ std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
 
     std::map<float, RayPickingResult> param_result_map;
     for (size_t object_index = 0; object_index < scene_.objects.size(); object_index++) {
-        auto& object =scene_.objects[object_index];
+        auto &object = scene_.objects[object_index];
 
         Ray object_ray = ray_;
         glm::mat4 model_transformation = object->getModelTransformation();

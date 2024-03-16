@@ -1,14 +1,14 @@
 #include "application.hpp"
+#include "vkl/vkl_box.hpp"
+#include "vkl/vkl_box_model.hpp"
 #include "vkl/vkl_descriptor.hpp"
 #include "vkl/vkl_object.hpp"
 #include "vkl/vkl_scene.hpp"
-#include "vkl/vkl_box.hpp"
-#include "vkl/vkl_box_model.hpp"
 
 #include "demo/utils/controller.hpp"
+#include "vkl/system/line_render_system.hpp"
 #include "vkl/system/simple_render_system.hpp"
 #include "vkl/system/simple_wireframe_render_system.hpp"
-#include "vkl/system/line_render_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -84,7 +84,7 @@ void Application::run() {
     auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
     boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
 
-    for (auto& object: scene.objects) {
+    for (auto &object : scene.objects) {
         object->allocDescriptorSets(*globalSetLayout, *globalPool);
     }
 
@@ -100,13 +100,19 @@ void Application::run() {
     SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, renderer_.getSwapChainRenderPass(),
                                                            globalSetLayout->getDescriptorSetLayout());
 
-    SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(device_, renderer_.getSwapChainRenderPass(),
-                                                           globalSetLayout->getDescriptorSetLayout(), std::format("{}/simple_shader.vert.spv", SHADER_DIR), std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
+    SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(
+        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        std::format("{}/simple_shader.vert.spv", SHADER_DIR),
+        std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
 
-    SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(device_, renderer_.getSwapChainRenderPass(),
-                                                                             globalSetLayout->getDescriptorSetLayout(), std::format("{}/simple_shader.vert.spv", SHADER_DIR), std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
+    SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(
+        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        std::format("{}/simple_shader.vert.spv", SHADER_DIR),
+        std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
 
-    LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
+    LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(
+        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -186,10 +192,13 @@ void Application::run() {
             ImGui::Begin("Messages");
             ImGui::SeparatorText("Scene Information");
             ImGui::LabelText("# Triangles", "%d", triangle_num);
-            ImGui::LabelText(
-                "Camera Position",
-                std::format("{:.3f}, {:.3f}, {:.3f}", scene.camera.position.x, scene.camera.position.y, scene.camera.position.z).c_str());
-            ImGui::LabelText("Point Light Position", std::format("{:.3f}, {:.3f}, {:.3f}", scene.pointLight.position.x, scene.pointLight.position.y, scene.pointLight.position.z).c_str());
+            ImGui::LabelText("Camera Position", std::format("{:.3f}, {:.3f}, {:.3f}", scene.camera.position.x,
+                                                            scene.camera.position.y, scene.camera.position.z)
+                                                    .c_str());
+            ImGui::LabelText("Point Light Position",
+                             std::format("{:.3f}, {:.3f}, {:.3f}", scene.pointLight.position.x,
+                                         scene.pointLight.position.y, scene.pointLight.position.z)
+                                 .c_str());
             ImGui::SeparatorText("Performance");
             ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
             ImGui::End();
@@ -249,7 +258,8 @@ void Application::run() {
                     model->uniformBuffers[frameIndex]->flush();
 
                     FrameInfo<VklModel> modelFrameInfo{
-                        frameIndex, currentFrame, commandBuffer, scene.camera, &model->descriptorSets[frameIndex], *model};
+                        frameIndex, currentFrame, commandBuffer, scene.camera, &model->descriptorSets[frameIndex],
+                        *model};
 
                     if (render_mode == 0) {
                         rawRenderSystem.renderObject(modelFrameInfo);
@@ -272,9 +282,8 @@ void Application::run() {
                 boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                 boxModel.uniformBuffers[frameIndex]->flush();
                 FrameInfo<VklBoxModel3D> boxFrameInfo{
-                        frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
-                        boxModel
-                };
+                    frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
+                    boxModel};
                 lineRenderSystem.renderObject(boxFrameInfo);
             }
             /* ImGui Rendering */

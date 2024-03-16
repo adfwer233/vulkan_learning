@@ -5,10 +5,12 @@
 #include "vkl_object.hpp"
 
 class VklScene {
-private:
+  private:
     VklDevice &device_;
-public:
-    VklScene(VklDevice &device, glm::vec3 camera_pos, glm::vec3 camera_up): device_(device), camera(camera_pos, camera_up) {
+
+  public:
+    VklScene(VklDevice &device, glm::vec3 camera_pos, glm::vec3 camera_up)
+        : device_(device), camera(camera_pos, camera_up) {
         pointLight.position = {0, 0, 10, 0};
         pointLight.color = {1, 1, 1, 0};
     };

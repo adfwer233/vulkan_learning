@@ -15,15 +15,16 @@
 #endif
 
 template <typename T>
-concept VklPipelineModifierType = requires(PipelineConfigInfo &pipelineConfigInfo) {
-    T::modifyPipeline(pipelineConfigInfo);
-};
+concept VklPipelineModifierType =
+    requires(PipelineConfigInfo &pipelineConfigInfo) { T::modifyPipeline(pipelineConfigInfo); };
 
 struct NullPipelineModifier {
-    static void modifyPipeline(PipelineConfigInfo &configInfo) {}
+    static void modifyPipeline(PipelineConfigInfo &configInfo) {
+    }
 };
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType = NullPipelineModifier> class SimpleRenderSystem {
+template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType = NullPipelineModifier>
+class SimpleRenderSystem {
   private:
     std::string vertex_shader_path_, fragment_shader_path_;
 

@@ -6,5 +6,5 @@ struct WireFramePipelineModifier {
     }
 };
 
-template<VklVertexType VertexType>
+template <VklVertexType VertexType>
 using SimpleWireFrameRenderSystem = SimpleRenderSystem<VertexType, WireFramePipelineModifier>;

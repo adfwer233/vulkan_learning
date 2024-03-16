@@ -4,14 +4,16 @@
 
 template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
 SimpleRenderSystem<VertexType, PipelineModifierType>::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
-                                                   VkDescriptorSetLayout globalSetLayout,
-                                                   std::string vertex_shader_path, std::string fragment_shader_path)
+                                                                         VkDescriptorSetLayout globalSetLayout,
+                                                                         std::string vertex_shader_path,
+                                                                         std::string fragment_shader_path)
     : device_(device), vertex_shader_path_(vertex_shader_path), fragment_shader_path_(fragment_shader_path) {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType> SimpleRenderSystem<VertexType, PipelineModifierType>::~SimpleRenderSystem() {
+template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
+SimpleRenderSystem<VertexType, PipelineModifierType>::~SimpleRenderSystem() {
     vkDestroyPipelineLayout(device_.device(), pipelineLayout_, nullptr);
 }
 
@@ -36,7 +38,8 @@ void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipelineLayout(
     }
 }
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType> void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipeline(VkRenderPass renderPass) {
+template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
+void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipeline(VkRenderPass renderPass) {
     PipelineConfigInfo pipelineConfigInfo{};
 
     VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(pipelineConfigInfo);
