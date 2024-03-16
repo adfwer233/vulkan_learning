@@ -48,7 +48,7 @@ class ParticleSimulationSystem {
 
     void updateUniformBuffer(uint32_t frameIndex, float deltaTime);
 
-    VklModelTemplate<Particle> &model;
+    VklModelTemplate<Particle, TriangleIndex, VklBox2D> &model;
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers_;
 
     void recordComputeCommandBuffer(size_t frameIndex);
@@ -57,7 +57,7 @@ class ParticleSimulationSystem {
     std::vector<VkSemaphore> computeFinishedSemaphores;
     std::vector<VkFence> computeInFlightFences;
 
-    ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle> &model, size_t particle_number = 1024);
+    ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle, TriangleIndex, VklBox2D> &model, size_t particle_number = 1024);
 
     ParticleSimulationSystem(const ParticleSimulationSystem &) = delete;
     ParticleSimulationSystem operator=(const ParticleSimulationSystem &) = delete;

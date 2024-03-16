@@ -46,7 +46,7 @@ void ParticleRenderSystem::createPipeline(VkRenderPass renderPass) {
                                                                 pipelineConfigInfo);
 }
 
-void ParticleRenderSystem::renderObject(FrameInfo<VklModelTemplate<Particle>> &frameInfo) {
+void ParticleRenderSystem::renderObject(FrameInfo<VklModelTemplate<Particle, TriangleIndex, VklBox2D>> &frameInfo) {
 
     vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);
 

@@ -1,7 +1,7 @@
 #include "particle/system/particle_simulation_system.hpp"
 #include <array>
 
-ParticleSimulationSystem::ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle> &model,
+ParticleSimulationSystem::ParticleSimulationSystem(VklDevice &device, VklModelTemplate<Particle, TriangleIndex, VklBox2D> &model,
                                                    size_t particle_number)
     : device_(device), model(model), particle_number_(particle_number) {
     createComputeDescriptorSetLayout();

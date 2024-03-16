@@ -6,6 +6,8 @@
 #include "vkl/vkl_descriptor.hpp"
 #include "vkl/vkl_device.hpp"
 
+#include "vkl/vkl_box.hpp"
+
 struct Particle {
     glm::vec2 position{};
     glm::vec2 velocity{};

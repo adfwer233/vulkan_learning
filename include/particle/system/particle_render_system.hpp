@@ -34,5 +34,5 @@ class ParticleRenderSystem {
 
     ~ParticleRenderSystem();
 
-    void renderObject(FrameInfo<VklModelTemplate<Particle>> &frameInfo);
+    void renderObject(FrameInfo<VklModelTemplate<Particle, TriangleIndex, VklBox2D>> &frameInfo);
 };

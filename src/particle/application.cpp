@@ -19,7 +19,7 @@
 #define PARTICLE_SHADER_DIR "./shader/"
 #endif
 
-using VklParticleModel = VklModelTemplate<Particle>;
+using VklParticleModel = VklModelTemplate<Particle, TriangleIndex, VklBox2D>;
 
 Application::~Application() {
 }
