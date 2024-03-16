@@ -44,7 +44,8 @@ add_subdirectory(src/demo)
 add_subdirectory(src/particle)
 add_subdirectory(src/bezier_curve)
 
-target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui)
+find_package(OpenMP)
+target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui OpenMP::OpenMP_CXX)
 
 message(STATUS "Build documentation open")
 include(build-doxygen)

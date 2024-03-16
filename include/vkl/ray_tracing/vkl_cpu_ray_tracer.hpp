@@ -77,7 +77,7 @@ private:
         return {t, u, v};
     }
 
-    std::optional<HitRecord> hitTriangle(int objectIndex, VklRay ray, float tMin, float tMax) {
+    std::optional<HitRecord> hitTriangle(int objectIndex, VklRay &ray, float tMin, float tMax) {
         std::optional<HitRecord> result;
 
         VklBVH::BVHObject t = bvh_.objects[objectIndex];
@@ -152,6 +152,7 @@ public:
 
         glm::vec3 lowerLeftCorner = scene_.camera.position + scene_.camera.camera_front - horizontal / 2.0f - vertical / 2.0f;
 
+        #pragma omp parallel for num_threads(8)
         for (int i = 0; i < n; i++) {
             std::cout << i << std::endl;
             for (int j = 0; j < m; j++) {
