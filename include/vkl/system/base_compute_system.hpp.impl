@@ -16,7 +16,7 @@ template <typename UniformBufferType, VklComputeModel ComputeModelType>
 void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescriptorSetLayout() {
 
     this->uniformBufferDescriptors_ = computeModel_.getUniformBufferDescriptors();
-    this->textureDescriptors_ = computeModel_.getTextureDescriptors();
+    this->imageDescriptors_ = computeModel_.getImageDescriptors();
     this->storageBufferDescriptors_ = computeModel_.getStorageDescriptor();
 
     std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
@@ -31,13 +31,13 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
         layoutBindings.push_back(descriptorSetLayoutBinding);
     }
 
-    for (int i = 0; i < textureDescriptors_.size(); i++) {
+    for (int i = 0; i < imageDescriptors_.size(); i++) {
         VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
         descriptorSetLayoutBinding.binding = layoutBindings.size();
         descriptorSetLayoutBinding.descriptorCount = 1;
         descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
         descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-        descriptorSetLayoutBinding.stageFlags = textureDescriptors_[i].shaderStageFlags;
+        descriptorSetLayoutBinding.stageFlags = imageDescriptors_[i].shaderStageFlags;
         layoutBindings.push_back(descriptorSetLayoutBinding);
     }
 
@@ -134,7 +134,7 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createDescriptorPoo
     poolSizes[0].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * uniformBufferDescriptors_.size();
 
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * textureDescriptors_.size();
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * imageDescriptors_.size();
 
     poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     poolSizes[2].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * storageBufferDescriptors_.size();
@@ -164,7 +164,7 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
-    int n = uniformBufferDescriptors_.size() + textureDescriptors_.size() + storageBufferDescriptors_.size();
+    int n = uniformBufferDescriptors_.size() + imageDescriptors_.size() + storageBufferDescriptors_.size();
 
     for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
         std::vector<VkWriteDescriptorSet> descriptorWrites(n);
@@ -184,9 +184,9 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
             descriptorWrites[j].pBufferInfo = &uniformBufferInfo;
         }
 
-        for (int j = 0; j < textureDescriptors_.size(); j++) {
+        for (int j = 0; j < imageDescriptors_.size(); j++) {
             int k = j + uniformBufferDescriptors_.size();
-            VkDescriptorImageInfo descriptorImageInfo = textureDescriptors_[j].data->descriptorInfo();
+            VkDescriptorImageInfo descriptorImageInfo = imageDescriptors_[j].data->descriptorInfo(VK_IMAGE_LAYOUT_GENERAL);
 
             descriptorWrites[k].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrites[k].dstSet = computeDescriptorSets[i];
@@ -198,7 +198,7 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
         }
 
         for (int j = 0; j < storageBufferDescriptors_.size(); j++) {
-            int k = j + uniformBufferDescriptors_.size() + textureDescriptors_.size();
+            int k = j + uniformBufferDescriptors_.size() + imageDescriptors_.size();
             VkDescriptorBufferInfo descriptorBufferInfo = storageBufferDescriptors_[j].data->descriptorInfo();
 
             descriptorWrites[k].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

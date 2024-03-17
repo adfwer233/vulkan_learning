@@ -4,6 +4,7 @@
 #include "vkl/vkl_descriptor.hpp"
 #include "vkl/vkl_object.hpp"
 #include "vkl/vkl_scene.hpp"
+#include "vkl/vkl_image.hpp"
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/line_render_system.hpp"
@@ -31,17 +32,12 @@ void Application::run() {
 
     /** tmp model data */
     const std::vector<Vertex3D> vertexData = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}},
+        {{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
+        {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
+        {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
+        {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}};
 
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}};
-
-    const std::vector<VklModel::index_type> indices = {{0, 1, 2}, {2, 3, 0}, {4, 5, 6}, {6, 7, 4}};
+    const std::vector<VklModel::index_type> indices = {{0, 1, 2}, {2, 3, 0}};
 
     VklModel::BuilderFromImmediateData builder;
     builder.vertices = vertexData;
@@ -82,14 +78,19 @@ void Application::run() {
             .build(globalDescriptorSets[i]);
     }
 
+    model.allocDescriptorSets(*globalSetLayout, *globalPool);
+
     /** set camera */
 
     VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
     scene.addObject(objectBuilder);
 
-    PathTracingComputeModel pathTracingComputeModel(device_, scene);
-
-    PathTracingComputeSystem pathTracingComputeSystem(device_, pathTracingComputeModel);
+//    PathTracingComputeModel pathTracingComputeModel(device_, scene);
+//
+//    PathTracingComputeSystem pathTracingComputeSystem(device_, pathTracingComputeModel);
+//
+//    auto targetTexture = pathTracingComputeModel.getTargetTexture();
+//    auto accumulationTexture = pathTracingComputeModel.getAccumulationTexture();
 
     auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
     boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
@@ -123,6 +124,11 @@ void Application::run() {
     LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(
         device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
+
+    SimpleRenderSystem<VklModel::vertex_type> backGroundRenderSystem(
+            device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+            std::format("{}/simple_shader.vert.spv", SHADER_DIR),
+            std::format("{}/path_tracing_post_shader.frag.spv", SHADER_DIR));
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -258,16 +264,19 @@ void Application::run() {
             }
             ImGui::End();
 
-            vkWaitForFences(device_.device(), 1, &pathTracingComputeSystem.computeInFlightFences[frameIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
+//            vkWaitForFences(device_.device(), 1, &pathTracingComputeSystem.computeInFlightFences[frameIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
             if (render_mode == 3) {
-                pathTracingComputeSystem.computeSubmission(frameIndex);
-                renderer_.setSemaphoreToWait(pathTracingComputeSystem.computeFinishedSemaphores[frameIndex]);
+//                device_.transitionImageLayout(targetTexture, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL);
+
+//                pathTracingComputeSystem.computeSubmission(frameIndex);
+//                renderer_.setSemaphoreToWait(pathTracingComputeSystem.computeFinishedSemaphores[frameIndex]);
 //                submit = true;
             }
 
             auto commandBuffer = renderer_.beginFrame();
-            renderer_.beginSwapChainRenderPass(commandBuffer);
+
             if (render_mode != 3) {
+                renderer_.beginSwapChainRenderPass(commandBuffer);
                 GlobalUbo ubo{};
 
                 ubo.view = scene.camera.get_view_transformation();
@@ -313,7 +322,20 @@ void Application::run() {
                     lineRenderSystem.renderObject(boxFrameInfo);
                 }
             } else {
+                renderer_.beginSwapChainRenderPass(commandBuffer);
+                GlobalUbo ubo{};
+                ubo.view = glm::lookAt(glm::vec3{0.0f, 0.0f ,1.0f}, glm::vec3{0.0f, 0.0f, 0.5f}, glm::vec3{0.0f, -1.0f, 0.0f});
+                ubo.proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
+                ubo.model = glm::mat4(1.0f);
+                ubo.pointLight = scene.pointLight;
+                ubo.cameraPos = scene.camera.position;
+                model.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                model.uniformBuffers[frameIndex]->flush();
 
+                FrameInfo<VklModel> modelFrameInfo{
+                        frameIndex, currentFrame, commandBuffer, scene.camera,
+                        &model.descriptorSets[frameIndex], model};
+                backGroundRenderSystem.renderObject(modelFrameInfo);
             }
             /* ImGui Rendering */
             ImGui::Render();

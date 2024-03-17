@@ -3,6 +3,7 @@
 #include "base_compute_system.hpp"
 
 #include "vkl/bvh/vkl_bvh.hpp"
+#include "vkl/vkl_image.hpp"
 
 #include "glm/glm.hpp"
 
@@ -28,11 +29,11 @@ private:
 
     std::vector<ComputeDescriptor<VklBuffer>> uniformBufferDescriptors_;
     std::vector<ComputeDescriptor<VklBuffer>> storageBufferDescriptors_;
-    std::vector<ComputeDescriptor<VklTexture>> textureDescriptors_;
+    std::vector<ComputeDescriptor<VklImage>> imageDescriptors_;
 
     std::vector<VklBuffer*> uniformBuffers;
     std::vector<VklBuffer*> storageBuffers;
-    std::vector<VklTexture*> textures;
+    std::vector<VklImage*> images;
 
 public:
 
@@ -73,6 +74,7 @@ public:
         for (int i = 0; i < uniformBuffers.size(); i++) {
             uniformBufferDescriptors_.push_back({uniformBuffers[i], VK_SHADER_STAGE_COMPUTE_BIT});
         }
+
         /*
          * create textures
          */
@@ -88,14 +90,14 @@ public:
         stagingBufferTex1.writeToBuffer((void *)rawTargetImage);
         stagingBufferTex1.unmap();
 
-        auto targetTexture = new VklTexture(device_, n, m, 4, VK_IMAGE_USAGE_STORAGE_BIT);
+        auto targetTexture = new VklImage(device_, n, m, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
 
-        device_.transitionImageLayout(targetTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
-                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        device_.copyBufferToImage(stagingBufferTex1.getBuffer(), targetTexture->image_, static_cast<uint32_t>(n),
-                                  static_cast<uint32_t>(m), 1);
-        device_.transitionImageLayout(targetTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        device_.transitionImageLayout(targetTexture->image_, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+//        device_.copyBufferToImage(stagingBufferTex1.getBuffer(), targetTexture->image_, static_cast<uint32_t>(n),
+//                                  static_cast<uint32_t>(m), 1);
+//        device_.transitionImageLayout(targetTexture->image_, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+//                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         glm::vec4 *rawAccumulationTexture = new glm::vec4[n * m];
         for (int i = 0; i < n * m; i++) {
@@ -108,20 +110,20 @@ public:
         stagingBufferTex2.writeToBuffer((void *)rawAccumulationTexture);
         stagingBufferTex2.unmap();
 
-        auto accumulationTexture = new VklTexture(device_, n, m, 4, VK_IMAGE_USAGE_STORAGE_BIT);
+        auto accumulationTexture = new VklImage(device_, n, m, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-        device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
-                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_GENERAL);
         device_.copyBufferToImage(stagingBufferTex2.getBuffer(), accumulationTexture->image_, static_cast<uint32_t>(n),
                                   static_cast<uint32_t>(m), 1);
-        device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+//        device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+//                                      VK_IMAGE_LAYOUT_GENERAL);
 
-        textures.push_back(targetTexture);
-        textures.push_back(accumulationTexture);
+        images.push_back(targetTexture);
+        images.push_back(accumulationTexture);
 
-        for (int i = 0; i < textures.size(); i++) {
-            textureDescriptors_.push_back({textures[i], VK_SHADER_STAGE_COMPUTE_BIT});
+        for (int i = 0; i < images.size(); i++) {
+            imageDescriptors_.push_back({images[i], VK_SHADER_STAGE_COMPUTE_BIT});
         }
 
         /*
@@ -188,7 +190,7 @@ public:
     }
 
     std::vector<ComputeDescriptor<VklBuffer>> getUniformBufferDescriptors() {return uniformBufferDescriptors_;}
-    std::vector<ComputeDescriptor<VklTexture>> getTextureDescriptors() {return textureDescriptors_;}
+    std::vector<ComputeDescriptor<VklImage>> getImageDescriptors() {return imageDescriptors_;}
     std::vector<ComputeDescriptor<VklBuffer>> getStorageDescriptor() {return storageBufferDescriptors_;}
 
     std::tuple<int, int, int> getLocalSize() {
@@ -197,6 +199,14 @@ public:
 
     std::tuple<int, int, int> getSize() {
         return {1024, 1024, 1};
+    }
+
+    VkImage getTargetTexture() {
+        return this->images[0]->image_;
+    }
+
+    VkImage getAccumulationTexture() {
+        return this->images[1]->image_;
     }
 };
 

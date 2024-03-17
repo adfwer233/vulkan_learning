@@ -13,7 +13,7 @@ struct ComputeDescriptor {
 template <typename T>
 concept VklComputeModel = requires(T t) {
     {t.getUniformBufferDescriptors()} -> std::same_as<std::vector<ComputeDescriptor<VklBuffer>>>;
-    {t.getTextureDescriptors()} -> std::same_as<std::vector<ComputeDescriptor<VklTexture>>>;
+    {t.getImageDescriptors()} -> std::same_as<std::vector<ComputeDescriptor<VklImage>>>;
     {t.getStorageDescriptor()} -> std::same_as<std::vector<ComputeDescriptor<VklBuffer>>>;
     {t.getSize()} -> std::same_as<std::tuple<int, int, int>>;
     {t.getLocalSize()} -> std::same_as<std::tuple<int, int, int>>;
@@ -31,7 +31,6 @@ private:
     VkDescriptorSetLayout computeDescriptorSetLayout;
     std::vector<VkDescriptorSet> computeDescriptorSets;
 
-    std::vector<VkCommandBuffer> computeCommandBuffers;
 
     void createComputeDescriptorSetLayout();
     void createPipelineLayout();
@@ -52,12 +51,13 @@ private:
 
     std::vector<ComputeDescriptor<VklBuffer>> uniformBufferDescriptors_;
     std::vector<ComputeDescriptor<VklBuffer>> storageBufferDescriptors_;
-    std::vector<ComputeDescriptor<VklTexture>> textureDescriptors_;
+    std::vector<ComputeDescriptor<VklImage>> imageDescriptors_;
     // std::vector<ComputeDescriptor<>>
 
 public:
     std::vector<VkSemaphore> computeFinishedSemaphores;
     std::vector<VkFence> computeInFlightFences;
+    std::vector<VkCommandBuffer> computeCommandBuffers;
 
     explicit BaseComputeSystem(VklDevice &device, ComputeModelType computeModel);
     ~BaseComputeSystem();
