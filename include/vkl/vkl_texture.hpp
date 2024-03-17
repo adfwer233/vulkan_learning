@@ -17,5 +17,7 @@ class VklTexture {
     VklTexture(VklDevice &device_, int texWidth, int texHeight, int texChannels);
     ~VklTexture();
 
+    VkSampler getTextureSampler() {return textureSampler_;}
+    VkImageView getTextureImageView() {return textureImageView;}
     VkDescriptorImageInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
 };

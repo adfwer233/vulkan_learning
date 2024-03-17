@@ -10,6 +10,9 @@
 #include "vkl/system/simple_render_system.hpp"
 #include "vkl/system/simple_wireframe_render_system.hpp"
 
+#include "vkl/system/base_compute_system.hpp"
+#include "vkl/system/path_tracing_compute_system.hpp"
+
 #include "vkl/bvh/vkl_bvh.hpp"
 #include "vkl/ray_tracing/vkl_cpu_ray_tracer.hpp"
 

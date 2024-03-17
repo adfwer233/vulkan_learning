@@ -1,0 +1,279 @@
+#include "base_compute_system.hpp"
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+BaseComputeSystem<UniformBufferType, ComputeModelType>::BaseComputeSystem(VklDevice &device, ComputeModelType computeModel): device_(device), computeModel_(computeModel) {
+    createComputeDescriptorSetLayout();
+    createPipelineLayout();
+    createPipeline();
+    createUniformBuffers();
+    createDescriptorPool();
+    createComputeDescriptorSets();
+    createCommandBuffer();
+    createSyncObjects();
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescriptorSetLayout() {
+
+    this->uniformBufferDescriptors_ = computeModel_.getUniformBufferDescriptors();
+    this->textureDescriptors_ = computeModel_.getTextureDescriptors();
+    this->storageBufferDescriptors_ = computeModel_.getStorageDescriptor();
+
+    std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
+
+    for (int i = 0; i < uniformBufferDescriptors_.size(); i++) {
+        VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
+        descriptorSetLayoutBinding.binding = layoutBindings.size();
+        descriptorSetLayoutBinding.descriptorCount = 1;
+        descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+        descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorSetLayoutBinding.stageFlags = uniformBufferDescriptors_[i].shaderStageFlags;
+        layoutBindings.push_back(descriptorSetLayoutBinding);
+    }
+
+    for (int i = 0; i < textureDescriptors_.size(); i++) {
+        VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
+        descriptorSetLayoutBinding.binding = layoutBindings.size();
+        descriptorSetLayoutBinding.descriptorCount = 1;
+        descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+        descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorSetLayoutBinding.stageFlags = textureDescriptors_[i].shaderStageFlags;
+        layoutBindings.push_back(descriptorSetLayoutBinding);
+    }
+
+    for (int i = 0; i < storageBufferDescriptors_.size(); i++) {
+        VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
+        descriptorSetLayoutBinding.binding = layoutBindings.size();
+        descriptorSetLayoutBinding.descriptorCount = 1;
+        descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+        descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        descriptorSetLayoutBinding.stageFlags = textureDescriptors_[i].shaderStageFlags;
+        layoutBindings.push_back(descriptorSetLayoutBinding);
+    }
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = layoutBindings.size();
+    layoutInfo.pBindings = layoutBindings.data();
+
+    if (vkCreateDescriptorSetLayout(device_.device(), &layoutInfo, nullptr, &computeDescriptorSetLayout) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create compute descriptor set layout");
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createPipelineLayout() {
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &computeDescriptorSetLayout;
+
+    if (vkCreatePipelineLayout(device_.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create compute pipeline layout!");
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createPipeline() {
+    ComputePipelineConfigInfo configInfo{computeDescriptorSetLayout, pipelineLayout_};
+    this->pipeline_ = std::make_unique<VklComputePipeline>(device_, "comp_shader_path", configInfo);
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createCommandBuffer() {
+    computeCommandBuffers.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    VkCommandBufferAllocateInfo allocateInfo{};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.commandPool = device_.getCommandPool();
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandBufferCount = (uint32_t)computeCommandBuffers.size();
+
+    if (vkAllocateCommandBuffers(device_.device(), &allocateInfo, computeCommandBuffers.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate compute command buffers!");
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createSyncObjects() {
+    computeFinishedSemaphores.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+    computeInFlightFences.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    VkSemaphoreCreateInfo semaphoreInfo{};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
+        if (vkCreateSemaphore(device_.device(), &semaphoreInfo, nullptr, &computeFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(device_.device(), &fenceInfo, nullptr, &computeInFlightFences[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create compute synchronization objects for a frame!");
+        }
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createUniformBuffers() {
+    VkDeviceSize bufferSize = sizeof(UniformBufferType);
+
+    for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
+        auto buffer =
+                std::make_unique<VklBuffer>(device_, bufferSize, 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        buffer->map();
+        uniformBuffers_.push_back(std::move(buffer));
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createDescriptorPool() {
+    std::array<VkDescriptorPoolSize, 3> poolSizes{};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * uniformBufferDescriptors_.size();
+
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * textureDescriptors_.size();
+
+    poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    poolSizes[2].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * storageBufferDescriptors_.size();
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = uniformBufferDescriptors_.size() + textureDescriptors_.size() + storageBufferDescriptors_.size();
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    if (vkCreateDescriptorPool(device_.device(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescriptorSets() {
+    std::vector<VkDescriptorSetLayout> layouts(VklSwapChain::MAX_FRAMES_IN_FLIGHT, computeDescriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+    allocInfo.pSetLayouts = layouts.data();
+
+    computeDescriptorSets.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+    if (vkAllocateDescriptorSets(device_.device(), &allocInfo, computeDescriptorSets.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate descriptor sets!");
+    }
+
+    int n = uniformBufferDescriptors_.size() + textureDescriptors_.size() + storageBufferDescriptors_.size();
+
+    for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
+        std::vector<VkWriteDescriptorSet> descriptorWrites(n);
+
+        for (int i = 0; i < uniformBufferDescriptors_.size(); i++) {
+            VkDescriptorBufferInfo uniformBufferInfo{};
+            uniformBufferInfo.buffer = uniformBuffers_[i]->getBuffer();
+            uniformBufferInfo.offset = 0;
+            uniformBufferInfo.range = sizeof(UniformBufferType);
+
+            descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[i].dstSet = computeDescriptorSets[i];
+            descriptorWrites[i].dstBinding = i;
+            descriptorWrites[i].dstArrayElement = 0;
+            descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrites[i].descriptorCount = 1;
+            descriptorWrites[i].pBufferInfo = &uniformBufferInfo;
+        }
+
+        for (int j = 0; j < textureDescriptors_.size(); j++) {
+            int k = j + uniformBufferDescriptors_.size();
+            VkDescriptorImageInfo descriptorImageInfo = textureDescriptors_[j].data->descriptorInfo();
+
+            descriptorWrites[k].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[k].dstSet = computeDescriptorSets[i];
+            descriptorWrites[k].dstBinding = k;
+            descriptorWrites[k].dstArrayElement = 0;
+            descriptorWrites[k].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrites[k].descriptorCount = 1;
+            descriptorWrites[k].pImageInfo = &descriptorImageInfo;
+        }
+
+        for (int j = 0; j < storageBufferDescriptors_.size(); j++) {
+            int k = j + uniformBufferDescriptors_.size() + textureDescriptors_.size();
+            VkDescriptorBufferInfo descriptorBufferInfo = storageBufferDescriptors_[j].data->descriptorInfo();
+
+            descriptorWrites[k].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[k].dstSet = computeDescriptorSets[i];
+            descriptorWrites[k].dstBinding = k;
+            descriptorWrites[k].dstArrayElement = 0;
+            descriptorWrites[k].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrites[k].descriptorCount = 1;
+            descriptorWrites[k].pBufferInfo = &descriptorBufferInfo;
+        }
+
+        vkUpdateDescriptorSets(device_.device(), n, descriptorWrites.data(), 0, nullptr);
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::recordComputeCommandBuffer(size_t frameIndex) {
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(computeCommandBuffers[frameIndex], &beginInfo) != VK_SUCCESS) {
+        throw std::runtime_error("failed to begin recording compute command buffer!");
+    }
+
+    vkCmdBindPipeline(computeCommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_->computePipeline_);
+
+    vkCmdBindDescriptorSets(computeCommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout_, 0, 1,
+                            &computeDescriptorSets[frameIndex], 0, nullptr);
+
+    auto [local_x, local_y, local_z] = computeModel_.getLocalSize();
+    auto [x, y, z] = computeModel_.getSize();
+
+    vkCmdDispatch(computeCommandBuffers[frameIndex], x / local_x , y / local_y, z / local_z);
+
+    if (vkEndCommandBuffer(computeCommandBuffers[frameIndex]) != VK_SUCCESS) {
+        throw std::runtime_error("failed to record compute command buffer!");
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::computeSubmission(size_t frameIndex, float deltaTime) {
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    vkWaitForFences(device_.device(), 1, &computeInFlightFences[frameIndex], VK_TRUE, UINT64_MAX);
+
+    updateUniformBuffer(frameIndex, deltaTime);
+
+    vkResetFences(device_.device(), 1, &computeInFlightFences[frameIndex]);
+
+    vkResetCommandBuffer(computeCommandBuffers[frameIndex], /*VkCommandBufferResetFlagBits*/ 0);
+
+    recordComputeCommandBuffer(frameIndex);
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &computeCommandBuffers[frameIndex];
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &computeFinishedSemaphores[frameIndex];
+
+    if (vkQueueSubmit(device_.computeQueue(), 1, &submitInfo, computeInFlightFences[frameIndex]) != VK_SUCCESS) {
+        throw std::runtime_error("failed to submit compute command buffer!");
+    }
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+BaseComputeSystem<UniformBufferType, ComputeModelType>::~BaseComputeSystem() {
+    for (auto semaphore : this->computeFinishedSemaphores) {
+        vkDestroySemaphore(device_.device(), semaphore, nullptr);
+    }
+
+    for (auto fence : this->computeInFlightFences) {
+        vkDestroyFence(device_.device(), fence, nullptr);
+    }
+
+    vkDestroyPipelineLayout(device_.device(), pipelineLayout_, nullptr);
+    vkDestroyDescriptorSetLayout(device_.device(), computeDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorPool(device_.device(), descriptorPool, nullptr);
+};

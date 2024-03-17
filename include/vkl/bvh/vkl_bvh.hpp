@@ -67,6 +67,8 @@ private:
 
 public:
     std::vector<BVHObject> objects;
+    std::vector<VklBVHGPUModel::Light> lights;
+    std::vector<VklBVHGPUModel::Triangle> triangles;
 
     explicit VklBVH(VklScene& scene): scene_(scene) {}
     ~VklBVH() {}
