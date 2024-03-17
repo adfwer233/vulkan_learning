@@ -6,7 +6,7 @@
 
 template<typename T>
 struct ComputeDescriptor {
-    std::unique_ptr<T> &data;
+    T *data;
     VkShaderStageFlags shaderStageFlags;
 };
 

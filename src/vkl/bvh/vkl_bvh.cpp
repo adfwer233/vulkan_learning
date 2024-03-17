@@ -99,12 +99,13 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
 
     triangles.reserve(objects.size());
     for (int i = 0; i < objects.size(); i++) {
-        triangles[i] = objects[i].triangle;
+        triangles.push_back(objects[i].triangle);
     }
 
     for (size_t i = 0; i < triangles.size(); i++) {
         auto t = triangles[i];
-        if (scene_.materials[triangles[i].materialIndex].type == VklBVHGPUModel::MaterialType::LightSource) {
+//        if (scene_.materials[triangles[i].materialIndex].type == VklBVHGPUModel::MaterialType::LightSource) {
+        if (true) {
             float area = glm::length(glm::cross(t.v1 - t.v0, t.v2 - t.v0)) * 0.5f;
             lights.emplace_back(static_cast<uint32_t>(i), area);
         }

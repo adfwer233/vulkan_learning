@@ -6,6 +6,10 @@
 
 #include "glm/glm.hpp"
 
+#ifndef SHADER_DIR
+#define SHADER_DIR "./shader/"
+#endif
+
 struct PathTracingUniformBufferObject {
     glm::vec3 cameraPosition;
     glm::vec3 cameraUp;
@@ -26,11 +30,15 @@ private:
     std::vector<ComputeDescriptor<VklBuffer>> storageBufferDescriptors_;
     std::vector<ComputeDescriptor<VklTexture>> textureDescriptors_;
 
-    std::vector<std::unique_ptr<VklBuffer>> uniformBuffers;
-    std::vector<std::unique_ptr<VklBuffer>> storageBuffers;
-    std::vector<std::unique_ptr<VklTexture>> textures;
+    std::vector<VklBuffer*> uniformBuffers;
+    std::vector<VklBuffer*> storageBuffers;
+    std::vector<VklTexture*> textures;
 
 public:
+
+    static std::string get_comp_shader_path() {
+        return std::format("{}/path_tracing_compute_shader.comp.spv", SHADER_DIR);
+    }
 
     PathTracingUniformBufferObject ubo;
 
@@ -55,12 +63,16 @@ public:
         stagingBuffer0.map();
         stagingBuffer0.writeToBuffer((void *)&ubo);
 
-        auto uniformBuffer = std::make_unique<VklBuffer>(device, sizeof(PathTracingUniformBufferObject), 1,
+        auto uniformBuffer = new VklBuffer(device, sizeof(PathTracingUniformBufferObject), 1,
                                                           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
         device.copyBuffer(stagingBuffer0.getBuffer(), uniformBuffer->getBuffer(), sizeof(PathTracingUniformBufferObject));
 
+        uniformBuffers.push_back(uniformBuffer);
+        for (int i = 0; i < uniformBuffers.size(); i++) {
+            uniformBufferDescriptors_.push_back({uniformBuffers[i], VK_SHADER_STAGE_COMPUTE_BIT});
+        }
         /*
          * create textures
          */
@@ -76,7 +88,7 @@ public:
         stagingBufferTex1.writeToBuffer((void *)rawTargetImage);
         stagingBufferTex1.unmap();
 
-        auto targetTexture = std::make_unique<VklTexture>(device_, n, m, 4);
+        auto targetTexture = new VklTexture(device_, n, m, 4, VK_IMAGE_USAGE_STORAGE_BIT);
 
         device_.transitionImageLayout(targetTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -96,7 +108,7 @@ public:
         stagingBufferTex2.writeToBuffer((void *)rawAccumulationTexture);
         stagingBufferTex2.unmap();
 
-        auto accumulationTexture = std::make_unique<VklTexture>(device_, n, m, 4);
+        auto accumulationTexture = new VklTexture(device_, n, m, 4, VK_IMAGE_USAGE_STORAGE_BIT);
 
         device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -105,8 +117,8 @@ public:
         device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        textures.push_back(std::move(targetTexture));
-        textures.push_back(std::move(accumulationTexture));
+        textures.push_back(targetTexture);
+        textures.push_back(accumulationTexture);
 
         for (int i = 0; i < textures.size(); i++) {
             textureDescriptors_.push_back({textures[i], VK_SHADER_STAGE_COMPUTE_BIT});
@@ -124,7 +136,7 @@ public:
         stagingBuffer1.map();
         stagingBuffer1.writeToBuffer((void *)bvh.triangles.data());
 
-        auto triangleBuffer = std::make_unique<VklBuffer>(device, sizeof(VklBVHGPUModel::Triangle), trianglesNum,
+        auto triangleBuffer = new VklBuffer(device, sizeof(VklBVHGPUModel::Triangle), trianglesNum,
                                                           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -139,7 +151,7 @@ public:
         stagingBuffer2.map();
         stagingBuffer2.writeToBuffer((void *)scene.materials.data());
 
-        auto materialBuffer = std::make_unique<VklBuffer>(device, sizeof(VklBVHGPUModel::Material), materialNum,
+        auto materialBuffer = new VklBuffer(device, sizeof(VklBVHGPUModel::Material), materialNum,
                                                           VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -152,7 +164,7 @@ public:
         stagingBuffer3.map();
         stagingBuffer3.writeToBuffer((void*)bvhTree.data());
 
-        auto aabbBuffer = std::make_unique<VklBuffer>(device, sizeof(VklBVHGPUModel::BVHNode), trianglesNum, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        auto aabbBuffer = new VklBuffer(device, sizeof(VklBVHGPUModel::BVHNode), aabbNum, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         device.copyBuffer(stagingBuffer3.getBuffer(), aabbBuffer->getBuffer(), sizeof(VklBVHGPUModel::BVHNode) * aabbNum);
 
         // create light buffer
@@ -162,13 +174,13 @@ public:
         stagingBuffer4.map();
         stagingBuffer4.writeToBuffer((void*)bvhTree.data());
 
-        auto lightBuffer = std::make_unique<VklBuffer>(device, sizeof(VklBVHGPUModel::Light), lightNum, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        auto lightBuffer = new VklBuffer(device, sizeof(VklBVHGPUModel::Light), lightNum, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         device.copyBuffer(stagingBuffer4.getBuffer(), lightBuffer->getBuffer(), sizeof(VklBVHGPUModel::Light) * lightNum);
 
-        storageBuffers.push_back(std::move(triangleBuffer));
-        storageBuffers.push_back(std::move(materialBuffer));
-        storageBuffers.push_back(std::move(aabbBuffer));
-        storageBuffers.push_back(std::move(lightBuffer));
+        storageBuffers.push_back(triangleBuffer);
+        storageBuffers.push_back(materialBuffer);
+        storageBuffers.push_back(aabbBuffer);
+        storageBuffers.push_back(lightBuffer);
 
         for (int i = 0; i < storageBuffers.size(); i++) {
             storageBufferDescriptors_.push_back({storageBuffers[i], VK_SHADER_STAGE_COMPUTE_BIT});

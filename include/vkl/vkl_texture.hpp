@@ -14,7 +14,7 @@ class VklTexture {
     VkImage image_ = VK_NULL_HANDLE;
     VkDeviceMemory memory_ = VK_NULL_HANDLE;
 
-    VklTexture(VklDevice &device_, int texWidth, int texHeight, int texChannels);
+    VklTexture(VklDevice &device_, int texWidth, int texHeight, int texChannels, VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
     ~VklTexture();
 
     VkSampler getTextureSampler() {return textureSampler_;}
