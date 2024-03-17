@@ -42,7 +42,7 @@ private:
     void createCommandBuffer();
     void createSyncObjects();
 
-    void updateUniformBuffer(uint32_t frameIndex, float deltaTime);
+    void updateUniformBuffer(uint32_t frameIndex);
 
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers_;
 
@@ -65,7 +65,7 @@ public:
     BaseComputeSystem(const BaseComputeSystem &) = delete;
     BaseComputeSystem operator=(const BaseComputeSystem &) = delete;
 
-    void computeSubmission(size_t frameIndex, float deltaTime);
+    void computeSubmission(size_t frameIndex);
 };
 
 #include "base_compute_system.hpp.impl"

@@ -169,19 +169,19 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
     for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
         std::vector<VkWriteDescriptorSet> descriptorWrites(n);
 
-        for (int i = 0; i < uniformBufferDescriptors_.size(); i++) {
+        for (int j = 0; j < uniformBufferDescriptors_.size(); j++) {
             VkDescriptorBufferInfo uniformBufferInfo{};
-            uniformBufferInfo.buffer = uniformBuffers_[i]->getBuffer();
+            uniformBufferInfo.buffer = uniformBuffers_[j]->getBuffer();
             uniformBufferInfo.offset = 0;
             uniformBufferInfo.range = sizeof(UniformBufferType);
 
-            descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[i].dstSet = computeDescriptorSets[i];
-            descriptorWrites[i].dstBinding = i;
-            descriptorWrites[i].dstArrayElement = 0;
-            descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrites[i].descriptorCount = 1;
-            descriptorWrites[i].pBufferInfo = &uniformBufferInfo;
+            descriptorWrites[j].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrites[j].dstSet = computeDescriptorSets[i];
+            descriptorWrites[j].dstBinding = j;
+            descriptorWrites[j].dstArrayElement = 0;
+            descriptorWrites[j].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrites[j].descriptorCount = 1;
+            descriptorWrites[j].pBufferInfo = &uniformBufferInfo;
         }
 
         for (int j = 0; j < textureDescriptors_.size(); j++) {
@@ -239,13 +239,13 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::recordComputeComman
 }
 
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
-void BaseComputeSystem<UniformBufferType, ComputeModelType>::computeSubmission(size_t frameIndex, float deltaTime) {
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::computeSubmission(size_t frameIndex) {
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     vkWaitForFences(device_.device(), 1, &computeInFlightFences[frameIndex], VK_TRUE, UINT64_MAX);
 
-    updateUniformBuffer(frameIndex, deltaTime);
+    updateUniformBuffer(frameIndex);
 
     vkResetFences(device_.device(), 1, &computeInFlightFences[frameIndex]);
 
@@ -277,3 +277,8 @@ BaseComputeSystem<UniformBufferType, ComputeModelType>::~BaseComputeSystem() {
     vkDestroyDescriptorSetLayout(device_.device(), computeDescriptorSetLayout, nullptr);
     vkDestroyDescriptorPool(device_.device(), descriptorPool, nullptr);
 };
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::updateUniformBuffer(uint32_t frameIndex) {
+    uniformBuffers_[frameIndex]->writeToBuffer((void *)&computeModel_.ubo);
+}

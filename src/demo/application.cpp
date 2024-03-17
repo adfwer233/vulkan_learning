@@ -182,7 +182,7 @@ void Application::run() {
     }
 
     int render_mode = 0;
-
+    bool submit = false;
     while (not window_.shouldClose()) {
         glfwPollEvents();
 
@@ -196,7 +196,7 @@ void Application::run() {
 
         KeyboardCameraController::processInput(window_.getGLFWwindow(), deltaTime);
 
-        if (auto commandBuffer = renderer_.beginFrame()) {
+        if (true) {
             int frameIndex = renderer_.getFrameIndex();
 
             ImGui::Begin("Messages");
@@ -258,8 +258,15 @@ void Application::run() {
             }
             ImGui::End();
 
-            renderer_.beginSwapChainRenderPass(commandBuffer);
+            vkWaitForFences(device_.device(), 1, &pathTracingComputeSystem.computeInFlightFences[frameIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
+            if (render_mode == 3) {
+                pathTracingComputeSystem.computeSubmission(frameIndex);
+                renderer_.setSemaphoreToWait(pathTracingComputeSystem.computeFinishedSemaphores[frameIndex]);
+//                submit = true;
+            }
 
+            auto commandBuffer = renderer_.beginFrame();
+            renderer_.beginSwapChainRenderPass(commandBuffer);
             if (render_mode != 3) {
                 GlobalUbo ubo{};
 
