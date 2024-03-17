@@ -31,9 +31,86 @@ private:
     std::vector<std::unique_ptr<VklTexture>> textures;
 
 public:
+
+    PathTracingUniformBufferObject ubo;
+
     PathTracingComputeModel(VklDevice &device, VklScene &scene): device_(device), scene_(scene) {
         VklBVH bvh(scene);
         auto bvhTree = bvh.createGPUBVHTree();
+
+        const int n = 1024;
+        const int m = 1024;
+
+        ubo.cameraPosition = scene.camera.position;
+        ubo.cameraUp = scene.camera.camera_up_axis;
+        ubo.cameraFront = scene.camera.camera_front;
+        ubo.cameraZoom = scene.camera.zoom;
+        ubo.currentSample = 0;
+        ubo.numTriangles = bvh.triangles.size();
+        ubo.numLights = bvh.lights.size();
+
+        VklBuffer stagingBuffer0{device_, sizeof(PathTracingUniformBufferObject), 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+
+        stagingBuffer0.map();
+        stagingBuffer0.writeToBuffer((void *)&ubo);
+
+        auto uniformBuffer = std::make_unique<VklBuffer>(device, sizeof(PathTracingUniformBufferObject), 1,
+                                                          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        device.copyBuffer(stagingBuffer0.getBuffer(), uniformBuffer->getBuffer(), sizeof(PathTracingUniformBufferObject));
+
+        /*
+         * create textures
+         */
+
+        glm::vec4 *rawTargetImage = new glm::vec4[n * m];
+        for (int i = 0; i < n * m; i++) {
+            rawTargetImage[i] = glm::vec4(0.0f);
+        }
+
+        VklBuffer stagingBufferTex1{device_, n * m  * 4, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+        stagingBufferTex1.map();
+        stagingBufferTex1.writeToBuffer((void *)rawTargetImage);
+        stagingBufferTex1.unmap();
+
+        auto targetTexture = std::make_unique<VklTexture>(device_, n, m, 4);
+
+        device_.transitionImageLayout(targetTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        device_.copyBufferToImage(stagingBufferTex1.getBuffer(), targetTexture->image_, static_cast<uint32_t>(n),
+                                  static_cast<uint32_t>(m), 1);
+        device_.transitionImageLayout(targetTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        glm::vec4 *rawAccumulationTexture = new glm::vec4[n * m];
+        for (int i = 0; i < n * m; i++) {
+            rawAccumulationTexture[i] = glm::vec4(0.0f);
+        }
+
+        VklBuffer stagingBufferTex2{device_, n * m  * 4, 1, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+        stagingBufferTex2.map();
+        stagingBufferTex2.writeToBuffer((void *)rawAccumulationTexture);
+        stagingBufferTex2.unmap();
+
+        auto accumulationTexture = std::make_unique<VklTexture>(device_, n, m, 4);
+
+        device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        device_.copyBufferToImage(stagingBufferTex2.getBuffer(), accumulationTexture->image_, static_cast<uint32_t>(n),
+                                  static_cast<uint32_t>(m), 1);
+        device_.transitionImageLayout(accumulationTexture->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        textures.push_back(std::move(targetTexture));
+        textures.push_back(std::move(accumulationTexture));
+
+        for (int i = 0; i < textures.size(); i++) {
+            textureDescriptors_.push_back({textures[i], VK_SHADER_STAGE_COMPUTE_BIT});
+        }
 
         /*
          * create storage buffers
@@ -94,7 +171,7 @@ public:
         storageBuffers.push_back(std::move(lightBuffer));
 
         for (int i = 0; i < storageBuffers.size(); i++) {
-            storageBufferDescriptors_.push_back({storageBuffers[i]->descriptorInfo(), VK_SHADER_STAGE_COMPUTE_BIT});
+            storageBufferDescriptors_.push_back({storageBuffers[i], VK_SHADER_STAGE_COMPUTE_BIT});
         }
     }
 
@@ -111,3 +188,4 @@ public:
     }
 };
 
+using PathTracingComputeSystem = BaseComputeSystem<PathTracingUniformBufferObject, PathTracingComputeModel>;
