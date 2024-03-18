@@ -48,8 +48,13 @@ void Application::run() {
 
     VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
 
+    VklObject::ImportBuilder lightSourceBuilder(std::format("{}/light/light_source.obj", DATA_DIR));
+
     VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
+    scene.addObject(lightSourceBuilder);
     scene.addObject(objectBuilder);
+
+    scene.objects[0]->modelTranslation = glm::vec3(0, -20, 0);
 
     PathTracingComputeModel pathTracingComputeModel(device_, scene);
 
@@ -59,8 +64,6 @@ void Application::run() {
     auto accumulationTexture = pathTracingComputeModel.getAccumulationTexture();
 
     model.addTextureFromImage(targetTexture);
-    auto texture = model.textures_[0];
-    auto imageInfo = texture->descriptorInfo();
 
     /** set uniform buffers */
 
@@ -76,27 +79,12 @@ void Application::run() {
                                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
                                .build();
 
-    auto globalSetLayout2 = VklDescriptorSetLayout::Builder(device_)
-                                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                                .build();
-
     auto globalPool = VklDescriptorPool::Builder(device_)
                           .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
                           .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
                           .build();
 
-    std::vector<VkDescriptorSet> globalDescriptorSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < globalDescriptorSets.size(); i++) {
-        auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-        VklDescriptorWriter(*globalSetLayout, *globalPool)
-            .writeBuffer(0, &bufferInfo)
-            .writeImage(1, &imageInfo)
-            .build(globalDescriptorSets[i]);
-    }
-
     model.allocDescriptorSets(*globalSetLayout, *globalPool);
-    //    model.allocDescriptorSets(*globalSetLayout, *globalPool);
 
     auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
     boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
@@ -293,6 +281,10 @@ void Application::run() {
                                         pathTracingComputeSystem.pipelineLayout_, 0, 1,
                                         &pathTracingComputeSystem.computeDescriptorSets[frameIndex], 0, nullptr);
 
+                pathTracingComputeSystem.computeModel_.ubo.cameraPosition = scene.camera.position;
+                pathTracingComputeSystem.computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
+                pathTracingComputeSystem.computeModel_.ubo.cameraFront = scene.camera.camera_front;
+
                 pathTracingComputeSystem.updateUniformBuffer(frameIndex);
 
                 auto [local_x, local_y, local_z] = pathTracingComputeSystem.computeModel_.getLocalSize();
@@ -381,7 +373,10 @@ void Application::run() {
                             } else if (render_mode == 1) {
                                 wireFrameRenderSystem.renderObject(modelFrameInfo);
                             } else if (render_mode == 2) {
-                                renderSystem.renderObject(modelFrameInfo);
+                                if (model->textures_.empty())
+                                    rawRenderSystem.renderObject(modelFrameInfo);
+                                else
+                                    renderSystem.renderObject(modelFrameInfo);
                             }
                         }
                     }

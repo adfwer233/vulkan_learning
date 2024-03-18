@@ -75,6 +75,8 @@ class VklModelTemplate {
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers;
     std::vector<VkDescriptorSet> descriptorSets;
 
+    VkDescriptorSetLayout descriptorSetLayout_;
+
     BoxType box; /** Axis aligned bounding box, has not transformed */
 
   private:
@@ -132,12 +134,16 @@ class VklModelTemplate {
 
     [[nodiscard]] int get_triangle_num() const;
 
+    void createDescriptorSetLayout();
+
     void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
 
     void bind(VkCommandBuffer commandBuffer);
 
     void draw(VkCommandBuffer commandBuffer);
 
+    void addUniformBuffer();
+    void addTexture();
     void addTextureFromImage(VkImage image);
 
     VkBuffer getVertexBuffer(size_t index) {
@@ -147,6 +153,14 @@ class VklModelTemplate {
     friend class RayPicker;
     friend class VklBVH;
 };
+
+template<VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+void VklModelTemplate<VertexType, IndexType, BoxType>::createDescriptorSetLayout() {
+    auto setLayoutBuilder = VklDescriptorSetLayout::Builder(device_);
+
+    int bindingCount = 0;
+
+}
 
 using VklModel = VklModelTemplate<Vertex3D>;
 
