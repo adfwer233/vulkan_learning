@@ -12,9 +12,9 @@
 #endif
 
 struct PathTracingUniformBufferObject {
-    glm::vec3 cameraPosition;
-    glm::vec3 cameraUp;
-    glm::vec3 cameraFront;
+    alignas(16) glm::vec3 cameraPosition;
+    alignas(16) glm::vec3 cameraUp;
+    alignas(16) glm::vec3 cameraFront;
     float cameraZoom;
     float time;
     uint32_t currentSample;

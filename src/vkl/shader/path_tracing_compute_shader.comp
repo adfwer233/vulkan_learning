@@ -194,7 +194,7 @@ vec3 rayColor(Ray ray) {
 void main() {
     vec2 imageSize = imageSize(targetTexture);
 
-    float theta = 90 * 3.1415926 / 180;
+    float theta = ubo.cameraZoom * 3.1415926 / 180;
     float h = tan(theta / 2);
     float viewportHeight = 2.0 * h;
     float viewportWidth = imageSize.x / imageSize.y * viewportHeight;
