@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "vkl/vkl_camera.hpp"
 #include "vkl/vkl_object.hpp"
 
@@ -24,6 +26,8 @@ class KeyboardCameraController {
     static std::optional<std::reference_wrapper<VklScene>> scene_;
 
   public:
+    static std::function<void()> actionCallBack;
+
     static std::optional<RayPicker::RayPickingResult> picking_result;
 
     static void setCamera(Camera &t_camera);

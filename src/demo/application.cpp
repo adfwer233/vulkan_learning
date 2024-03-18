@@ -96,6 +96,11 @@ void Application::run() {
 
     KeyboardCameraController::setCamera(scene.camera);
 
+    KeyboardCameraController::actionCallBack = [&]() {
+        std::cout << "reset sampling" << std::endl;
+        pathTracingComputeSystem.computeModel_.ubo.currentSample = 0;
+    };
+
     GLFWwindow *window = window_.getGLFWwindow();
 
     glfwSetCursorPosCallback(window, KeyboardCameraController::mouse_callback);
@@ -285,6 +290,7 @@ void Application::run() {
                 pathTracingComputeSystem.computeModel_.ubo.cameraPosition = scene.camera.position;
                 pathTracingComputeSystem.computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
                 pathTracingComputeSystem.computeModel_.ubo.cameraFront = scene.camera.camera_front;
+                pathTracingComputeSystem.computeModel_.ubo.currentSample += 1;
 
                 pathTracingComputeSystem.updateUniformBuffer(frameIndex);
 

@@ -14,7 +14,7 @@ class VklScene {
     VklScene(VklDevice &device, glm::vec3 camera_pos, glm::vec3 camera_up)
         : device_(device), camera(camera_pos, camera_up) {
         using namespace VklBVHGPUModel;
-        pointLight.position = {0, 0, 10, 0};
+        pointLight.position = {0, -20, 0, 0};
         pointLight.color = {1.0, 1.0, 1.0, 1.0};
 
         Material gray{MaterialType::Lambertian, glm::vec3(0.3f, 0.3f, 0.3f)};

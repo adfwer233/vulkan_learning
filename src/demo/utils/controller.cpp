@@ -10,6 +10,8 @@
 float KeyboardCameraController::mouse_x_pos = 0.0;
 float KeyboardCameraController::mouse_y_pos = 0.0;
 
+std::function<void()> KeyboardCameraController::actionCallBack = [](){};
+
 std::optional<std::reference_wrapper<VklScene>> KeyboardCameraController::scene_;
 std::optional<RayPicker::RayPickingResult> KeyboardCameraController::picking_result;
 
@@ -21,18 +23,25 @@ void KeyboardCameraController::processInput(GLFWwindow *window, float deltaTime)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    auto callProcessKeyboard = [&](CameraMovement direction, float deltaTime) {
+        actionCallBack();
+        camera->process_keyboard(direction, deltaTime);
+    };
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera->process_keyboard(FORWARD, deltaTime);
+        callProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->process_keyboard(BACKWARD, deltaTime);
+        callProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->process_keyboard(LEFT, deltaTime);
+        callProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->process_keyboard(RIGHT, deltaTime);
+        callProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera->process_keyboard(UP, deltaTime);
+        callProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera->process_keyboard(DOWN, deltaTime);
+        callProcessKeyboard(DOWN, deltaTime);
+
+
 }
 
 void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offset, double y_offset) {
@@ -67,6 +76,7 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
     }
 
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_RELEASE) {
+        actionCallBack();
         mouse_flag = true;
         is_mouse_pressing = false;
     }

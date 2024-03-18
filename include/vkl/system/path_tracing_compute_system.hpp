@@ -185,7 +185,7 @@ class PathTracingComputeModel {
         VklBuffer stagingBuffer4{device, sizeof(VklBVHGPUModel::Light), lightNum, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
         stagingBuffer4.map();
-        stagingBuffer4.writeToBuffer((void *)bvhTree.data());
+        stagingBuffer4.writeToBuffer((void *)bvh.lights.data());
 
         auto lightBuffer = new VklBuffer(device, sizeof(VklBVHGPUModel::Light), lightNum,
                                          VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
