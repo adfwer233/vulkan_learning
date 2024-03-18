@@ -271,12 +271,11 @@ void Application::run() {
 
                 auto commandBuffer = renderer_.beginFrame();
 
-                if (submit) {
-                    VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
 
-                    vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
-                }
+                VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
+
+                vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
 
                 submit = true;
 
