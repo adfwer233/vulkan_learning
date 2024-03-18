@@ -41,4 +41,8 @@ class VklScene {
     PointLight pointLight;
 
     void addObject(VklObject::ImportBuilder builder);
+
+    void setMaterial(size_t objectIndex, size_t materialIndex) {
+        materialMap[objectIndex] = materialIndex;
+    }
 };

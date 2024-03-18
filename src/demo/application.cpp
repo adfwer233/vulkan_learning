@@ -54,6 +54,7 @@ void Application::run() {
     scene.addObject(lightSourceBuilder);
     scene.addObject(objectBuilder);
 
+    scene.setMaterial(0, 3);
     scene.objects[0]->modelTranslation = glm::vec3(0, -20, 0);
 
     PathTracingComputeModel pathTracingComputeModel(device_, scene);

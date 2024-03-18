@@ -27,6 +27,11 @@ struct bvhNode {
     int objectIndex;
 };
 
+#define LIGHT_MATERIAL 0
+#define LAMBERTIAN_MATERIAL 1
+#define METAL_MATERIAL 2
+#define GLASS_MATERIAL 3
+
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout(binding = 0) uniform UniformBufferObject {
@@ -181,6 +186,8 @@ vec3 rayColor(Ray ray) {
 //            finalColor *= albedo;
 
             finalColor = vec3(1.0, 0, 0);
+            if (materials[rec.materialIndex].materialType == LIGHT_MATERIAL)
+                finalColor = vec3(1.0, 1.0, 1.0);
             break;
         } else {
             finalColor *= 0;

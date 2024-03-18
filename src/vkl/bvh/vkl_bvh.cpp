@@ -12,6 +12,9 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
 
     for (size_t i = 0; i < scene_.objects.size(); i++) {
         auto &object = scene_.objects[i];
+
+        size_t objectMaterialIndex = scene_.materialMap[i];
+
         for (size_t j = 0; j < object->models.size(); j++) {
             auto model = object->models[j];
             auto trans = object->getModelTransformation();
@@ -22,7 +25,8 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
                 bvhObject.triangle =
                     VklBVHGPUModel::Triangle{trans * glm::vec4(model->vertices_[tri_indices.i].position, 1.0f),
                                              trans * glm::vec4(model->vertices_[tri_indices.j].position, 1.0f),
-                                             trans * glm::vec4(model->vertices_[tri_indices.k].position, 1.0f), 0};
+                                             trans * glm::vec4(model->vertices_[tri_indices.k].position, 1.0f),
+                                             static_cast<uint32_t>(objectMaterialIndex)};
                 objects.push_back(bvhObject);
             }
         }
