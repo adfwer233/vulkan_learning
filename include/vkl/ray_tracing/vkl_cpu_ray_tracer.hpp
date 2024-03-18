@@ -6,9 +6,9 @@
 
 #include "vkl/io/ppm_exporter.hpp"
 
-#include "vkl_ray.hpp"
-#include "vkl/vkl_scene.hpp"
 #include "vkl/bvh/vkl_bvh.hpp"
+#include "vkl/vkl_scene.hpp"
+#include "vkl_ray.hpp"
 
 #include <numbers>
 
@@ -25,7 +25,7 @@ struct HitRecord {
 
 class VklCpuRayTracer {
 
-private:
+  private:
     VklScene &scene_;
     VklBVH bvh_;
 
@@ -87,7 +87,7 @@ private:
         glm::vec3 n;
         glm::vec3 hit = triangleIntersection(ray, t.triangle, n);
 
-        if (not (hit.y < 0 or hit.y > 1 or hit.z < 0 or hit.y + hit.z >1)) {
+        if (not(hit.y < 0 or hit.y > 1 or hit.z < 0 or hit.y + hit.z > 1)) {
             if (hit.x > tMin and hit.x < tMax) {
                 result.emplace();
                 result->position = ray.at(hit.x);
@@ -112,14 +112,16 @@ private:
 
         float closest_so_far = tMax;
 
-        while(not nodeStack.empty()) {
+        while (not nodeStack.empty()) {
             int currentNode = nodeStack.top();
             nodeStack.pop();
 
-            if (currentNode == -1) continue;
+            if (currentNode == -1)
+                continue;
             int t = bvhTree.size();
             glm::vec2 tIntersect = intersectAABB(ray, bvhTree[currentNode].min, bvhTree[currentNode].max);
-            if (tIntersect.x > tIntersect.y) continue;
+            if (tIntersect.x > tIntersect.y)
+                continue;
 
             int index = bvhTree[currentNode].objectIndex;
 
@@ -138,8 +140,9 @@ private:
         return result;
     }
 
-public:
-    VklCpuRayTracer(VklScene &scene): scene_(scene), bvh_(scene) {}
+  public:
+    VklCpuRayTracer(VklScene &scene) : scene_(scene), bvh_(scene) {
+    }
 
     void performRayTracing() {
         bvhTree = bvh_.createGPUBVHTree();
@@ -150,19 +153,22 @@ public:
         float viewportWidth = 2.0 * h;
 
         glm::vec3 vertical = viewportHeight * scene_.camera.camera_up_axis;
-        glm::vec3 horizontal = viewportWidth * glm::normalize(glm::cross(scene_.camera.camera_front, scene_.camera.camera_up_axis));
+        glm::vec3 horizontal =
+            viewportWidth * glm::normalize(glm::cross(scene_.camera.camera_front, scene_.camera.camera_up_axis));
 
-        glm::vec3 lowerLeftCorner = scene_.camera.position + scene_.camera.camera_front - horizontal / 2.0f - vertical / 2.0f;
+        glm::vec3 lowerLeftCorner =
+            scene_.camera.position + scene_.camera.camera_front - horizontal / 2.0f - vertical / 2.0f;
 
-        #pragma omp parallel for num_threads(8)
+#pragma omp parallel for num_threads(8)
         for (int i = 0; i < n; i++) {
             std::cout << i << std::endl;
             for (int j = 0; j < m; j++) {
                 // std::cout << j << std::endl;
-                auto dir = lowerLeftCorner + vertical * (1.0f * i / n) + horizontal * (1.0f * j / m) - scene_.camera.position;
+                auto dir =
+                    lowerLeftCorner + vertical * (1.0f * i / n) + horizontal * (1.0f * j / m) - scene_.camera.position;
                 auto res = hitBvh(VklRay(scene_.camera.position, dir));
                 if (res.has_value()) {
-                    output[i][j] = glm::vec4(1.0, 0, 0,1.0 );
+                    output[i][j] = glm::vec4(1.0, 0, 0, 1.0);
                 } else {
                     output[i][j] = glm::vec4(0, 0, 0, 1.0);
                 }

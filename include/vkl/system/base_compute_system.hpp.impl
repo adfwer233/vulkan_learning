@@ -1,7 +1,9 @@
 #include "base_compute_system.hpp"
 
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
-BaseComputeSystem<UniformBufferType, ComputeModelType>::BaseComputeSystem(VklDevice &device, ComputeModelType computeModel): device_(device), computeModel_(computeModel) {
+BaseComputeSystem<UniformBufferType, ComputeModelType>::BaseComputeSystem(VklDevice &device,
+                                                                          ComputeModelType computeModel)
+    : device_(device), computeModel_(computeModel) {
     createComputeDescriptorSetLayout();
     createPipelineLayout();
     createPipeline();
@@ -56,7 +58,8 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
     layoutInfo.bindingCount = layoutBindings.size();
     layoutInfo.pBindings = layoutBindings.data();
 
-    if (vkCreateDescriptorSetLayout(device_.device(), &layoutInfo, nullptr, &computeDescriptorSetLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(device_.device(), &layoutInfo, nullptr, &computeDescriptorSetLayout) !=
+        VK_SUCCESS) {
         throw std::runtime_error("failed to create compute descriptor set layout");
     }
 }
@@ -76,7 +79,8 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createPipelineLayou
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
 void BaseComputeSystem<UniformBufferType, ComputeModelType>::createPipeline() {
     ComputePipelineConfigInfo configInfo{computeDescriptorSetLayout, pipelineLayout_};
-    this->pipeline_ = std::make_unique<VklComputePipeline>(device_, ComputeModelType::get_comp_shader_path(), configInfo);
+    this->pipeline_ =
+        std::make_unique<VklComputePipeline>(device_, ComputeModelType::get_comp_shader_path(), configInfo);
 }
 
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
@@ -119,9 +123,8 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createUniformBuffer
     VkDeviceSize bufferSize = sizeof(UniformBufferType);
 
     for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-        auto buffer =
-                std::make_unique<VklBuffer>(device_, bufferSize, 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        auto buffer = std::make_unique<VklBuffer>(device_, bufferSize, 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
         buffer->map();
         uniformBuffers_.push_back(std::move(buffer));
     }
@@ -131,13 +134,15 @@ template <typename UniformBufferType, VklComputeModel ComputeModelType>
 void BaseComputeSystem<UniformBufferType, ComputeModelType>::createDescriptorPool() {
     std::array<VkDescriptorPoolSize, 3> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * uniformBufferDescriptors_.size();
+    poolSizes[0].descriptorCount =
+        static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * uniformBufferDescriptors_.size();
 
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSizes[1].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * imageDescriptors_.size();
 
     poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    poolSizes[2].descriptorCount = static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * storageBufferDescriptors_.size();
+    poolSizes[2].descriptorCount =
+        static_cast<uint32_t>(VklSwapChain::MAX_FRAMES_IN_FLIGHT) * storageBufferDescriptors_.size();
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -233,7 +238,7 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::recordComputeComman
     auto [local_x, local_y, local_z] = computeModel_.getLocalSize();
     auto [x, y, z] = computeModel_.getSize();
 
-    vkCmdDispatch(computeCommandBuffers[frameIndex], x / local_x , y / local_y, z / local_z);
+    vkCmdDispatch(computeCommandBuffers[frameIndex], x / local_x, y / local_y, z / local_z);
 
     if (vkEndCommandBuffer(computeCommandBuffers[frameIndex]) != VK_SUCCESS) {
         throw std::runtime_error("failed to record compute command buffer!");

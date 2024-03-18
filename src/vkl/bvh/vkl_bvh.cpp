@@ -1,8 +1,8 @@
 #include "vkl/bvh/vkl_bvh.hpp"
 
 #include <algorithm>
-#include <stack>
 #include <ranges>
+#include <stack>
 
 const glm::vec3 eps(0.0001);
 
@@ -19,11 +19,10 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
                 auto tri_indices = model->indices_[k];
                 BVHObject bvhObject;
                 bvhObject.object_index = objects.size();
-                bvhObject.triangle = VklBVHGPUModel::Triangle {
-                    trans * glm::vec4(model->vertices_[tri_indices.i].position, 1.0f),
-                    trans * glm::vec4(model->vertices_[tri_indices.j].position, 1.0f),
-                    trans * glm::vec4(model->vertices_[tri_indices.k].position, 1.0f), 0
-                };
+                bvhObject.triangle =
+                    VklBVHGPUModel::Triangle{trans * glm::vec4(model->vertices_[tri_indices.i].position, 1.0f),
+                                             trans * glm::vec4(model->vertices_[tri_indices.j].position, 1.0f),
+                                             trans * glm::vec4(model->vertices_[tri_indices.k].position, 1.0f), 0};
                 objects.push_back(bvhObject);
             }
         }
@@ -39,7 +38,7 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
     nodeCounter++;
     nodeStack.push(root);
 
-    while(!nodeStack.empty()) {
+    while (!nodeStack.empty()) {
         BVHNode currentNode = nodeStack.top();
         nodeStack.pop();
 
@@ -47,9 +46,7 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
 
         int axis = rand() % 3;
 
-        auto comparator = (axis == 0)   ? boxXCompare
-                                        : (axis == 1) ? boxYCompare
-                                                      : boxZCompare;
+        auto comparator = (axis == 0) ? boxXCompare : (axis == 1) ? boxYCompare : boxZCompare;
 
         std::ranges::sort(currentNode.objects, comparator);
 
@@ -64,12 +61,14 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
 
             leftNode.index = nodeCounter;
             nodeCounter++;
-            std::copy(currentNode.objects.begin(), currentNode.objects.begin() + mid, std::back_inserter(leftNode.objects));
+            std::copy(currentNode.objects.begin(), currentNode.objects.begin() + mid,
+                      std::back_inserter(leftNode.objects));
             nodeStack.push(leftNode);
 
             rightNode.index = nodeCounter;
             nodeCounter++;
-            std::copy(currentNode.objects.begin() + mid, currentNode.objects.end(), std::back_inserter(rightNode.objects));
+            std::copy(currentNode.objects.begin() + mid, currentNode.objects.end(),
+                      std::back_inserter(rightNode.objects));
             nodeStack.push(rightNode);
 
             currentNode.leftNodeIndex = leftNode.index;
@@ -79,11 +78,11 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
         }
     }
 
-    std::ranges::sort(intermediate, [](BVHNode &a, BVHNode &b){return a.index < b.index;});
+    std::ranges::sort(intermediate, [](BVHNode &a, BVHNode &b) { return a.index < b.index; });
 
     std::vector<VklBVHGPUModel::BVHNode> output;
     output.reserve(intermediate.size());
-    for (auto& node: intermediate) {
+    for (auto &node : intermediate) {
         VklBVHGPUModel::BVHNode gpuNode{};
         gpuNode.leftNodeIndex = node.leftNodeIndex;
         gpuNode.rightNodeIndex = node.rightNodeIndex;
@@ -104,7 +103,7 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
 
     for (size_t i = 0; i < triangles.size(); i++) {
         auto t = triangles[i];
-//        if (scene_.materials[triangles[i].materialIndex].type == VklBVHGPUModel::MaterialType::LightSource) {
+        //        if (scene_.materials[triangles[i].materialIndex].type == VklBVHGPUModel::MaterialType::LightSource) {
         if (true) {
             float area = glm::length(glm::cross(t.v1 - t.v0, t.v2 - t.v0)) * 0.5f;
             lights.emplace_back(static_cast<uint32_t>(i), area);
@@ -127,8 +126,7 @@ VklBVH::AABB VklBVH::objectListBoundingBox(std::vector<BVHObject> &objects) {
     AABB outputBox;
     bool firstBox = true;
 
-    for (auto &object : objects)
-    {
+    for (auto &object : objects) {
         tempBox = objectBoundingBox(object.triangle);
         outputBox = firstBox ? tempBox : surroundingBox(outputBox, tempBox);
         firstBox = false;
@@ -136,4 +134,3 @@ VklBVH::AABB VklBVH::objectListBoundingBox(std::vector<BVHObject> &objects) {
 
     return outputBox;
 }
-

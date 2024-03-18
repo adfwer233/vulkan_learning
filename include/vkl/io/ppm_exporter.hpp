@@ -5,8 +5,7 @@
 
 #include "glm/glm.hpp"
 
-template<size_t n, size_t m>
-void output_ppm_image(const std::array<std::array<glm::vec3, m>, n> &image) {
+template <size_t n, size_t m> void output_ppm_image(const std::array<std::array<glm::vec3, m>, n> &image) {
     std::ofstream file("render.ppm", std::ios::out);
 
     file << "P3\n" << m << ' ' << n << "\n255\n";
@@ -23,8 +22,7 @@ void output_ppm_image(const std::array<std::array<glm::vec3, m>, n> &image) {
     file.close();
 }
 
-template<size_t n, size_t m>
-void output_ppm_image(const std::array<std::array<glm::vec4, m>, n> &image) {
+template <size_t n, size_t m> void output_ppm_image(const std::array<std::array<glm::vec4, m>, n> &image) {
     std::ofstream file("render.ppm", std::ios::out);
 
     file << "P3\n" << m << ' ' << n << "\n255\n";

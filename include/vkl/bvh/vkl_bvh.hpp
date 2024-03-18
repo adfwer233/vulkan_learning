@@ -1,43 +1,42 @@
 #pragma once
 
-#include "vkl_bvh_gpu.hpp"
 #include "vkl/vkl_scene.hpp"
+#include "vkl_bvh_gpu.hpp"
 
 #include <numeric>
 
 class VklBVH {
-public:
+  public:
+    struct AABB {
+        glm::vec3 min, max;
 
-struct AABB {
-    glm::vec3 min, max;
+        AABB() {
+            min = glm::vec3(std::numeric_limits<float>::max());
+            max = glm::vec3(std::numeric_limits<float>::min());
+        }
 
-    AABB() {
-        min = glm::vec3(std::numeric_limits<float>::max());
-        max = glm::vec3(std::numeric_limits<float>::min());
-    }
+        AABB(glm::vec3 t_min, glm::vec3 t_max) {
+            min = t_min;
+            max = t_max;
+        }
+    };
 
-    AABB(glm::vec3 t_min, glm::vec3 t_max) {
-        min = t_min;
-        max = t_max;
-    }
-};
+    struct BVHObject {
+        int object_index;
+        VklBVHGPUModel::Triangle triangle;
+    };
 
-struct BVHObject {
-    int object_index;
-    VklBVHGPUModel::Triangle triangle;
-};
+    struct BVHNode {
+        AABB box;
 
-struct BVHNode {
-    AABB box;
+        int index = -1;
+        int leftNodeIndex = -1;
+        int rightNodeIndex = -1;
 
-    int index = -1;
-    int leftNodeIndex = -1;
-    int rightNodeIndex = -1;
+        std::vector<BVHObject> objects;
+    };
 
-    std::vector<BVHObject> objects;
-};
-
-private:
+  private:
     VklScene &scene_;
 
     static AABB surroundingBox(AABB box0, AABB box1);
@@ -65,13 +64,15 @@ private:
         return boxCompare(a.triangle, b.triangle, 2);
     }
 
-public:
+  public:
     std::vector<BVHObject> objects;
     std::vector<VklBVHGPUModel::Light> lights;
     std::vector<VklBVHGPUModel::Triangle> triangles;
 
-    explicit VklBVH(VklScene& scene): scene_(scene) {}
-    ~VklBVH() {}
+    explicit VklBVH(VklScene &scene) : scene_(scene) {
+    }
+    ~VklBVH() {
+    }
 
     VklBVH(const VklBVH &) = delete;
     VklBVH &operator=(const VklBVH &) = delete;
