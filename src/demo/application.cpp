@@ -42,14 +42,26 @@ void Application::run() {
     VklModel::BuilderFromImmediateData builder;
     builder.vertices = vertexData;
     builder.indices = indices;
-    builder.texturePaths = {std::format("{}/blending_transparent_window.png", DATA_DIR)};
+//    builder.texturePaths = {std::format("{}/blending_transparent_window.png", DATA_DIR)};
 
     VklModel model(device_, builder);
 
     VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
 
+    VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
+    scene.addObject(objectBuilder);
+
+    PathTracingComputeModel pathTracingComputeModel(device_, scene);
+
+    PathTracingComputeSystem pathTracingComputeSystem(device_, pathTracingComputeModel);
+
+    auto targetTexture = pathTracingComputeModel.getTargetTexture();
+    auto accumulationTexture = pathTracingComputeModel.getAccumulationTexture();
+
+    model.addTextureFromImage(targetTexture);
     auto texture = model.textures_[0];
     auto imageInfo = texture->descriptorInfo();
+
     /** set uniform buffers */
 
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -63,6 +75,11 @@ void Application::run() {
                                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
                                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
                                .build();
+
+    auto globalSetLayout2 = VklDescriptorSetLayout::Builder(device_)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_)
                           .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
@@ -79,18 +96,7 @@ void Application::run() {
     }
 
     model.allocDescriptorSets(*globalSetLayout, *globalPool);
-
-    /** set camera */
-
-    VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
-    scene.addObject(objectBuilder);
-
-//    PathTracingComputeModel pathTracingComputeModel(device_, scene);
-//
-//    PathTracingComputeSystem pathTracingComputeSystem(device_, pathTracingComputeModel);
-//
-//    auto targetTexture = pathTracingComputeModel.getTargetTexture();
-//    auto accumulationTexture = pathTracingComputeModel.getAccumulationTexture();
+//    model.allocDescriptorSets(*globalSetLayout, *globalPool);
 
     auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
     boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
@@ -266,63 +272,92 @@ void Application::run() {
 
 //            vkWaitForFences(device_.device(), 1, &pathTracingComputeSystem.computeInFlightFences[frameIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
             if (render_mode == 3) {
-//                device_.transitionImageLayout(targetTexture, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_GENERAL);
 
-//                pathTracingComputeSystem.computeSubmission(frameIndex);
-//                renderer_.setSemaphoreToWait(pathTracingComputeSystem.computeFinishedSemaphores[frameIndex]);
-//                submit = true;
-            }
+                auto commandBuffer = renderer_.beginFrame();
 
-            auto commandBuffer = renderer_.beginFrame();
+                if (submit) {
+                    VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
 
-            if (render_mode != 3) {
-                renderer_.beginSwapChainRenderPass(commandBuffer);
-                GlobalUbo ubo{};
-
-                ubo.view = scene.camera.get_view_transformation();
-                ubo.proj = scene.camera.get_proj_transformation();
-                ubo.model = glm::mat4(1.0f);
-                ubo.pointLight = scene.pointLight;
-                ubo.cameraPos = scene.camera.position;
-
-                for (auto &object_item: scene.objects) {
-                    for (auto model: object_item->models) {
-                        ubo.model = object_item->getModelTransformation();
-                        model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                        model->uniformBuffers[frameIndex]->flush();
-
-                        FrameInfo<VklModel> modelFrameInfo{
-                                frameIndex, currentFrame, commandBuffer, scene.camera,
-                                &model->descriptorSets[frameIndex],
-                                *model};
-
-                        if (render_mode == 0) {
-                            rawRenderSystem.renderObject(modelFrameInfo);
-                        } else if (render_mode == 1) {
-                            wireFrameRenderSystem.renderObject(modelFrameInfo);
-                        } else if (render_mode == 2) {
-                            renderSystem.renderObject(modelFrameInfo);
-                        }
-                    }
+                    vkCmdPipelineBarrier(
+                            commandBuffer,
+                            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                            0,
+                            0, nullptr,
+                            0, nullptr,
+                            1, &read2Gen);
                 }
 
-                if (KeyboardCameraController::picking_result.has_value()) {
-                    auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
-                    auto &model_picked = object_picked->models[KeyboardCameraController::picking_result->model_index];
-                    auto box = model_picked->box;
-                    box.apply_transform(object_picked->getModelTransformation());
-                    auto box_trans = box.get_box_transformation();
+                submit = true;
 
-                    ubo.model = box_trans;
-                    boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                    boxModel.uniformBuffers[frameIndex]->flush();
-                    FrameInfo<VklBoxModel3D> boxFrameInfo{
-                            frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
-                            boxModel};
-                    lineRenderSystem.renderObject(boxFrameInfo);
-                }
-            } else {
+                vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pathTracingComputeSystem.pipeline_->computePipeline_);
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pathTracingComputeSystem.pipelineLayout_, 0, 1,
+                                        &pathTracingComputeSystem.computeDescriptorSets[frameIndex], 0, nullptr);
+
+                pathTracingComputeSystem.updateUniformBuffer(frameIndex);
+
+                auto [local_x, local_y, local_z] = pathTracingComputeSystem.computeModel_.getLocalSize();
+                auto [x, y, z] = pathTracingComputeSystem.computeModel_.getSize();
+
+                vkCmdDispatch(commandBuffer, x / local_x , y / local_y, z / local_z);
+
+                VkImageMemoryBarrier gen2TranSrc = VklImageUtils::generalToTransferSrcBarrier(targetTexture);
+
+                vkCmdPipelineBarrier(
+                        commandBuffer,
+                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        0,
+                        0, nullptr,
+                        0, nullptr,
+                        1, &gen2TranSrc);
+
+                VkImageMemoryBarrier gen2TranDst = VklImageUtils::generalToTransferDstBarrier(accumulationTexture);
+
+                vkCmdPipelineBarrier(
+                        commandBuffer,
+                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        0,
+                        0, nullptr,
+                        0, nullptr,
+                        1, &gen2TranDst);
+
+                VkImageCopy region = VklImageUtils::imageCopyRegion(1024, 1024);
+                vkCmdCopyImage(
+                        commandBuffer,
+                        targetTexture,
+                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        accumulationTexture,
+                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                        1,
+                        &region);
+
+                VkImageMemoryBarrier tranDst2Gen = VklImageUtils::transferDstToGeneralBarrier(accumulationTexture);
+
+                vkCmdPipelineBarrier(
+                        commandBuffer,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                        0,
+                        0, nullptr,
+                        0, nullptr,
+                        1, &tranDst2Gen);
+
+                VkImageMemoryBarrier tranSrc2ReadOnly = VklImageUtils::transferSrcToReadOnlyBarrier(targetTexture);
+
+                vkCmdPipelineBarrier(
+                        commandBuffer,
+                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        0,
+                        0, nullptr,
+                        0, nullptr,
+                        1, &tranSrc2ReadOnly);
+
                 renderer_.beginSwapChainRenderPass(commandBuffer);
+
                 GlobalUbo ubo{};
                 ubo.view = glm::lookAt(glm::vec3{0.0f, 0.0f ,1.0f}, glm::vec3{0.0f, 0.0f, 0.5f}, glm::vec3{0.0f, -1.0f, 0.0f});
                 ubo.proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
@@ -334,15 +369,79 @@ void Application::run() {
 
                 FrameInfo<VklModel> modelFrameInfo{
                         frameIndex, currentFrame, commandBuffer, scene.camera,
-                        &model.descriptorSets[frameIndex], model};
-                backGroundRenderSystem.renderObject(modelFrameInfo);
-            }
-            /* ImGui Rendering */
-            ImGui::Render();
-            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+                        &model.descriptorSets[frameIndex],
+                        model};
 
-            renderer_.endSwapChainRenderPass(commandBuffer);
-            renderer_.endFrame();
+                backGroundRenderSystem.renderObject(modelFrameInfo);
+
+                /* ImGui Rendering */
+                ImGui::Render();
+                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+
+                renderer_.endSwapChainRenderPass(commandBuffer);
+                renderer_.endFrame();
+
+            } else {
+
+                auto commandBuffer = renderer_.beginFrame();
+
+                if (render_mode != 3) {
+                    renderer_.beginSwapChainRenderPass(commandBuffer);
+                    GlobalUbo ubo{};
+
+                    ubo.view = scene.camera.get_view_transformation();
+                    ubo.proj = scene.camera.get_proj_transformation();
+                    ubo.model = glm::mat4(1.0f);
+                    ubo.pointLight = scene.pointLight;
+                    ubo.cameraPos = scene.camera.position;
+
+                    for (auto &object_item: scene.objects) {
+                        for (auto model: object_item->models) {
+                            ubo.model = object_item->getModelTransformation();
+                            model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                            model->uniformBuffers[frameIndex]->flush();
+
+                            FrameInfo<VklModel> modelFrameInfo{
+                                    frameIndex, currentFrame, commandBuffer, scene.camera,
+                                    &model->descriptorSets[frameIndex],
+                                    *model};
+
+                            if (render_mode == 0) {
+                                rawRenderSystem.renderObject(modelFrameInfo);
+                            } else if (render_mode == 1) {
+                                wireFrameRenderSystem.renderObject(modelFrameInfo);
+                            } else if (render_mode == 2) {
+                                renderSystem.renderObject(modelFrameInfo);
+                            }
+                        }
+                    }
+
+                    if (KeyboardCameraController::picking_result.has_value()) {
+                        auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
+                        auto &model_picked = object_picked->models[KeyboardCameraController::picking_result->model_index];
+                        auto box = model_picked->box;
+                        box.apply_transform(object_picked->getModelTransformation());
+                        auto box_trans = box.get_box_transformation();
+
+                        ubo.model = box_trans;
+                        boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                        boxModel.uniformBuffers[frameIndex]->flush();
+                        FrameInfo<VklBoxModel3D> boxFrameInfo{
+                                frameIndex, currentFrame, commandBuffer, scene.camera,
+                                &boxModel.descriptorSets[frameIndex],
+                                boxModel};
+                        lineRenderSystem.renderObject(boxFrameInfo);
+                    }
+                }
+
+                /* ImGui Rendering */
+                ImGui::Render();
+                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+
+                renderer_.endSwapChainRenderPass(commandBuffer);
+                renderer_.endFrame();
+            }
+
         }
     }
 

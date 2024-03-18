@@ -138,6 +138,8 @@ class VklModelTemplate {
 
     void draw(VkCommandBuffer commandBuffer);
 
+    void addTextureFromImage(VkImage image);
+
     VkBuffer getVertexBuffer(size_t index) {
         return vertexBuffer_[index]->getBuffer();
     };

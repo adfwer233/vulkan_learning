@@ -84,7 +84,7 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
     std::vector<VklBVHGPUModel::BVHNode> output;
     output.reserve(intermediate.size());
     for (auto& node: intermediate) {
-        VklBVHGPUModel::BVHNode gpuNode;
+        VklBVHGPUModel::BVHNode gpuNode{};
         gpuNode.leftNodeIndex = node.leftNodeIndex;
         gpuNode.rightNodeIndex = node.rightNodeIndex;
         gpuNode.min = node.box.min;

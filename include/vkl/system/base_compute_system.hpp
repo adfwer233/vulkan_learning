@@ -21,7 +21,7 @@ concept VklComputeModel = requires(T t) {
 
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
 class BaseComputeSystem {
-private:
+public:
 
     VklDevice &device_;
     std::unique_ptr<VklComputePipeline> pipeline_;
@@ -41,11 +41,9 @@ private:
     void createCommandBuffer();
     void createSyncObjects();
 
-    void updateUniformBuffer(uint32_t frameIndex);
 
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers_;
 
-    void recordComputeCommandBuffer(size_t frameIndex);
 
     ComputeModelType computeModel_;
 
@@ -55,6 +53,8 @@ private:
     // std::vector<ComputeDescriptor<>>
 
 public:
+    void updateUniformBuffer(uint32_t frameIndex);
+    void recordComputeCommandBuffer(size_t frameIndex);
     std::vector<VkSemaphore> computeFinishedSemaphores;
     std::vector<VkFence> computeInFlightFences;
     std::vector<VkCommandBuffer> computeCommandBuffers;

@@ -15,6 +15,12 @@ VklTexture::VklTexture(VklDevice &device, int texWidth, int texHeight, int texCh
     }
 }
 
+VklTexture::VklTexture(VklDevice &device, VkImage image) : device_(device) {
+    this->image_ = image;
+    device.createSampler(this->textureSampler_);
+    this->textureImageView = device.createImageView(image, VK_FORMAT_R8G8B8A8_UNORM);
+}
+
 VklTexture::~VklTexture() {
     vkDestroyImageView(device_.device(), this->textureImageView, nullptr);
     vkDestroySampler(device_.device(), this->textureSampler_, nullptr);

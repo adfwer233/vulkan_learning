@@ -146,6 +146,13 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::createTextureImage(const 
 }
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+void VklModelTemplate<VertexType, IndexType, BoxType>::addTextureFromImage(VkImage image) {
+    auto texture = new VklTexture(device_, image);
+
+    this->textures_.push_back(texture);
+}
+
+template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::bind(VkCommandBuffer commandBuffer) {
     VkBuffer buffers[] = {vertexBuffer_[0]->getBuffer()};
     VkDeviceSize offsets[] = {0};

@@ -169,11 +169,11 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
     for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
         std::vector<VkWriteDescriptorSet> descriptorWrites(n);
 
+        std::vector<VkDescriptorBufferInfo> uniformBufferDescriptorInfo(uniformBufferDescriptors_.size());
         for (int j = 0; j < uniformBufferDescriptors_.size(); j++) {
-            VkDescriptorBufferInfo uniformBufferInfo{};
-            uniformBufferInfo.buffer = uniformBuffers_[j]->getBuffer();
-            uniformBufferInfo.offset = 0;
-            uniformBufferInfo.range = sizeof(UniformBufferType);
+            uniformBufferDescriptorInfo[j].buffer = uniformBuffers_[j]->getBuffer();
+            uniformBufferDescriptorInfo[j].offset = 0;
+            uniformBufferDescriptorInfo[j].range = sizeof(UniformBufferType);
 
             descriptorWrites[j].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrites[j].dstSet = computeDescriptorSets[i];
@@ -181,12 +181,13 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
             descriptorWrites[j].dstArrayElement = 0;
             descriptorWrites[j].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             descriptorWrites[j].descriptorCount = 1;
-            descriptorWrites[j].pBufferInfo = &uniformBufferInfo;
+            descriptorWrites[j].pBufferInfo = &uniformBufferDescriptorInfo[j];
         }
 
+        std::vector<VkDescriptorImageInfo> imageDescriptorInfo(imageDescriptors_.size());
         for (int j = 0; j < imageDescriptors_.size(); j++) {
             int k = j + uniformBufferDescriptors_.size();
-            VkDescriptorImageInfo descriptorImageInfo = imageDescriptors_[j].data->descriptorInfo(VK_IMAGE_LAYOUT_GENERAL);
+            imageDescriptorInfo[j] = imageDescriptors_[j].data->descriptorInfo(VK_IMAGE_LAYOUT_GENERAL);
 
             descriptorWrites[k].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrites[k].dstSet = computeDescriptorSets[i];
@@ -194,12 +195,13 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
             descriptorWrites[k].dstArrayElement = 0;
             descriptorWrites[k].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
             descriptorWrites[k].descriptorCount = 1;
-            descriptorWrites[k].pImageInfo = &descriptorImageInfo;
+            descriptorWrites[k].pImageInfo = &imageDescriptorInfo[j];
         }
 
+        std::vector<VkDescriptorBufferInfo> storageBufferDescriptorsInfo(storageBufferDescriptors_.size());
         for (int j = 0; j < storageBufferDescriptors_.size(); j++) {
             int k = j + uniformBufferDescriptors_.size() + imageDescriptors_.size();
-            VkDescriptorBufferInfo descriptorBufferInfo = storageBufferDescriptors_[j].data->descriptorInfo();
+            storageBufferDescriptorsInfo[j] = storageBufferDescriptors_[j].data->descriptorInfo();
 
             descriptorWrites[k].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrites[k].dstSet = computeDescriptorSets[i];
@@ -207,7 +209,7 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::createComputeDescri
             descriptorWrites[k].dstArrayElement = 0;
             descriptorWrites[k].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
             descriptorWrites[k].descriptorCount = 1;
-            descriptorWrites[k].pBufferInfo = &descriptorBufferInfo;
+            descriptorWrites[k].pBufferInfo = &storageBufferDescriptorsInfo[j];
         }
 
         vkUpdateDescriptorSets(device_.device(), n, descriptorWrites.data(), 0, nullptr);

@@ -10,6 +10,8 @@
 #include "vkl/vkl_scene.hpp"
 #include "vkl/bvh/vkl_bvh.hpp"
 
+#include <numbers>
+
 const int n = 1024;
 const int m = 1024;
 std::array<std::array<glm::vec4, m>, n> output;
@@ -142,7 +144,7 @@ public:
     void performRayTracing() {
         bvhTree = bvh_.createGPUBVHTree();
 
-        float h = std::tan(this->scene_.camera.zoom / 2);
+        float h = std::tan(this->scene_.camera.zoom * std::numbers::pi / (180 * 2));
 
         float viewportHeight = 2.0 * h;
         float viewportWidth = 2.0 * h;
