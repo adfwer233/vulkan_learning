@@ -42,6 +42,14 @@ class VklScene {
 
     void addObject(VklObject::ImportBuilder builder);
 
+    [[nodiscard]] int getSceneTriangleNum() const {
+        int triangle_num = 0;
+        for (const auto &object_item : objects) {
+            triangle_num += object_item->get_triangle_num();
+        }
+        return triangle_num;
+    }
+
     void setMaterial(size_t objectIndex, size_t materialIndex) {
         materialMap[objectIndex] = materialIndex;
     }

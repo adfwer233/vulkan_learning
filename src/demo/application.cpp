@@ -14,14 +14,13 @@
 #include "vkl/system/base_compute_system.hpp"
 #include "vkl/system/path_tracing_compute_system.hpp"
 
-#include "vkl/bvh/vkl_bvh.hpp"
-#include "vkl/ray_tracing/vkl_cpu_ray_tracer.hpp"
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 
 #include <functional>
+
+#include "ui/ui_manager.hpp"
 
 static ImGui_ImplVulkanH_Window g_MainWindowData;
 
@@ -186,16 +185,11 @@ void Application::run() {
 
     ImGui_ImplVulkan_Init(&init_info);
 
-    bool show_demo_window = true;
+    UIManager uiManager(scene);
 
     KeyboardCameraController::set_scene(scene);
-    int triangle_num = 0;
-    for (const auto &object_item : scene.objects) {
-        triangle_num += object_item->get_triangle_num();
-    }
+    KeyboardCameraController::setUIManager(uiManager);
 
-    int render_mode = 0;
-    bool submit = false;
     while (not window_.shouldClose()) {
         glfwPollEvents();
 
@@ -207,214 +201,158 @@ void Application::run() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        uiManager.deltaTime = deltaTime;
+
         KeyboardCameraController::processInput(window_.getGLFWwindow(), deltaTime);
 
-        if (true) {
-            int frameIndex = renderer_.getFrameIndex();
 
-            ImGui::Begin("Messages");
-            ImGui::SeparatorText("Scene Information");
-            ImGui::LabelText("# Triangles", "%d", triangle_num);
-            ImGui::LabelText("Camera Position", std::format("{:.3f}, {:.3f}, {:.3f}", scene.camera.position.x,
-                                                            scene.camera.position.y, scene.camera.position.z)
-                                                    .c_str());
-            ImGui::LabelText("Point Light Position",
-                             std::format("{:.3f}, {:.3f}, {:.3f}", scene.pointLight.position.x,
-                                         scene.pointLight.position.y, scene.pointLight.position.z)
-                                 .c_str());
-            ImGui::SeparatorText("Performance");
-            ImGui::LabelText("FPS", std::format("{:.3f}", 1 / deltaTime).c_str());
-            ImGui::End();
+        int frameIndex = renderer_.getFrameIndex();
 
-            ImGui::Begin("Rendering Options");
-            ImGui::RadioButton("Raw", &render_mode, 0);
-            ImGui::SameLine();
-            ImGui::RadioButton("Wire Frame", &render_mode, 1);
-            ImGui::SameLine();
-            ImGui::RadioButton("With Texture", &render_mode, 2);
-            ImGui::SameLine();
-            ImGui::RadioButton("Path Tracing", &render_mode, 3);
+        uiManager.renderImgui();
 
-            if (ImGui::Button("Ray Trace")) {
-                VklCpuRayTracer cpuRayTracer(scene);
-                cpuRayTracer.performRayTracing();
-            }
-            ImGui::End();
+        if (uiManager.renderMode == 3) {
 
-            ImGui::Begin("Picking Result");
-            if (KeyboardCameraController::picking_result.has_value()) {
-                auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
-                auto model_picked = object_picked->models[KeyboardCameraController::picking_result->model_index];
-                ImGui::SeparatorText("Picking Information");
-                ImGui::LabelText("Object Index", "%zu", KeyboardCameraController::picking_result->object_index);
-                ImGui::LabelText("Model Index", "%zu", KeyboardCameraController::picking_result->model_index);
-                ImGui::LabelText("Face Index", "%zu", KeyboardCameraController::picking_result->face_index);
-                ImGui::LabelText("U", "%.3f", KeyboardCameraController::picking_result->u);
-                ImGui::LabelText("V", "%.3f", KeyboardCameraController::picking_result->v);
-                ImGui::LabelText("W", "%.3f", KeyboardCameraController::picking_result->w);
+            auto commandBuffer = renderer_.beginFrame();
 
-                ImGui::SeparatorText("Object Translation");
-                ImGui::SliderFloat("x", &object_picked->modelTranslation.x, -5.0f, 5.0);
-                ImGui::SliderFloat("y", &object_picked->modelTranslation.y, -5.0f, 5.0);
-                ImGui::SliderFloat("z", &object_picked->modelTranslation.z, -5.0f, 5.0);
+            VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
 
-                ImGui::SeparatorText("Object Scaling");
-                ImGui::SliderFloat("S x", &object_picked->modelScaling.x, -0.0f, 3.0);
-                ImGui::SliderFloat("S y", &object_picked->modelScaling.y, -0.0f, 3.0);
-                ImGui::SliderFloat("S z", &object_picked->modelScaling.z, -0.0f, 3.0);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
 
-                ImGui::SeparatorText("Object Scaling");
-                ImGui::SliderFloat("R w", &object_picked->modelRotation.w, -0.0f, 1.0);
-                ImGui::SliderFloat("R x", &object_picked->modelRotation.x, -0.0f, 1.0);
-                ImGui::SliderFloat("R y", &object_picked->modelRotation.y, -0.0f, 1.0);
-                ImGui::SliderFloat("R z", &object_picked->modelRotation.z, -0.0f, 1.0);
-            }
-            ImGui::End();
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                              pathTracingComputeSystem.pipeline_->computePipeline_);
 
-            if (render_mode == 3) {
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
+                                    pathTracingComputeSystem.pipelineLayout_, 0, 1,
+                                    &pathTracingComputeSystem.computeDescriptorSets[frameIndex], 0, nullptr);
 
-                auto commandBuffer = renderer_.beginFrame();
+            pathTracingComputeSystem.computeModel_.ubo.cameraPosition = scene.camera.position;
+            pathTracingComputeSystem.computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
+            pathTracingComputeSystem.computeModel_.ubo.cameraFront = scene.camera.camera_front;
+            pathTracingComputeSystem.computeModel_.ubo.currentSample += 1;
 
+            pathTracingComputeSystem.updateUniformBuffer(frameIndex);
 
-                VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
+            auto [local_x, local_y, local_z] = pathTracingComputeSystem.computeModel_.getLocalSize();
+            auto [x, y, z] = pathTracingComputeSystem.computeModel_.getSize();
 
-                vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                     VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
+            vkCmdDispatch(commandBuffer, x / local_x, y / local_y, z / local_z);
 
-                vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                                  pathTracingComputeSystem.pipeline_->computePipeline_);
+            VkImageMemoryBarrier gen2TranSrc = VklImageUtils::generalToTransferSrcBarrier(targetTexture);
 
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                                        pathTracingComputeSystem.pipelineLayout_, 0, 1,
-                                        &pathTracingComputeSystem.computeDescriptorSets[frameIndex], 0, nullptr);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &gen2TranSrc);
 
-                pathTracingComputeSystem.computeModel_.ubo.cameraPosition = scene.camera.position;
-                pathTracingComputeSystem.computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
-                pathTracingComputeSystem.computeModel_.ubo.cameraFront = scene.camera.camera_front;
-                pathTracingComputeSystem.computeModel_.ubo.currentSample += 1;
+            VkImageMemoryBarrier gen2TranDst = VklImageUtils::generalToTransferDstBarrier(accumulationTexture);
 
-                pathTracingComputeSystem.updateUniformBuffer(frameIndex);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &gen2TranDst);
 
-                auto [local_x, local_y, local_z] = pathTracingComputeSystem.computeModel_.getLocalSize();
-                auto [x, y, z] = pathTracingComputeSystem.computeModel_.getSize();
+            VkImageCopy region = VklImageUtils::imageCopyRegion(1024, 1024);
+            vkCmdCopyImage(commandBuffer, targetTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, accumulationTexture,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-                vkCmdDispatch(commandBuffer, x / local_x, y / local_y, z / local_z);
+            VkImageMemoryBarrier tranDst2Gen = VklImageUtils::transferDstToGeneralBarrier(accumulationTexture);
 
-                VkImageMemoryBarrier gen2TranSrc = VklImageUtils::generalToTransferSrcBarrier(targetTexture);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &tranDst2Gen);
 
-                vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &gen2TranSrc);
+            VkImageMemoryBarrier tranSrc2ReadOnly = VklImageUtils::transferSrcToReadOnlyBarrier(targetTexture);
 
-                VkImageMemoryBarrier gen2TranDst = VklImageUtils::generalToTransferDstBarrier(accumulationTexture);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
+                                 &tranSrc2ReadOnly);
 
-                vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &gen2TranDst);
+            renderer_.beginSwapChainRenderPass(commandBuffer);
 
-                VkImageCopy region = VklImageUtils::imageCopyRegion(1024, 1024);
-                vkCmdCopyImage(commandBuffer, targetTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, accumulationTexture,
-                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+            GlobalUbo ubo{};
+            ubo.view =
+                glm::lookAt(glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 0.0f, 0.5f}, glm::vec3{0.0f, -1.0f, 0.0f});
+            ubo.proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
+            ubo.model = glm::mat4(1.0f);
+            ubo.pointLight = scene.pointLight;
+            ubo.cameraPos = scene.camera.position;
+            model.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+            model.uniformBuffers[frameIndex]->flush();
 
-                VkImageMemoryBarrier tranDst2Gen = VklImageUtils::transferDstToGeneralBarrier(accumulationTexture);
+            FrameInfo<VklModel> modelFrameInfo{
+                frameIndex, currentFrame, commandBuffer, scene.camera, &model.descriptorSets[frameIndex], model};
 
-                vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &tranDst2Gen);
+            backGroundRenderSystem.renderObject(modelFrameInfo);
 
-                VkImageMemoryBarrier tranSrc2ReadOnly = VklImageUtils::transferSrcToReadOnlyBarrier(targetTexture);
+            /* ImGui Rendering */
+            ImGui::Render();
+            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
-                vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
-                                     &tranSrc2ReadOnly);
+            renderer_.endSwapChainRenderPass(commandBuffer);
+            renderer_.endFrame();
 
+        } else {
+
+            auto commandBuffer = renderer_.beginFrame();
+
+            if (uiManager.renderMode != 3) {
                 renderer_.beginSwapChainRenderPass(commandBuffer);
-
                 GlobalUbo ubo{};
-                ubo.view =
-                    glm::lookAt(glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 0.0f, 0.5f}, glm::vec3{0.0f, -1.0f, 0.0f});
-                ubo.proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
+
+                ubo.view = scene.camera.get_view_transformation();
+                ubo.proj = scene.camera.get_proj_transformation();
                 ubo.model = glm::mat4(1.0f);
                 ubo.pointLight = scene.pointLight;
                 ubo.cameraPos = scene.camera.position;
-                model.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                model.uniformBuffers[frameIndex]->flush();
 
-                FrameInfo<VklModel> modelFrameInfo{
-                    frameIndex, currentFrame, commandBuffer, scene.camera, &model.descriptorSets[frameIndex], model};
+                for (auto &object_item : scene.objects) {
+                    for (auto model : object_item->models) {
+                        ubo.model = object_item->getModelTransformation();
+                        model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                        model->uniformBuffers[frameIndex]->flush();
 
-                backGroundRenderSystem.renderObject(modelFrameInfo);
+                        FrameInfo<VklModel> modelFrameInfo{frameIndex,
+                                                           currentFrame,
+                                                           commandBuffer,
+                                                           scene.camera,
+                                                           &model->descriptorSets[frameIndex],
+                                                           *model};
 
-                /* ImGui Rendering */
-                ImGui::Render();
-                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-
-                renderer_.endSwapChainRenderPass(commandBuffer);
-                renderer_.endFrame();
-
-            } else {
-
-                auto commandBuffer = renderer_.beginFrame();
-
-                if (render_mode != 3) {
-                    renderer_.beginSwapChainRenderPass(commandBuffer);
-                    GlobalUbo ubo{};
-
-                    ubo.view = scene.camera.get_view_transformation();
-                    ubo.proj = scene.camera.get_proj_transformation();
-                    ubo.model = glm::mat4(1.0f);
-                    ubo.pointLight = scene.pointLight;
-                    ubo.cameraPos = scene.camera.position;
-
-                    for (auto &object_item : scene.objects) {
-                        for (auto model : object_item->models) {
-                            ubo.model = object_item->getModelTransformation();
-                            model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                            model->uniformBuffers[frameIndex]->flush();
-
-                            FrameInfo<VklModel> modelFrameInfo{frameIndex,
-                                                               currentFrame,
-                                                               commandBuffer,
-                                                               scene.camera,
-                                                               &model->descriptorSets[frameIndex],
-                                                               *model};
-
-                            if (render_mode == 0) {
+                        if (uiManager.renderMode == 0) {
+                            rawRenderSystem.renderObject(modelFrameInfo);
+                        } else if (uiManager.renderMode == 1) {
+                            wireFrameRenderSystem.renderObject(modelFrameInfo);
+                        } else if (uiManager.renderMode == 2) {
+                            if (model->textures_.empty())
                                 rawRenderSystem.renderObject(modelFrameInfo);
-                            } else if (render_mode == 1) {
-                                wireFrameRenderSystem.renderObject(modelFrameInfo);
-                            } else if (render_mode == 2) {
-                                if (model->textures_.empty())
-                                    rawRenderSystem.renderObject(modelFrameInfo);
-                                else
-                                    renderSystem.renderObject(modelFrameInfo);
-                            }
+                            else
+                                renderSystem.renderObject(modelFrameInfo);
                         }
-                    }
-
-                    if (KeyboardCameraController::picking_result.has_value()) {
-                        auto &object_picked = scene.objects[KeyboardCameraController::picking_result->object_index];
-                        auto &model_picked =
-                            object_picked->models[KeyboardCameraController::picking_result->model_index];
-                        auto box = model_picked->box;
-                        box.apply_transform(object_picked->getModelTransformation());
-                        auto box_trans = box.get_box_transformation();
-
-                        ubo.model = box_trans;
-                        boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                        boxModel.uniformBuffers[frameIndex]->flush();
-                        FrameInfo<VklBoxModel3D> boxFrameInfo{
-                            frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
-                            boxModel};
-                        lineRenderSystem.renderObject(boxFrameInfo);
                     }
                 }
 
-                /* ImGui Rendering */
-                ImGui::Render();
-                ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+                if (uiManager.picking_result.has_value()) {
+                    auto &object_picked = scene.objects[uiManager.picking_result->object_index];
+                    auto &model_picked =
+                        object_picked->models[uiManager.picking_result->model_index];
+                    auto box = model_picked->box;
+                    box.apply_transform(object_picked->getModelTransformation());
+                    auto box_trans = box.get_box_transformation();
 
-                renderer_.endSwapChainRenderPass(commandBuffer);
-                renderer_.endFrame();
+                    ubo.model = box_trans;
+                    boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                    boxModel.uniformBuffers[frameIndex]->flush();
+                    FrameInfo<VklBoxModel3D> boxFrameInfo{
+                        frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
+                        boxModel};
+                    lineRenderSystem.renderObject(boxFrameInfo);
+                }
             }
+
+            /* ImGui Rendering */
+            ImGui::Render();
+            ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+
+            renderer_.endSwapChainRenderPass(commandBuffer);
+            renderer_.endFrame();
         }
+
     }
 
     vkDeviceWaitIdle(device_.device());

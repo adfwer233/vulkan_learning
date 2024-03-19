@@ -9,10 +9,12 @@
 
 #include "GLFW/glfw3.h"
 #include "vkl/vkl_scene.hpp"
+#include "../../../src/demo/ui/ui_manager.hpp"
 
 class KeyboardCameraController {
   private:
     static inline Camera *camera;
+    static inline UIManager *uiManager_;
 
     static inline bool is_mouse_pressing = false;
     static inline bool mouse_flag = true;
@@ -41,4 +43,5 @@ class KeyboardCameraController {
     static void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 
     static void set_scene(VklScene &scene);
+    static void setUIManager(UIManager &uiManager);
 };

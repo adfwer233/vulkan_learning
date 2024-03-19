@@ -13,7 +13,6 @@ float KeyboardCameraController::mouse_y_pos = 0.0;
 std::function<void()> KeyboardCameraController::actionCallBack = [](){};
 
 std::optional<std::reference_wrapper<VklScene>> KeyboardCameraController::scene_;
-std::optional<RayPicker::RayPickingResult> KeyboardCameraController::picking_result;
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {
     camera = &t_camera;
@@ -50,25 +49,7 @@ void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offs
 
 void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int button, int state, int mod) {
     if (button == GLFW_MOUSE_BUTTON_MIDDLE and state == GLFW_PRESS) {
-
-        std::cout << mouse_x_pos << ' ' << mouse_y_pos << std::endl;
-
-        auto position = camera->position;
-
-        auto up = camera->camera_up_axis;
-        auto right = camera->camera_right_axis;
-
-        auto base_on_viewport = camera->position + camera->camera_front * 0.1f - up * 0.0414f - right * 0.0414f;
-        up = up * 0.0414f / float(1024 / 2);
-        right = right * 0.0414f / float(1024 / 2);
-        base_on_viewport = base_on_viewport + up * float(mouse_y_pos) + right * float(mouse_x_pos);
-
-        Ray ray(camera->position, base_on_viewport - camera->position);
-
-        std::cout << std::format("{} {} {}\n", ray.dir.x, ray.dir.y, ray.dir.z);
-
-        RayPicker rayTracer(scene_.value(), ray);
-        picking_result = rayTracer.trace();
+        uiManager_->pickObject(mouse_x_pos, mouse_y_pos);
     }
 
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
@@ -105,4 +86,8 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
 
 void KeyboardCameraController::set_scene(VklScene &scene) {
     scene_ = scene;
+}
+
+void KeyboardCameraController::setUIManager(UIManager &uiManager) {
+    uiManager_ = &uiManager;
 }

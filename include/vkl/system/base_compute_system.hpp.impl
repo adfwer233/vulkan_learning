@@ -1,5 +1,7 @@
 #include "base_compute_system.hpp"
 
+#include <array>
+
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
 BaseComputeSystem<UniformBufferType, ComputeModelType>::BaseComputeSystem(VklDevice &device,
                                                                           ComputeModelType &computeModel)

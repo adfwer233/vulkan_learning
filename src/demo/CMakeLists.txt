@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(SRC_FILE main.cpp
         application.cpp
         utils/controller.cpp
+        ui/scene_ui.cpp
+        ui/picking_ui.cpp
+        ui/ui_manager.cpp
+        ui/render_mode_ui.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})

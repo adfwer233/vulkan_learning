@@ -3,6 +3,7 @@
 #include <array>
 #include <optional>
 #include <stack>
+#include <iostream>
 
 #include "vkl/io/ppm_exporter.hpp"
 
