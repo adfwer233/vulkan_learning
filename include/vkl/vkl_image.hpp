@@ -105,5 +105,10 @@ class VklImage {
         return imageInfo;
     }
 
-    ~VklImage();
+    ~VklImage() {
+        vkFreeMemory(device_.device(), memory_, nullptr);
+        vkDestroyImageView(device_.device(), imageView, nullptr);
+        if (image_ != VK_NULL_HANDLE)
+            vkDestroyImage(device_.device(), image_, nullptr);
+    }
 };

@@ -39,7 +39,7 @@ template <typename UniformBufferType, VklComputeModel ComputeModelType> class Ba
 
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers_;
 
-    ComputeModelType computeModel_;
+    ComputeModelType &computeModel_;
 
     std::vector<ComputeDescriptor<VklBuffer>> uniformBufferDescriptors_;
     std::vector<ComputeDescriptor<VklBuffer>> storageBufferDescriptors_;
@@ -53,7 +53,7 @@ template <typename UniformBufferType, VklComputeModel ComputeModelType> class Ba
     std::vector<VkFence> computeInFlightFences;
     std::vector<VkCommandBuffer> computeCommandBuffers;
 
-    explicit BaseComputeSystem(VklDevice &device, ComputeModelType computeModel);
+    explicit BaseComputeSystem(VklDevice &device, ComputeModelType &computeModel);
     ~BaseComputeSystem();
 
     BaseComputeSystem(const BaseComputeSystem &) = delete;

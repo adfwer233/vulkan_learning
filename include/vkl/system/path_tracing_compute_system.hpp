@@ -173,6 +173,18 @@ class PathTracingComputeModel {
         }
     }
 
+    ~PathTracingComputeModel() {
+        for (auto buffer: uniformBuffers) {
+            delete buffer;
+        }
+        for (auto buffer: storageBuffers) {
+            delete buffer;
+        }
+        for (auto image: images) {
+            delete image;
+        }
+    }
+
     std::vector<ComputeDescriptor<VklBuffer>> getUniformBufferDescriptors() {
         return uniformBufferDescriptors_;
     }

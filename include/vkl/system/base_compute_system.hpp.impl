@@ -2,7 +2,7 @@
 
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
 BaseComputeSystem<UniformBufferType, ComputeModelType>::BaseComputeSystem(VklDevice &device,
-                                                                          ComputeModelType computeModel)
+                                                                          ComputeModelType &computeModel)
     : device_(device), computeModel_(computeModel) {
     createComputeDescriptorSetLayout();
     createPipelineLayout();

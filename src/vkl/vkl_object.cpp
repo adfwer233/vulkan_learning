@@ -41,9 +41,9 @@ int VklObject::get_triangle_num() {
 
 glm::mat4 VklObject::getModelTransformation() {
     glm::mat4 model(1.0f);
-    model = glm::scale(model, modelScaling);
-    model = glm::rotate(model, modelRotation.w, glm::axis(modelRotation));
     model = glm::translate(model, modelTranslation);
+    model = glm::rotate(model, modelRotation.w, glm::axis(modelRotation));
+    model = glm::scale(model, modelScaling);
 
     return model;
 }

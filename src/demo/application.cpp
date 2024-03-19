@@ -60,7 +60,7 @@ void Application::run() {
     scene.setMaterial(1, 1);
     scene.setMaterial(0, 3);
     scene.setMaterial(2, 2);
-    scene.objects[0]->modelTranslation = glm::vec3(2, -20, 0);
+    scene.objects[0]->modelTranslation = glm::vec3(0, -4, 0);
     scene.objects[2]->modelScaling = glm::vec3(1, 2, 3);
     scene.objects[2]->modelTranslation = glm::vec3(-1.5, -1, 0);
 
