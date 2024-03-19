@@ -21,7 +21,7 @@ class VklScene {
         Material red{MaterialType::Lambertian, glm::vec3(0.9f, 0.1f, 0.1f)};
         Material green{MaterialType::Lambertian, glm::vec3(0.1f, 0.9f, 0.1f)};
         Material whiteLight{MaterialType::LightSource, glm::vec3(2.0f, 2.0f, 2.0f)};
-        Material metal{MaterialType::Metal, glm::vec3(1.0f, 0.9f, 0.9f)};
+        Material metal{MaterialType::Metal, glm::vec3(1.0f, 0.9f, 0.0f)};
         Material glass{MaterialType::Glass, glm::vec3(1.0f, 1.0f, 1.0f)};
 
         materials.push_back(gray);
@@ -35,7 +35,6 @@ class VklScene {
     std::vector<std::unique_ptr<VklObject>> objects;
     std::vector<VklBVHGPUModel::Material> materials;
     int lightObjectId;
-    std::map<size_t, size_t> materialMap;
 
     Camera camera;
     PointLight pointLight;
@@ -50,7 +49,7 @@ class VklScene {
         return triangle_num;
     }
 
-    void setMaterial(size_t objectIndex, size_t materialIndex) {
-        materialMap[objectIndex] = materialIndex;
+    void setMaterial(size_t objectIndex, int materialIndex) {
+        objects[objectIndex]->setMaterial(materialIndex);
     }
 };

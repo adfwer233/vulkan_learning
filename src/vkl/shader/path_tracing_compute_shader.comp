@@ -202,13 +202,23 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 albedo, inout Ray scattere
         albedo = vec3(1.0);
     } else if(materials[rec.materialIndex].materialType == METAL_MATERIAL) {
         materialSample = sampleMetal(ray.dir, rec.normal, materialSamplePdf);
-        albedo = vec3(0.8);
     }
 
     float lightSamplePdf = materialSamplePdf;
     vec3 finalSample = materialSample;
 
     if (random() < 0.5 && materials[rec.materialIndex].materialType == LAMBERTIAN_MATERIAL) {
+        // sample light
+        float lightCosine;
+        finalSample = sampleLight(rec.p, lightSamplePdf, lightCosine);
+
+        if(abs(lightCosine) < 0.001) {
+            finalSample = materialSample;
+            lightSamplePdf = materialSamplePdf;
+        }
+    }
+
+    if (random() < 0.5 && materials[rec.materialIndex].materialType == METAL_MATERIAL) {
         // sample light
         float lightCosine;
         finalSample = sampleLight(rec.p, lightSamplePdf, lightCosine);
@@ -340,6 +350,7 @@ vec3 rayColor(Ray ray) {
 
             if (emits) break;
         } else {
+//            if (i == 0)
             finalColor *= 0;
             break;
         }

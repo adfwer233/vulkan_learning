@@ -5,17 +5,22 @@
 #include "scene_ui.hpp"
 #include "picking_ui.hpp"
 #include "render_mode_ui.hpp"
-
+#include "material_ui.hpp"
 #include <optional>
 #include "ray_tracer/ray_picker.hpp"
+
+#include "vkl/system/path_tracing_compute_system.hpp"
 
 class UIManager {
 private:
     VklScene &scene_;
 
+    PathTracingComputeModel &pathTracingComputeModel_;
+
     std::unique_ptr<SceneUI> sceneUi;
     std::unique_ptr<PickingUI> pickingUi;
     std::unique_ptr<RenderModeUI> renderModeUi;
+    std::unique_ptr<MaterialUI> materialUi;
 
 public:
     // used in scene ui
@@ -31,9 +36,11 @@ public:
      */
     int renderMode = 0;
 
-    explicit UIManager(VklScene &scene);
+    explicit UIManager(VklScene &scene, PathTracingComputeModel &pathTracingComputeModel);
 
     void renderImgui();
+
+    void resetBVH();
 
     void pickObject(float mouse_x_pos, float mouse_y_pos);
 };

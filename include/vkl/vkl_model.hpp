@@ -146,6 +146,8 @@ class VklModelTemplate {
     void addTexture();
     void addTextureFromImage(VkImage image);
 
+    int materialIndex = 0;
+
     VkBuffer getVertexBuffer(size_t index) {
         return vertexBuffer_[index]->getBuffer();
     };

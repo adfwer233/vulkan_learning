@@ -3,6 +3,7 @@
 #include "../vkl_buffer.hpp"
 #include "../vkl_compute_pipeline.hpp"
 #include "../vkl_device.hpp"
+#include "../vkl_image.hpp"
 
 template <typename T> struct ComputeDescriptor {
     T *data;

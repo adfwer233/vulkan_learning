@@ -1,5 +1,7 @@
 #pragma once
 
+#include <format>
+
 #include "base_compute_system.hpp"
 
 #include "vkl/bvh/vkl_bvh.hpp"
@@ -171,6 +173,65 @@ class PathTracingComputeModel {
         for (int i = 0; i < storageBuffers.size(); i++) {
             storageBufferDescriptors_.push_back({storageBuffers[i], VK_SHADER_STAGE_COMPUTE_BIT});
         }
+    }
+
+    void resetGPUBVH() {
+        VklBVH bvh(scene_);
+        auto bvhTree = bvh.createGPUBVHTree();
+
+        const int n = 1024;
+        const int m = 1024;
+
+        /*
+         * update storage buffers
+         */
+
+        // update triangle buffer
+        uint32_t trianglesNum = static_cast<uint32_t>(bvh.triangles.size());
+        VklBuffer stagingBuffer1{device_, sizeof(VklBVHGPUModel::Triangle), trianglesNum,
+                                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+
+        stagingBuffer1.map();
+        stagingBuffer1.writeToBuffer((void *)bvh.triangles.data());
+
+        device_.copyBuffer(stagingBuffer1.getBuffer(), storageBuffers[0]->getBuffer(),
+                          sizeof(VklBVHGPUModel::Triangle) * trianglesNum);
+
+        // create material buffer
+
+        uint32_t materialNum = static_cast<uint32_t>(scene_.materials.size());
+        VklBuffer stagingBuffer2{device_, sizeof(VklBVHGPUModel::Material), materialNum,
+                                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+
+        stagingBuffer2.map();
+        stagingBuffer2.writeToBuffer((void *)scene_.materials.data());
+
+        device_.copyBuffer(stagingBuffer2.getBuffer(), storageBuffers[1]->getBuffer(),
+                          sizeof(VklBVHGPUModel::Material) * materialNum);
+
+        // create aabb buffer
+
+        uint32_t aabbNum = static_cast<uint32_t>(bvhTree.size());
+        VklBuffer stagingBuffer3{device_, sizeof(VklBVHGPUModel::BVHNode), aabbNum, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+        stagingBuffer3.map();
+        stagingBuffer3.writeToBuffer((void *)bvhTree.data());
+
+        device_.copyBuffer(stagingBuffer3.getBuffer(), storageBuffers[2]->getBuffer(),
+                          sizeof(VklBVHGPUModel::BVHNode) * aabbNum);
+
+        // create light buffer
+
+        uint32_t lightNum = static_cast<uint32_t>(bvh.lights.size());
+        VklBuffer stagingBuffer4{device_, sizeof(VklBVHGPUModel::Light), lightNum, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+        stagingBuffer4.map();
+        stagingBuffer4.writeToBuffer((void *)bvh.lights.data());
+
+        device_.copyBuffer(stagingBuffer4.getBuffer(), storageBuffers[3]->getBuffer(),
+                          sizeof(VklBVHGPUModel::Light) * lightNum);
     }
 
     ~PathTracingComputeModel() {

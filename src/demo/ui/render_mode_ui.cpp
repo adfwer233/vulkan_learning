@@ -15,7 +15,13 @@ void RenderModeUI::renderImgui() {
     ImGui::SameLine();
     ImGui::RadioButton("Path Tracing", &uiManager_.renderMode, 3);
 
-    if (ImGui::Button("Ray Trace")) {
+    if (ImGui::Button("Reset BVH Info")) {
+        uiManager_.resetBVH();
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("CPU Ray Trace")) {
         VklCpuRayTracer cpuRayTracer(scene_);
         cpuRayTracer.performRayTracing();
     }

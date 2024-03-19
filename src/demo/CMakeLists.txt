@@ -9,6 +9,7 @@ set(SRC_FILE main.cpp
         ui/picking_ui.cpp
         ui/ui_manager.cpp
         ui/render_mode_ui.cpp
+        ui/material_ui.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})

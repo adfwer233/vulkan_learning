@@ -1,15 +1,17 @@
 #include "ui_manager.hpp"
 
-UIManager::UIManager(VklScene &scene): scene_(scene) {
+UIManager::UIManager(VklScene &scene, PathTracingComputeModel &pathTracingComputeModel): scene_(scene), pathTracingComputeModel_(pathTracingComputeModel) {
     sceneUi = std::make_unique<SceneUI>(scene, *this);
     pickingUi = std::make_unique<PickingUI>(scene, *this);
     renderModeUi = std::make_unique<RenderModeUI>(scene, *this);
+    materialUi = std::make_unique<MaterialUI>(scene, *this);
 }
 
 void UIManager::renderImgui() {
     sceneUi->renderImgui();
     pickingUi->renderImgui();
     renderModeUi->renderImgui();
+    materialUi->renderImgui();
 }
 
 void UIManager::pickObject(float mouse_x_pos, float mouse_y_pos) {
@@ -28,4 +30,8 @@ void UIManager::pickObject(float mouse_x_pos, float mouse_y_pos) {
 
     RayPicker rayTracer(scene_, ray);
     picking_result = rayTracer.trace();
+}
+
+void UIManager::resetBVH() {
+    pathTracingComputeModel_.resetGPUBVH();
 }

@@ -185,7 +185,7 @@ void Application::run() {
 
     ImGui_ImplVulkan_Init(&init_info);
 
-    UIManager uiManager(scene);
+    UIManager uiManager(scene, pathTracingComputeModel);
 
     KeyboardCameraController::set_scene(scene);
     KeyboardCameraController::setUIManager(uiManager);
