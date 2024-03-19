@@ -20,8 +20,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     mat4 view;
     mat4 proj;
 
-    vec3 cameraPos;
     PointLight pointLight;
+    vec3 cameraPos;
 } ubo;
 
 void main() {

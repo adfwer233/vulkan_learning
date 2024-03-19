@@ -22,8 +22,8 @@ struct GlobalUbo {
     glm::mat4 view;
     glm::mat4 proj;
 
-    glm::vec3 cameraPos;
     PointLight pointLight;
+    glm::vec3 cameraPos;
 };
 
 template <VklRenderable RenderableModel> struct FrameInfo {

@@ -71,4 +71,6 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/shader" $<TARGET_FILE_DIR:${PROJECT_NAME}>/shader
 )
 
-add_dependencies(vkl Shaders)
+if (GLSL_VALIDATOR)
+    add_dependencies(vkl Shaders)
+endif ()

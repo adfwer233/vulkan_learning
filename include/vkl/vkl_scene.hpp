@@ -14,14 +14,14 @@ class VklScene {
     VklScene(VklDevice &device, glm::vec3 camera_pos, glm::vec3 camera_up)
         : device_(device), camera(camera_pos, camera_up) {
         using namespace VklBVHGPUModel;
-        pointLight.position = {0, -20, 0, 0};
+        pointLight.position = {0, -3, 3, 0};
         pointLight.color = {1.0, 1.0, 1.0, 1.0};
 
         Material gray{MaterialType::Lambertian, glm::vec3(0.3f, 0.3f, 0.3f)};
         Material red{MaterialType::Lambertian, glm::vec3(0.9f, 0.1f, 0.1f)};
         Material green{MaterialType::Lambertian, glm::vec3(0.1f, 0.9f, 0.1f)};
         Material whiteLight{MaterialType::LightSource, glm::vec3(2.0f, 2.0f, 2.0f)};
-        Material metal{MaterialType::Metal, glm::vec3(1.0f, 1.0f, 1.0f)};
+        Material metal{MaterialType::Metal, glm::vec3(1.0f, 0.9f, 0.9f)};
         Material glass{MaterialType::Glass, glm::vec3(1.0f, 1.0f, 1.0f)};
 
         materials.push_back(gray);

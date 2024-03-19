@@ -49,13 +49,20 @@ void Application::run() {
     VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
 
     VklObject::ImportBuilder lightSourceBuilder(std::format("{}/light/light_source.obj", DATA_DIR));
+    VklObject::ImportBuilder model1Builder(std::format("{}/models/model1.obj", DATA_DIR));
 
     VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
     scene.addObject(lightSourceBuilder);
     scene.addObject(objectBuilder);
 
+    scene.addObject(model1Builder);
+
+    scene.setMaterial(1, 1);
     scene.setMaterial(0, 3);
-    scene.objects[0]->modelTranslation = glm::vec3(0, -20, 0);
+    scene.setMaterial(2, 2);
+    scene.objects[0]->modelTranslation = glm::vec3(2, -20, 0);
+    scene.objects[2]->modelScaling = glm::vec3(1, 2, 3);
+    scene.objects[2]->modelTranslation = glm::vec3(-1.5, -1, 0);
 
     PathTracingComputeModel pathTracingComputeModel(device_, scene);
 
@@ -264,9 +271,6 @@ void Application::run() {
             }
             ImGui::End();
 
-            //            vkWaitForFences(device_.device(), 1,
-            //            &pathTracingComputeSystem.computeInFlightFences[frameIndex], VK_TRUE,
-            //            std::numeric_limits<uint64_t>::max());
             if (render_mode == 3) {
 
                 auto commandBuffer = renderer_.beginFrame();
@@ -276,8 +280,6 @@ void Application::run() {
 
                 vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                      VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
-
-                submit = true;
 
                 vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                                   pathTracingComputeSystem.pipeline_->computePipeline_);

@@ -34,3 +34,7 @@ add_custom_target(
         particle_shader
         DEPENDS ${SPIRV_BINARY_FILES}
 )
+
+if (GLSL_VALIDATOR)
+    add_dependencies(particle particle_shader)
+endif ()
