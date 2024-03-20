@@ -12,6 +12,9 @@ enum MaterialType {
 
 struct Material {
     alignas(4) MaterialType type;
+    alignas(4) float metallic;
+    alignas(4) float roughness;
+    alignas(4) float ao;
     alignas(16) glm::vec3 albedo;
 };
 

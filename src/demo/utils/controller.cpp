@@ -52,6 +52,10 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
         uiManager_->pickObject(mouse_x_pos, mouse_y_pos);
     }
 
+    if (button == GLFW_MOUSE_BUTTON_RIGHT and state == GLFW_PRESS) {
+        uiManager_->pickObject(mouse_x_pos, mouse_y_pos);
+    }
+
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
         is_mouse_pressing = true;
     }

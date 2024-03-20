@@ -4,6 +4,9 @@
 
 struct material {
     uint materialType;
+    float metallic;
+    float roughness;
+    float ao;
     vec3 albedo;
 };
 
@@ -224,25 +227,19 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
 bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient, inout Ray scatteredRay) {
     vec3 albedo = materials[rec.materialIndex].albedo;
 
-    float metallic = 0;
-    float roughness = 0;
-    float ao = 0;
+    float metallic = materials[rec.materialIndex].metallic;
+    float roughness = materials[rec.materialIndex].roughness;
+    float ao = materials[rec.materialIndex].ao;
 
     float materialSamplePdf;
     vec3 materialSample;
 
     if (materials[rec.materialIndex].materialType == LAMBERTIAN_MATERIAL) {
         materialSample = sampleLambertian(rec.normal, materialSamplePdf);
-        metallic = 0.5;
-        ao = 1;
     } else if(materials[rec.materialIndex].materialType == GLASS_MATERIAL) {
         materialSample = sampleGlass(ray.dir, rec, materialSamplePdf);
-        metallic = 0.0;
     } else if(materials[rec.materialIndex].materialType == METAL_MATERIAL) {
         materialSample = sampleMetal(ray.dir, rec.normal, materialSamplePdf);
-        roughness = 0.0;
-        ao = 1;
-        metallic = 0.5;
     } else if(materials[rec.materialIndex].materialType == LIGHT_MATERIAL) {
         factor = vec3(0.0);
         ambient = vec3(1.0);

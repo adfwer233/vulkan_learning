@@ -15,6 +15,16 @@ void MaterialUI::renderImgui() {
         ImGui::LabelText("Object Index", "%zu", uiManager_.picking_result->object_index);
         ImGui::LabelText("Model Index", "%zu", uiManager_.picking_result->model_index);
 
+        auto &material = scene_.materials[model_picked->materialIndex];
+
+        ImGui::LabelText("Albedo", std::format("{:.3f}, {:.3f}, {:.3f}", material.albedo.x, material.albedo.y, material.albedo.z).c_str());
+
+        ImGui::DragFloat("Material Metallic", &material.metallic);
+        ImGui::DragFloat("Material Roughness", &material.roughness);
+        ImGui::DragFloat("Material Ao", &material.ao);
+
+//        ImGui::LabelText("Metal")
+
         const char* items[] = { "Gray", "Red", "Green", "White Light", "Metal", "Glass" };
 
         ImGui::Combo("model combo",&model_picked->materialIndex, items,IM_ARRAYSIZE(items));
