@@ -189,25 +189,70 @@ vec3 sampleMetal(vec3 I, vec3 normal, inout float pdf) {
     return reflect(I, normal);
 }
 
-bool scatter(Ray ray, inout hitRecord rec, inout vec3 albedo, inout Ray scatteredRay) {
-    albedo = materials[rec.materialIndex].albedo;
+float distributionGGX(vec3 N, vec3 H, float roughness) {
+    float a_square = roughness * roughness;
+    float n_dot_h = dot(N, H);
+    float n_dot_h_square = n_dot_h * n_dot_h;
+
+    float nom = a_square;
+    float denom = n_dot_h_square * (a_square - 1) + 1;
+    denom = pi * denom * denom;
+
+    return nom / denom;
+}
+
+float geometrySchlickGGX(float NdotV, float k) {
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return nom / denom;
+}
+
+float geometrySmith(vec3 N, vec3 V, vec3 L, float k) {
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx1 = geometrySchlickGGX(NdotV, k);
+    float ggx2 = geometrySchlickGGX(NdotL, k);
+
+    return ggx1 * ggx2;
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient, inout Ray scatteredRay) {
+    vec3 albedo = materials[rec.materialIndex].albedo;
+
+    float metallic = 0;
+    float roughness = 0;
+    float ao = 0;
 
     float materialSamplePdf;
     vec3 materialSample;
 
     if (materials[rec.materialIndex].materialType == LAMBERTIAN_MATERIAL) {
         materialSample = sampleLambertian(rec.normal, materialSamplePdf);
+        metallic = 0.5;
+        ao = 1;
     } else if(materials[rec.materialIndex].materialType == GLASS_MATERIAL) {
         materialSample = sampleGlass(ray.dir, rec, materialSamplePdf);
-        albedo = vec3(1.0);
+        metallic = 0.0;
     } else if(materials[rec.materialIndex].materialType == METAL_MATERIAL) {
         materialSample = sampleMetal(ray.dir, rec.normal, materialSamplePdf);
+        roughness = 0.0;
+        ao = 1;
+        metallic = 0.5;
+    } else if(materials[rec.materialIndex].materialType == LIGHT_MATERIAL) {
+        factor = vec3(0.0);
+        ambient = vec3(1.0);
+        return true;
     }
 
     float lightSamplePdf = materialSamplePdf;
     vec3 finalSample = materialSample;
 
-    if (random() < 0.5 && materials[rec.materialIndex].materialType == LAMBERTIAN_MATERIAL) {
+    if (random() < 0.2 && materials[rec.materialIndex].materialType != LIGHT_MATERIAL) {
         // sample light
         float lightCosine;
         finalSample = sampleLight(rec.p, lightSamplePdf, lightCosine);
@@ -218,20 +263,34 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 albedo, inout Ray scattere
         }
     }
 
-    if (random() < 0.5 && materials[rec.materialIndex].materialType == METAL_MATERIAL) {
-        // sample light
-        float lightCosine;
-        finalSample = sampleLight(rec.p, lightSamplePdf, lightCosine);
+    finalSample = normalize(finalSample);
+    scatteredRay = Ray(rec.p + 0.0001 * finalSample, finalSample);
 
-        if(abs(lightCosine) < 0.001) {
-            finalSample = materialSample;
-            lightSamplePdf = materialSamplePdf;
-        }
-    }
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, albedo, metallic);
 
-    scatteredRay = Ray(rec.p, finalSample);
+    vec3 N = rec.normal;
+    vec3 V = normalize(ray.dir);
+    vec3 H = normalize(V + normalize(finalSample));
 
-    rec.samplePdf = 0.5 * materialSamplePdf + 0.5 * lightSamplePdf;
+    float D = distributionGGX(rec.normal, H, roughness);
+    float G = geometrySmith(rec.normal, V, finalSample, roughness);
+    vec3 F = fresnelSchlick(max(dot(H, finalSample), 0.0), F0);
+
+    vec3 k_s = F;
+    vec3 k_d = vec3(1.0) - k_s;
+    k_d *= (1.0 - metallic);
+
+    vec3 nominator = D * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, finalSample), 0.0) + 0.001;
+    vec3 specular = nominator / denominator;
+
+    vec3 brdf = k_d * albedo / pi + specular;
+
+    factor =  brdf * max(dot(N, finalSample), 0.0) / materialSamplePdf;
+    ambient = vec3(0.03) * albedo * ao;
+
+    rec.samplePdf = 0.95 * materialSamplePdf + 0.05 * lightSamplePdf;
     rec.scatterPdf = materialSamplePdf;
 
     return materials[rec.materialIndex].materialType == LIGHT_MATERIAL;
@@ -329,31 +388,33 @@ bool hitBvh(Ray ray, inout hitRecord rec) {
     return hitAnything;
 }
 
-#define NUM_BOUNCES 2
+#define NUM_BOUNCES 3
 vec3 rayColor(Ray ray) {
     vec3 unitDirection = normalize(ray.dir);
     hitRecord rec;
 
-    vec3 finalColor = vec3(1.0);
+    vec3 finalColor = vec3(0.0);
     Ray currentRay = {ray.origin, ray.dir};
 
-    for (int i = 0; i < NUM_BOUNCES; i++) {
+    vec3 factorNodeStack[NUM_BOUNCES + 3];
+    vec3 ambientNodeStack[NUM_BOUNCES + 3];
+    int stackIndex = 0;
+
+    while(stackIndex < NUM_BOUNCES) {
         if (hitBvh(currentRay, rec)) {
-            vec3 albedo;
-            bool emits = scatter(currentRay, rec, albedo, currentRay);
-            finalColor *= albedo;
-
-//            finalColor = vec3(1.0, 0, 0);
-//            if (materials[rec.materialIndex].materialType == LIGHT_MATERIAL)
-//                finalColor = vec3(1.0, 1.0, 1.0);
-//            break;
-
-            if (emits) break;
+            bool emits = scatter(currentRay, rec, factorNodeStack[stackIndex], ambientNodeStack[stackIndex], currentRay);
+            stackIndex++;
+            if (emits) {
+                finalColor = vec3(1.0);
+                break;
+            }
         } else {
-//            if (i == 0)
-            finalColor *= 0;
             break;
         }
+    }
+
+    for (int i = stackIndex - 1; i >= 0; i--) {
+        finalColor = finalColor * factorNodeStack[i] + ambientNodeStack[i];
     }
 
     return finalColor;
