@@ -360,7 +360,7 @@ VkResult VklSwapChain::acquireNextImage(uint32_t *imageIndex) {
 
 
 
-VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex,
+VkResult VklSwapChain::submitCommandBuffers(std::vector<VkCommandBuffer> &buffers, uint32_t *imageIndex,
                                             std::vector<VkSemaphore> toWait) {
     if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(device_.device(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);
@@ -379,8 +379,8 @@ VkResult VklSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint
     submitInfo.pWaitSemaphores = waitSemaphores.data();
     submitInfo.pWaitDstStageMask = waitStages;
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = buffers;
+    submitInfo.commandBufferCount = static_cast<uint32_t>(buffers.size());
+    submitInfo.pCommandBuffers = buffers.data();
 
     VkSemaphore signalSemaphores[] = {renderFinishedSemaphores_[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;

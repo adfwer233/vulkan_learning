@@ -4,15 +4,29 @@
 
 SceneRenderUI::SceneRenderUI(VklScene &scene, UIManager &uiManager): scene_(scene), uiManager_(uiManager) {}
 
+std::vector<VkDescriptorSet> resTex(2);
+int update = 0;
 void SceneRenderUI::renderImgui() {
     ImGui::Begin("Render Result");
     {
         ImGui::BeginChild("RenderResult");
-        ImVec2 wsize = ImGui::GetWindowSize();
+        ImVec2 wsize(1024, 1024);
+        if (update == 0) {
+            for (uint32_t i = 0; i < uiManager_.offscreenImageViews->size(); i++)
+                resTex[i] = ImGui_ImplVulkan_AddTexture(uiManager_.offscreenSampler,
+                                                        (*uiManager_.offscreenImageViews)[i],
+                                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            update++;
+        }
+        if (uiManager_.renderMode == 3) {
+            auto tex = ImGui_ImplVulkan_AddTexture(uiManager_.renderResultTexture->getTextureSampler(),
+                                                   uiManager_.renderResultTexture->getTextureImageView(),
+                                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        auto tex = ImGui_ImplVulkan_AddTexture(uiManager_.renderResultTexture->getTextureSampler(), uiManager_.renderResultTexture->getTextureImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-        ImGui::Image(tex, wsize, ImVec2(0, 1), ImVec2(1, 0));
+            ImGui::Image(tex, wsize, ImVec2(0, 1), ImVec2(1, 0));
+        } else {
+            ImGui::Image(resTex[0], wsize);
+        }
         ImGui::EndChild();
     }
     ImGui::End();
