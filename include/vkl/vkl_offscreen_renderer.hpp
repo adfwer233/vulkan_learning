@@ -24,17 +24,12 @@ class VklOffscreenRenderer {
 
     VkRenderPass renderPass_;
 
-    std::vector<VkSemaphore> imageAvailableSemaphores_;
-    std::vector<VkSemaphore> renderFinishedSemaphores_;
-    std::vector<VkFence> inFlightFences_;
-    std::vector<VkFence> imagesInFlight_;
-
     void createCommandBuffers();
     void createImages();
     void createDepthResources();
     void createRenderPass();
     void createFrameBuffer();
-    void createSyncObjects();
+
   public:
 
     VkSampler imageSampler;

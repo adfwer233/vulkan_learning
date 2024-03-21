@@ -119,10 +119,6 @@ void Application::run() {
     SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, offscreenRenderer_.getSwapChainRenderPass(),
                                                            globalSetLayout->getDescriptorSetLayout());
 
-    SimpleRenderSystem<VklModel::vertex_type> offscreenRenderSystem(device_, offscreenRenderer_.getSwapChainRenderPass(),
-                                                           globalSetLayout->getDescriptorSetLayout());
-
-
     SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/simple_shader.vert.spv", SHADER_DIR),
@@ -366,23 +362,22 @@ void Application::run() {
                 }
             }
 
+            if (uiManager.picking_result.has_value()) {
+                auto &object_picked = scene.objects[uiManager.picking_result->object_index];
+                auto &model_picked =
+                    object_picked->models[uiManager.picking_result->model_index];
+                auto box = model_picked->box;
+                box.apply_transform(object_picked->getModelTransformation());
+                auto box_trans = box.get_box_transformation();
 
-//            if (uiManager.picking_result.has_value()) {
-//                auto &object_picked = scene.objects[uiManager.picking_result->object_index];
-//                auto &model_picked =
-//                    object_picked->models[uiManager.picking_result->model_index];
-//                auto box = model_picked->box;
-//                box.apply_transform(object_picked->getModelTransformation());
-//                auto box_trans = box.get_box_transformation();
-//
-//                ubo.model = box_trans;
-//                boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-//                boxModel.uniformBuffers[frameIndex]->flush();
-//                FrameInfo<VklBoxModel3D> boxFrameInfo{
-//                    frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
-//                    boxModel};
-//                lineRenderSystem.renderObject(boxFrameInfo);
-//            }
+                ubo.model = box_trans;
+                boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                boxModel.uniformBuffers[frameIndex]->flush();
+                FrameInfo<VklBoxModel3D> boxFrameInfo{
+                    frameIndex, currentFrame, offscreenCommandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
+                    boxModel};
+                lineRenderSystem.renderObject(boxFrameInfo);
+            }
 
             offscreenRenderer_.endSwapChainRenderPass(offscreenCommandBuffer);
             offscreenRenderer_.endFrame();

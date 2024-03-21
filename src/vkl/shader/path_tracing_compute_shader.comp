@@ -249,7 +249,7 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient
     float lightSamplePdf = materialSamplePdf;
     vec3 finalSample = materialSample;
 
-    if (random() < 0.2 && materials[rec.materialIndex].materialType != LIGHT_MATERIAL) {
+    if (random() < 0.5 && materials[rec.materialIndex].materialType != LIGHT_MATERIAL) {
         // sample light
         float lightCosine;
         finalSample = sampleLight(rec.p, lightSamplePdf, lightCosine);
