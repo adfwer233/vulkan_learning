@@ -5,11 +5,15 @@
 namespace VklImageUtils {
     VkImageMemoryBarrier ReadOnlyToGeneralBarrier(const VkImage &image);
 
+    VkImageMemoryBarrier ReadOnlyToDstBarrier(const VkImage &image);
+
     VkImageMemoryBarrier generalToTransferDstBarrier(const VkImage &image);
 
     VkImageMemoryBarrier generalToTransferSrcBarrier(const VkImage &image);
 
     VkImageMemoryBarrier transferDstToGeneralBarrier(const VkImage &image);
+
+    VkImageMemoryBarrier transferDstToReadOnlyBarrier(const VkImage &image);
 
     VkImageMemoryBarrier transferSrcToReadOnlyBarrier(const VkImage &image);
 
