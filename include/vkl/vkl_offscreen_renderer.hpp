@@ -36,6 +36,8 @@ class VklOffscreenRenderer {
 
     VklOffscreenRenderer(VklDevice &device, int width, int height);
 
+    ~VklOffscreenRenderer();
+
     [[nodiscard]] VkRenderPass getSwapChainRenderPass() const {
         return renderPass_;
     }
