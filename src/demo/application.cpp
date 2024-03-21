@@ -116,21 +116,25 @@ void Application::run() {
     glfwSetMouseButtonCallback(window, KeyboardCameraController::mouse_button_callback);
 
     /** render system */
-    SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, renderer_.getSwapChainRenderPass(),
+    SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, offscreenRenderer_.getSwapChainRenderPass(),
                                                            globalSetLayout->getDescriptorSetLayout());
 
+    SimpleRenderSystem<VklModel::vertex_type> offscreenRenderSystem(device_, offscreenRenderer_.getSwapChainRenderPass(),
+                                                           globalSetLayout->getDescriptorSetLayout());
+
+
     SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(
-        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/simple_shader.vert.spv", SHADER_DIR),
         std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
 
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(
-        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/simple_shader.vert.spv", SHADER_DIR),
         std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
 
     LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(
-        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
 
     SimpleRenderSystem<VklModel::vertex_type> backGroundRenderSystem(
@@ -196,6 +200,8 @@ void Application::run() {
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     uiManager.renderResultTexture = renderRes;
+    uiManager.offscreenImageViews = offscreenRenderer_.getImageView();
+    uiManager.offscreenSampler = offscreenRenderer_.imageSampler;
 
     KeyboardCameraController::set_scene(scene);
     KeyboardCameraController::setUIManager(uiManager);
@@ -217,6 +223,7 @@ void Application::run() {
 
 
         int frameIndex = renderer_.getFrameIndex();
+        uiManager.frameIndex = frameIndex;
 
         uiManager.renderImgui();
 
@@ -305,71 +312,96 @@ void Application::run() {
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
             renderer_.endSwapChainRenderPass(commandBuffer);
+
+            if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+                throw std::runtime_error("failed to record command buffer!");
+            }
+
+            std::vector<VkCommandBuffer> commandBuffers{commandBuffer};
+
+            auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex);
+
             renderer_.endFrame();
 
         } else {
 
             auto commandBuffer = renderer_.beginFrame();
+            renderer_.beginSwapChainRenderPass(commandBuffer);
 
-            if (uiManager.renderMode != 3) {
-                renderer_.beginSwapChainRenderPass(commandBuffer);
-                GlobalUbo ubo{};
+            auto offscreenCommandBuffer = offscreenRenderer_.beginFrame();
+            offscreenRenderer_.beginSwapChainRenderPass(offscreenCommandBuffer);
+            GlobalUbo ubo{};
 
-                ubo.view = scene.camera.get_view_transformation();
-                ubo.proj = scene.camera.get_proj_transformation();
-                ubo.model = glm::mat4(1.0f);
-                ubo.pointLight = scene.pointLight;
-                ubo.cameraPos = scene.camera.position;
+            ubo.view = scene.camera.get_view_transformation();
+            ubo.proj = scene.camera.get_proj_transformation();
+            ubo.model = glm::mat4(1.0f);
+            ubo.pointLight = scene.pointLight;
+            ubo.cameraPos = scene.camera.position;
 
-                for (auto &object_item : scene.objects) {
-                    for (auto model : object_item->models) {
-                        ubo.model = object_item->getModelTransformation();
-                        model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                        model->uniformBuffers[frameIndex]->flush();
+            for (auto &object_item : scene.objects) {
+                for (auto model : object_item->models) {
+                    ubo.model = object_item->getModelTransformation();
+                    model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                    model->uniformBuffers[frameIndex]->flush();
 
-                        FrameInfo<VklModel> modelFrameInfo{frameIndex,
-                                                           currentFrame,
-                                                           commandBuffer,
-                                                           scene.camera,
-                                                           &model->descriptorSets[frameIndex],
-                                                           *model};
+                    FrameInfo<VklModel> modelFrameInfo{frameIndex,
+                                                       currentFrame,
+                                                       offscreenCommandBuffer,
+                                                       scene.camera,
+                                                       &model->descriptorSets[frameIndex],
+                                                       *model};
 
-                        if (uiManager.renderMode == 0) {
+                    if (uiManager.renderMode == 0) {
+                        rawRenderSystem.renderObject(modelFrameInfo);
+                    } else if (uiManager.renderMode == 1) {
+                        wireFrameRenderSystem.renderObject(modelFrameInfo);
+                    } else if (uiManager.renderMode == 2) {
+                        if (model->textures_.empty())
                             rawRenderSystem.renderObject(modelFrameInfo);
-                        } else if (uiManager.renderMode == 1) {
-                            wireFrameRenderSystem.renderObject(modelFrameInfo);
-                        } else if (uiManager.renderMode == 2) {
-                            if (model->textures_.empty())
-                                rawRenderSystem.renderObject(modelFrameInfo);
-                            else
-                                renderSystem.renderObject(modelFrameInfo);
-                        }
+                        else
+                            renderSystem.renderObject(modelFrameInfo);
                     }
-                }
 
-                if (uiManager.picking_result.has_value()) {
-                    auto &object_picked = scene.objects[uiManager.picking_result->object_index];
-                    auto &model_picked =
-                        object_picked->models[uiManager.picking_result->model_index];
-                    auto box = model_picked->box;
-                    box.apply_transform(object_picked->getModelTransformation());
-                    auto box_trans = box.get_box_transformation();
-
-                    ubo.model = box_trans;
-                    boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                    boxModel.uniformBuffers[frameIndex]->flush();
-                    FrameInfo<VklBoxModel3D> boxFrameInfo{
-                        frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
-                        boxModel};
-                    lineRenderSystem.renderObject(boxFrameInfo);
+//                    offscreenRenderSystem.renderObject(modelFrameInfo);
                 }
             }
 
+
+//            if (uiManager.picking_result.has_value()) {
+//                auto &object_picked = scene.objects[uiManager.picking_result->object_index];
+//                auto &model_picked =
+//                    object_picked->models[uiManager.picking_result->model_index];
+//                auto box = model_picked->box;
+//                box.apply_transform(object_picked->getModelTransformation());
+//                auto box_trans = box.get_box_transformation();
+//
+//                ubo.model = box_trans;
+//                boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+//                boxModel.uniformBuffers[frameIndex]->flush();
+//                FrameInfo<VklBoxModel3D> boxFrameInfo{
+//                    frameIndex, currentFrame, commandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
+//                    boxModel};
+//                lineRenderSystem.renderObject(boxFrameInfo);
+//            }
+
+            offscreenRenderer_.endSwapChainRenderPass(offscreenCommandBuffer);
+            offscreenRenderer_.endFrame();
+
             /* ImGui Rendering */
+
 
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
             renderer_.endSwapChainRenderPass(commandBuffer);
+
+            if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+                throw std::runtime_error("failed to record command buffer!");
+            }
+
+            std::vector<VkCommandBuffer> commandBuffers{commandBuffer, offscreenCommandBuffer};
+
+            auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex);
+
             renderer_.endFrame();
         }
 

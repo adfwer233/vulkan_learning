@@ -41,6 +41,11 @@ public:
 
     VklTexture *renderResultTexture = nullptr;
 
+    std::vector<VkImageView> *offscreenImageViews;
+    VkSampler offscreenSampler;
+
+    uint32_t frameIndex;
+
     explicit UIManager(VklScene &scene, PathTracingComputeModel &pathTracingComputeModel);
 
     void renderImgui();

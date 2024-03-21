@@ -8,10 +8,8 @@ class VklRenderer {
   private:
     VklWindow &window_;
     VklDevice &device_;
-    std::unique_ptr<VklSwapChain> swapChain_;
     std::vector<VkCommandBuffer> commandBuffers_;
 
-    uint32_t currentImageIndex;
     int currentFrameIndex{0};
     bool isFrameStarted{false};
 
@@ -25,6 +23,10 @@ class VklRenderer {
     std::vector<VkSemaphore> semaphoreToWait{};
 
   public:
+    uint32_t currentImageIndex;
+
+    std::unique_ptr<VklSwapChain> swapChain_;
+
     VklRenderer(VklWindow &window, VklDevice &device);
     ~VklRenderer();
 
