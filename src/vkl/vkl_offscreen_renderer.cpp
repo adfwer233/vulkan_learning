@@ -21,10 +21,10 @@ void VklOffscreenRenderer::createImages() {
     imageViews_.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
 
     for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-        device_.createImage(1024, 1024, VkFormat::VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL,
+        device_.createImage(1024, 1024, VkFormat::VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->images_[i], this->memory_[i]);
-        imageViews_[i] = device_.createImageView(this->images_[i], VkFormat::VK_FORMAT_R8G8B8A8_UNORM);
+        imageViews_[i] = device_.createImageView(this->images_[i], VkFormat::VK_FORMAT_R8G8B8A8_SRGB);
     }
 }
 
@@ -93,7 +93,7 @@ void VklOffscreenRenderer::createRenderPass() {
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+    colorAttachment.format = VK_FORMAT_R8G8B8A8_SRGB;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;

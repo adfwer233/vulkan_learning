@@ -599,6 +599,13 @@ VkImageView VklDevice::createImageView(VkImage image, VkFormat format) {
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
+    /**
+     * for the issue that imgui has zero alpha channel
+     *
+     * ref to https://www.reddit.com/r/vulkan/comments/11pnfsi/help_rendering_image_into_imgui/?rdt=52050
+     */
+    viewInfo.components.a = VK_COMPONENT_SWIZZLE_ONE;
+
     VkImageView imageView;
     if (vkCreateImageView(device_, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
         throw std::runtime_error("failed to create image view!");

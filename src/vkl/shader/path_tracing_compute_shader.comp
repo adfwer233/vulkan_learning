@@ -242,7 +242,7 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient
         materialSample = sampleMetal(ray.dir, rec.normal, materialSamplePdf);
     } else if(materials[rec.materialIndex].materialType == LIGHT_MATERIAL) {
         factor = vec3(0.0);
-        ambient = vec3(1.0);
+        ambient = vec3(2.0);
         return true;
     }
 
@@ -284,11 +284,11 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient
 
     vec3 brdf = k_d * albedo / pi + specular;
 
-    factor =  brdf * max(dot(N, finalSample), 0.0) / materialSamplePdf;
-    ambient = vec3(0.03) * albedo * ao;
-
-    rec.samplePdf = 0.95 * materialSamplePdf + 0.05 * lightSamplePdf;
+    rec.samplePdf = 0.5 * materialSamplePdf + 0.5 * lightSamplePdf;
     rec.scatterPdf = materialSamplePdf;
+
+    factor =  brdf * max(dot(N, finalSample), 0.0) / rec.scatterPdf;
+    ambient = vec3(0.03) * albedo * ao;
 
     return materials[rec.materialIndex].materialType == LIGHT_MATERIAL;
 }

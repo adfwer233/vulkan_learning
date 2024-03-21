@@ -23,7 +23,7 @@ void SceneRenderUI::renderImgui() {
 
             ImGui::Image(tex, wsize, ImVec2(0, 1), ImVec2(1, 0));
         } else {
-            ImGui::Image(resTex[0], wsize);
+            ImGui::Image(resTex[uiManager_.frameIndex], wsize);
         }
         ImGui::EndChild();
     }

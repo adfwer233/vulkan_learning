@@ -19,9 +19,9 @@ void MaterialUI::renderImgui() {
 
         ImGui::LabelText("Albedo", std::format("{:.3f}, {:.3f}, {:.3f}", material.albedo.x, material.albedo.y, material.albedo.z).c_str());
 
-        ImGui::DragFloat("Material Metallic", &material.metallic);
-        ImGui::DragFloat("Material Roughness", &material.roughness);
-        ImGui::DragFloat("Material Ao", &material.ao);
+        ImGui::SliderFloat("Material Metallic", &material.metallic, 0.0f, 1.0f);
+        ImGui::SliderFloat("Material Roughness", &material.roughness, 0.0f, 1.0f);
+        ImGui::SliderFloat("Material Ao", &material.ao, 0.0f, 1.0f);
 
 //        ImGui::LabelText("Metal")
 
