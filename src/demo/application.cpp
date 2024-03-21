@@ -105,7 +105,6 @@ void Application::run() {
     KeyboardCameraController::setCamera(scene.camera);
 
     KeyboardCameraController::actionCallBack = [&]() {
-        std::cout << "reset sampling" << std::endl;
         pathTracingComputeSystem.computeModel_.ubo.currentSample = 0;
     };
 

@@ -237,3 +237,23 @@ void VklOffscreenRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffe
 void VklOffscreenRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdEndRenderPass(commandBuffer);
 }
+
+VklOffscreenRenderer::~VklOffscreenRenderer() {
+    for (auto image: images_)
+        vkDestroyImage(device_.device(), image, nullptr);
+    for (auto image: depthImages_)
+        vkDestroyImage(device_.device(), image, nullptr);
+    for (auto imageview: imageViews_)
+        vkDestroyImageView(device_.device(), imageview, nullptr);
+    for (auto imageview: depthImageViews_)
+        vkDestroyImageView(device_.device(), imageview, nullptr);
+    for (auto mem: memory_)
+        vkFreeMemory(device_.device(), mem, nullptr);
+    for (auto mem: depthImageMemories_)
+        vkFreeMemory(device_.device(), mem, nullptr);
+
+    for (auto fb: framebuffers_)
+        vkDestroyFramebuffer(device_.device(), fb, nullptr);
+
+    vkDestroySampler(device_.device(), imageSampler, nullptr);
+}
