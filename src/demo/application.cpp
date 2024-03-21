@@ -14,6 +14,8 @@
 #include "vkl/system/base_compute_system.hpp"
 #include "vkl/system/path_tracing_compute_system.hpp"
 
+#include "vkl/vkl_offscreen_renderer.hpp"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
@@ -165,6 +167,7 @@ void Application::run() {
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
@@ -186,6 +189,13 @@ void Application::run() {
     ImGui_ImplVulkan_Init(&init_info);
 
     UIManager uiManager(scene, pathTracingComputeModel);
+
+    VklTexture* renderRes = new VklTexture(device_, 1024, 1024, 4);
+
+    device_.transitionImageLayout(renderRes->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    uiManager.renderResultTexture = renderRes;
 
     KeyboardCameraController::set_scene(scene);
     KeyboardCameraController::setUIManager(uiManager);
@@ -248,17 +258,27 @@ void Application::run() {
             vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                                  VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &gen2TranDst);
 
+            VkImageMemoryBarrier resultRead2Gen = VklImageUtils::ReadOnlyToDstBarrier(renderRes->image_);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &resultRead2Gen);
+
             VkImageCopy region = VklImageUtils::imageCopyRegion(1024, 1024);
             vkCmdCopyImage(commandBuffer, targetTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, accumulationTexture,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-            VkImageMemoryBarrier tranDst2Gen = VklImageUtils::transferDstToGeneralBarrier(accumulationTexture);
+            vkCmdCopyImage(commandBuffer, targetTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, renderRes->image_,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
+            VkImageMemoryBarrier resultTranDst2Gen = VklImageUtils::transferDstToReadOnlyBarrier(renderRes->image_);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &resultTranDst2Gen);
+
+
+            VkImageMemoryBarrier tranDst2Gen = VklImageUtils::transferDstToGeneralBarrier(accumulationTexture);
             vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &tranDst2Gen);
 
             VkImageMemoryBarrier tranSrc2ReadOnly = VklImageUtils::transferSrcToReadOnlyBarrier(targetTexture);
-
             vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                                  &tranSrc2ReadOnly);
@@ -346,9 +366,9 @@ void Application::run() {
             }
 
             /* ImGui Rendering */
+
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-
             renderer_.endSwapChainRenderPass(commandBuffer);
             renderer_.endFrame();
         }

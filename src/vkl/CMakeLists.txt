@@ -18,6 +18,7 @@ set(SRC_FILE vkl_window.cpp
         bvh/vkl_bvh.cpp
         system/path_tracing_compute_system.cpp
         vkl_image.cpp
+        vkl_offscreen_renderer.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})
