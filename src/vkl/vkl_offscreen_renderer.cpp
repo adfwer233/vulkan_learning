@@ -11,7 +11,6 @@ VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int hei
     createRenderPass();
     createFrameBuffer();
     createCommandBuffers();
-    createSyncObjects();
 
     device_.createSampler(imageSampler);
 }
@@ -163,28 +162,6 @@ void VklOffscreenRenderer::createFrameBuffer() {
     }
 }
 
-void VklOffscreenRenderer::createSyncObjects() {
-    imageAvailableSemaphores_.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores_.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
-    inFlightFences_.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
-    imagesInFlight_.resize(images_.size(), VK_NULL_HANDLE);
-
-    VkSemaphoreCreateInfo semaphoreInfo = {};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fenceInfo = {};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    for (size_t i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateSemaphore(device_.device(), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(device_.device(), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
-            vkCreateFence(device_.device(), &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
-        }
-    }
-}
-
 void VklOffscreenRenderer::createCommandBuffers() {
     commandBuffers_.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
 
@@ -202,8 +179,6 @@ void VklOffscreenRenderer::createCommandBuffers() {
 
 VkCommandBuffer VklOffscreenRenderer::beginFrame() {
     assert(!isFrameStarted && "Can't call beginFrame while already in progress");
-
-    vkWaitForFences(device_.device(), 1, &inFlightFences_[currentFrameIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
     isFrameStarted = true;
 
