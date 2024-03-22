@@ -40,6 +40,7 @@ public:
 
 
     VklTexture *renderResultTexture = nullptr;
+    VkDescriptorSet pathTracingResTex = VK_NULL_HANDLE;
 
     std::vector<VkImageView> *offscreenImageViews;
     VkSampler offscreenSampler;

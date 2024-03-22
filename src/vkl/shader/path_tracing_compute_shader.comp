@@ -263,7 +263,7 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient
     finalSample = normalize(finalSample);
     scatteredRay = Ray(rec.p + 0.0001 * finalSample, finalSample);
 
-    vec3 F0 = vec3(0.04);
+    vec3 F0 = vec3(0.01);
     F0 = mix(F0, albedo, metallic);
 
     vec3 N = rec.normal;
@@ -271,7 +271,7 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient
     vec3 H = normalize(V + normalize(finalSample));
 
     float D = distributionGGX(rec.normal, H, roughness);
-    float G = geometrySmith(rec.normal, V, finalSample, roughness);
+    float G = geometrySmith(rec.normal, V, finalSample, (1 + roughness) * (1 + roughness) / 8);
     vec3 F = fresnelSchlick(max(dot(H, finalSample), 0.0), F0);
 
     vec3 k_s = F;

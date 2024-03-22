@@ -17,11 +17,12 @@ void SceneRenderUI::renderImgui() {
                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
         if (uiManager_.renderMode == 3) {
-            auto tex = ImGui_ImplVulkan_AddTexture(uiManager_.renderResultTexture->getTextureSampler(),
-                                                   uiManager_.renderResultTexture->getTextureImageView(),
-                                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-            ImGui::Image(tex, wsize, ImVec2(0, 1), ImVec2(1, 0));
+            if (uiManager_.pathTracingResTex == VK_NULL_HANDLE) {
+                uiManager_.pathTracingResTex = ImGui_ImplVulkan_AddTexture(uiManager_.renderResultTexture->getTextureSampler(),
+                                                       uiManager_.renderResultTexture->getTextureImageView(),
+                                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            }
+            ImGui::Image(uiManager_.pathTracingResTex, wsize, ImVec2(0, 1), ImVec2(1, 0));
         } else {
             ImGui::Image(resTex[uiManager_.frameIndex], wsize);
         }
