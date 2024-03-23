@@ -21,6 +21,7 @@
 #include "imgui_impl_vulkan.h"
 
 #include <functional>
+#include <random>
 
 #include "ui/ui_manager.hpp"
 
@@ -51,19 +52,21 @@ void Application::run() {
 
     VklObject::ImportBuilder lightSourceBuilder(std::format("{}/light/light_source.obj", DATA_DIR));
     VklObject::ImportBuilder model1Builder(std::format("{}/models/model1.obj", DATA_DIR));
+    VklObject::ImportBuilder cornell_box(std::format("{}/models/cornell_box/cornell_box.obj", DATA_DIR));
+    VklScene scene(device_, {0, 0, 10}, {0, 1, 0});
 
-    VklScene scene(device_, {0, 0, 3}, {0, 1, 0});
-    scene.addObject(lightSourceBuilder);
-    scene.addObject(objectBuilder);
+//    scene.addObject(lightSourceBuilder);
+//    scene.addObject(objectBuilder);
+//    scene.addObject(model1Builder);
+    scene.addObject(cornell_box);
 
-    scene.addObject(model1Builder);
-
-    scene.setMaterial(1, 1);
-    scene.setMaterial(0, 3);
-    scene.setMaterial(2, 2);
-    scene.objects[0]->modelTranslation = glm::vec3(0, -4, 0);
-    scene.objects[2]->modelScaling = glm::vec3(1, 2, 3);
-    scene.objects[2]->modelTranslation = glm::vec3(-1.5, -1, 0);
+//    scene.setMaterial(1, 1);
+//    scene.setMaterial(0, 3);
+    scene.objects[0]->models[3]->materialIndex = 3;
+//    scene.setMaterial(2, 2);
+//    scene.objects[0]->modelTranslation = glm::vec3(0, -4, 0);
+//    scene.objects[2]->modelScaling = glm::vec3(1, 2, 3);
+//    scene.objects[2]->modelTranslation = glm::vec3(-1.5, -1, 0);
 
     PathTracingComputeModel pathTracingComputeModel(device_, scene);
 
@@ -201,6 +204,10 @@ void Application::run() {
     KeyboardCameraController::set_scene(scene);
     KeyboardCameraController::setUIManager(uiManager);
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> distrib(0, 1.0);
+
     while (not window_.shouldClose()) {
         glfwPollEvents();
 
@@ -242,6 +249,8 @@ void Application::run() {
             pathTracingComputeSystem.computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
             pathTracingComputeSystem.computeModel_.ubo.cameraFront = scene.camera.camera_front;
             pathTracingComputeSystem.computeModel_.ubo.currentSample += 1;
+            pathTracingComputeSystem.computeModel_.ubo.rand1 = distrib(gen);
+            pathTracingComputeSystem.computeModel_.ubo.rand2 = distrib(gen);
 
             pathTracingComputeSystem.updateUniformBuffer(frameIndex);
 

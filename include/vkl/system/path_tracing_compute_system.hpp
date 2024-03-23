@@ -18,7 +18,8 @@ struct PathTracingUniformBufferObject {
     alignas(16) glm::vec3 cameraUp;
     alignas(16) glm::vec3 cameraFront;
     float cameraZoom;
-    float time;
+    float rand1;
+    float rand2;
     uint32_t currentSample;
     uint32_t numTriangles;
     uint32_t numLights;
@@ -232,6 +233,8 @@ class PathTracingComputeModel {
 
         device_.copyBuffer(stagingBuffer4.getBuffer(), storageBuffers[3]->getBuffer(),
                           sizeof(VklBVHGPUModel::Light) * lightNum);
+
+        ubo.numLights = lightNum;
     }
 
     ~PathTracingComputeModel() {

@@ -17,9 +17,9 @@ class VklScene {
         pointLight.position = {0, -3, 3, 0};
         pointLight.color = {1.0, 1.0, 1.0, 1.0};
 
-        Material gray{MaterialType::Lambertian, 0.1, 0.1, 1.0, glm::vec3(0.3f, 0.3f, 0.3f)};
-        Material red{MaterialType::Lambertian, 0.1, 0.1, 1.0, glm::vec3(0.9f, 0.1f, 0.1f)};
-        Material green{MaterialType::Lambertian, 0.1, 0.1, 1.0, glm::vec3(0.1f, 0.9f, 0.1f)};
+        Material gray{MaterialType::Lambertian, 0.0, 0.5, 1.0, glm::vec3(0.77f, 0.77f, 0.80f)};
+        Material red{MaterialType::Lambertian, 0.0, 0.5, 1.0, glm::vec3(0.8f, 0.0f, 0.0f)};
+        Material green{MaterialType::Lambertian, 0.0, 0.5, 1.0, glm::vec3(0.0f, 0.8f, 0.0f)};
         Material whiteLight{MaterialType::LightSource, 0.0, 0.0, 1.0, glm::vec3(2.0f, 2.0f, 2.0f)};
         Material metal{MaterialType::Metal, 0.5, 0.0, 1.0, glm::vec3(1.0f, 0.9f, 0.0f)};
         Material glass{MaterialType::Glass, 0.0, 0.0, 1.0, glm::vec3(1.0f, 1.0f, 1.0f)};

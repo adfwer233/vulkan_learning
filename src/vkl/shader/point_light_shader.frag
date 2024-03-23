@@ -7,7 +7,6 @@ layout(location = 3) in vec2 fragTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
-
 struct PointLight {
     vec4 position;
     vec4 color;
@@ -29,7 +28,7 @@ void main() {
     vec3 lightColor = ubo.pointLight.color.rgb;
 
     // ambient lighting
-    float ambientStrength = 0.0;
+    float ambientStrength = 0.2;
     vec3 ambient = ambientStrength * ubo.pointLight.color.rgb;
 
     // diffuse lighting
@@ -39,7 +38,7 @@ void main() {
     vec3 diffuse = diff * lightColor;
 
     // specular lighting
-    float specularStrength = 0.0;
+    float specularStrength = 0.5;
     vec3 viewDir = normalize(ubo.cameraPos - fragPosWorld);
     vec3 reflectDir = reflect(-lightDirection, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);

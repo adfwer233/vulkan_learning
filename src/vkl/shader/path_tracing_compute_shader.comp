@@ -61,7 +61,8 @@ layout(binding = 0) uniform UniformBufferObject {
     vec3 cameraUp;
     vec3 cameraFront;
     float cameraZoom;
-    float time;
+    float rand1;
+    float rand2;
     uint currentSample;
     uint numTriangles;
     uint numLights;
@@ -69,11 +70,23 @@ layout(binding = 0) uniform UniformBufferObject {
 
 const float pi = 3.1415926535897932385;
 
-// random generator
+// Random number generation using pcg32i_random_t, using inc = 1. Our random state is a uint.
+uint stepRNG(uint rngState) {
+    return rngState * 747796405 + 1;
+}
 
+// Steps the RNG and returns a floating-point value between 0 and 1 inclusive.
+float stepAndOutputRNGFloat(inout uint rngState) {
+    // Condensed version of pcg_output_rxs_m_xs_32_32, with simple conversion to floating-point [0,1].
+    rngState  = stepRNG(rngState);
+    uint word = ((rngState >> ((rngState >> 28) + 4)) ^ rngState) * 277803737;
+    word      = (word >> 22) ^ word;
+    return float(word) * ubo.rand1 / 4294967295.0f;
+}
+
+uint rngState =  (600 * gl_GlobalInvocationID.x + gl_GlobalInvocationID.y) * (ubo.currentSample+1);
 float random() {
-    vec2 co = gl_GlobalInvocationID.xy + vec2(ubo.currentSample, 233 * ubo.currentSample);
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+    return stepAndOutputRNGFloat(rngState);
 }
 
 float random(float min, float max) {
@@ -249,7 +262,7 @@ bool scatter(Ray ray, inout hitRecord rec, inout vec3 factor, inout vec3 ambient
     float lightSamplePdf = materialSamplePdf;
     vec3 finalSample = materialSample;
 
-    if (random() < 0.5 && materials[rec.materialIndex].materialType != LIGHT_MATERIAL) {
+    if (random() < 0.1 && materials[rec.materialIndex].materialType != LIGHT_MATERIAL) {
         // sample light
         float lightCosine;
         finalSample = sampleLight(rec.p, lightSamplePdf, lightCosine);
@@ -385,7 +398,7 @@ bool hitBvh(Ray ray, inout hitRecord rec) {
     return hitAnything;
 }
 
-#define NUM_BOUNCES 3
+#define NUM_BOUNCES 4
 vec3 rayColor(Ray ray) {
     vec3 unitDirection = normalize(ray.dir);
     hitRecord rec;
