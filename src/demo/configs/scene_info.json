@@ -1,0 +1,46 @@
+{
+    "scene_num": 1,
+    "scenes": [
+        {
+            "scene_name": "cornell_box",
+            "object_paths": [
+                "models/cornell_box/cornell_box.obj"
+            ],
+            "light_model": {
+                "object_index": 0,
+                "model_index": 3
+            },
+            "material_settings": [
+                {
+                  "object_index": 0,
+                  "model_index": 0,
+                  "material_index": 1
+                },
+                {
+                    "object_index": 0,
+                    "model_index": 1,
+                    "material_index": 2
+                }
+            ]
+        },
+        {
+            "scene_name": "nanosuit",
+            "object_paths": [
+                "nanosuit/nanosuit.obj",
+                "models/model1.obj",
+                "light/light_source.obj"
+            ],
+            "light_model": {
+                "object_index": 2,
+                "model_index": 0
+            },
+            "material_settings": [
+                {
+                  "object_index": 1,
+                  "model_index": 0,
+                  "material_index": 1
+                }
+            ]
+        }
+    ]
+}

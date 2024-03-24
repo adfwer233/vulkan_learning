@@ -13,6 +13,7 @@ include(fetch-glm)
 include(fetch-assimp)
 include(fetch-stb)
 include(fetch-imgui)
+include(fetch-jsoncpp)
 
 INCLUDE_DIRECTORIES(${stb_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${imgui_fetch_SOURCE_DIR})

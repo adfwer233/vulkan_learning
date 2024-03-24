@@ -11,6 +11,7 @@ set(SRC_FILE main.cpp
         ui/render_mode_ui.cpp
         ui/material_ui.cpp
         ui/scene_render_ui.cpp
+        ui/scene_manager.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
@@ -21,7 +22,7 @@ add_definitions(-DSHADER_DIR="${CMAKE_SOURCE_DIR}/src/vkl/shader")
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${VK_SDK_INCLUDE})
 
-target_link_libraries(${PROJECT_NAME} glm glfw vkl ray_tracer)
+target_link_libraries(${PROJECT_NAME} glm glfw nlohmann_json vkl ray_tracer)
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD

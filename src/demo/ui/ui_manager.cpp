@@ -2,12 +2,13 @@
 
 #include "imgui.h"
 
-UIManager::UIManager(VklScene &scene, PathTracingComputeModel &pathTracingComputeModel): scene_(scene), pathTracingComputeModel_(pathTracingComputeModel) {
+UIManager::UIManager(VklDevice &device, VklScene &scene): scene_(scene), device_(device) {
     sceneUi = std::make_unique<SceneUI>(scene, *this);
     pickingUi = std::make_unique<PickingUI>(scene, *this);
     renderModeUi = std::make_unique<RenderModeUI>(scene, *this);
     materialUi = std::make_unique<MaterialUI>(scene, *this);
     sceneRenderUi = std::make_unique<SceneRenderUI>(scene, *this);
+    sceneManagerUi = std::make_unique<SceneManagerUI>(scene, *this);
 }
 
 void UIManager::renderImgui() {
@@ -17,6 +18,7 @@ void UIManager::renderImgui() {
     renderModeUi->renderImgui();
     materialUi->renderImgui();
     sceneRenderUi->renderImgui();
+    sceneManagerUi->renderImgui();
 }
 
 void UIManager::pickObject(float mouse_x_pos, float mouse_y_pos) {
@@ -38,5 +40,12 @@ void UIManager::pickObject(float mouse_x_pos, float mouse_y_pos) {
 }
 
 void UIManager::resetBVH() {
-    pathTracingComputeModel_.resetGPUBVH();
+    if (pathTracingComputeModel_ != nullptr) {
+        pathTracingComputeModel_->resetGPUBVH();
+    }
+}
+
+void UIManager::resetPathTracingCompute() {
+    pathTracingComputeModel_ = std::make_unique<PathTracingComputeModel>(device_, scene_);
+    pathTracingComputeSystem_ = std::make_unique<PathTracingComputeSystem>(device_, *pathTracingComputeModel_);
 }

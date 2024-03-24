@@ -7,6 +7,7 @@
 #include "picking_ui.hpp"
 #include "render_mode_ui.hpp"
 #include "material_ui.hpp"
+#include "scene_manager.hpp"
 #include <optional>
 #include "ray_tracer/ray_picker.hpp"
 
@@ -14,15 +15,15 @@
 
 class UIManager {
 private:
+    VklDevice &device_;
     VklScene &scene_;
-
-    PathTracingComputeModel &pathTracingComputeModel_;
 
     std::unique_ptr<SceneUI> sceneUi;
     std::unique_ptr<PickingUI> pickingUi;
     std::unique_ptr<RenderModeUI> renderModeUi;
     std::unique_ptr<MaterialUI> materialUi;
     std::unique_ptr<SceneRenderUI> sceneRenderUi;
+    std::unique_ptr<SceneManagerUI> sceneManagerUi;
 
 public:
     // used in scene ui
@@ -38,20 +39,30 @@ public:
      */
     int renderMode = 0;
 
-
+    /**
+     * path tracing result texture
+     */
     VklTexture *renderResultTexture = nullptr;
     VkDescriptorSet pathTracingResTex = VK_NULL_HANDLE;
 
+    /**
+     * offline rendering target image
+     */
     std::vector<VkImageView> *offscreenImageViews;
     VkSampler offscreenSampler;
 
+    std::unique_ptr<PathTracingComputeModel> pathTracingComputeModel_;
+    std::unique_ptr<PathTracingComputeSystem> pathTracingComputeSystem_;
+
     uint32_t frameIndex;
 
-    explicit UIManager(VklScene &scene, PathTracingComputeModel &pathTracingComputeModel);
+    explicit UIManager(VklDevice &device, VklScene &scene);
 
     void renderImgui();
 
     void resetBVH();
+
+    void resetPathTracingCompute();
 
     void pickObject(float mouse_x_pos, float mouse_y_pos);
 };

@@ -25,6 +25,9 @@
 
 #include "ui/ui_manager.hpp"
 
+#include "nlohmann/json.hpp"
+using json = nlohmann::json;
+
 static ImGui_ImplVulkanH_Window g_MainWindowData;
 
 Application::~Application() {
@@ -32,50 +35,12 @@ Application::~Application() {
 
 void Application::run() {
 
-    /** tmp model data */
-    const std::vector<Vertex3D> vertexData = {
-        {{-1.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 0.0f}},
-        {{1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 0.0f}},
-        {{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {0.0f, 1.0f}},
-        {{-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.1f}, {1.0f, 1.0f}}};
-
-    const std::vector<VklModel::index_type> indices = {{0, 1, 2}, {2, 3, 0}};
-
-    VklModel::BuilderFromImmediateData builder;
-    builder.vertices = vertexData;
-    builder.indices = indices;
-    //    builder.texturePaths = {std::format("{}/blending_transparent_window.png", DATA_DIR)};
-
-    VklModel model(device_, builder);
-
     VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
 
     VklObject::ImportBuilder lightSourceBuilder(std::format("{}/light/light_source.obj", DATA_DIR));
     VklObject::ImportBuilder model1Builder(std::format("{}/models/model1.obj", DATA_DIR));
     VklObject::ImportBuilder cornell_box(std::format("{}/models/cornell_box/cornell_box.obj", DATA_DIR));
     VklScene scene(device_, {0, 0, 10}, {0, 1, 0});
-
-//    scene.addObject(lightSourceBuilder);
-//    scene.addObject(objectBuilder);
-//    scene.addObject(model1Builder);
-    scene.addObject(cornell_box);
-
-//    scene.setMaterial(1, 1);
-//    scene.setMaterial(0, 3);
-    scene.objects[0]->models[3]->materialIndex = 3;
-//    scene.setMaterial(2, 2);
-//    scene.objects[0]->modelTranslation = glm::vec3(0, -4, 0);
-//    scene.objects[2]->modelScaling = glm::vec3(1, 2, 3);
-//    scene.objects[2]->modelTranslation = glm::vec3(-1.5, -1, 0);
-
-    PathTracingComputeModel pathTracingComputeModel(device_, scene);
-
-    PathTracingComputeSystem pathTracingComputeSystem(device_, pathTracingComputeModel);
-
-    auto targetTexture = pathTracingComputeModel.getTargetTexture();
-    auto accumulationTexture = pathTracingComputeModel.getAccumulationTexture();
-
-    model.addTextureFromImage(targetTexture);
 
     /** set uniform buffers */
 
@@ -96,20 +61,10 @@ void Application::run() {
                           .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
                           .build();
 
-    model.allocDescriptorSets(*globalSetLayout, *globalPool);
-
     auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
     boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
 
-    for (auto &object : scene.objects) {
-        object->allocDescriptorSets(*globalSetLayout, *globalPool);
-    }
-
     KeyboardCameraController::setCamera(scene.camera);
-
-    KeyboardCameraController::actionCallBack = [&]() {
-        pathTracingComputeSystem.computeModel_.ubo.currentSample = 0;
-    };
 
     GLFWwindow *window = window_.getGLFWwindow();
 
@@ -190,7 +145,7 @@ void Application::run() {
 
     ImGui_ImplVulkan_Init(&init_info);
 
-    UIManager uiManager(scene, pathTracingComputeModel);
+    UIManager uiManager(device_, scene);
 
     VklTexture* renderRes = new VklTexture(device_, 1024, 1024, 4);
 
@@ -203,6 +158,12 @@ void Application::run() {
 
     KeyboardCameraController::set_scene(scene);
     KeyboardCameraController::setUIManager(uiManager);
+
+    KeyboardCameraController::actionCallBack = [&]() {
+        if (uiManager.pathTracingComputeSystem_ != nullptr) {
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.currentSample = 0;
+        }
+    };
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -233,29 +194,32 @@ void Application::run() {
 
             auto commandBuffer = renderer_.beginFrame();
 
+            auto targetTexture = uiManager.pathTracingComputeModel_->getTargetTexture();
+            auto accumulationTexture = uiManager.pathTracingComputeModel_->getAccumulationTexture();
+
             VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
 
             vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                  VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
 
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                              pathTracingComputeSystem.pipeline_->computePipeline_);
+                              uiManager.pathTracingComputeSystem_->pipeline_->computePipeline_);
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                                    pathTracingComputeSystem.pipelineLayout_, 0, 1,
-                                    &pathTracingComputeSystem.computeDescriptorSets[frameIndex], 0, nullptr);
+                                    uiManager.pathTracingComputeSystem_->pipelineLayout_, 0, 1,
+                                    &uiManager.pathTracingComputeSystem_->computeDescriptorSets[frameIndex], 0, nullptr);
 
-            pathTracingComputeSystem.computeModel_.ubo.cameraPosition = scene.camera.position;
-            pathTracingComputeSystem.computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
-            pathTracingComputeSystem.computeModel_.ubo.cameraFront = scene.camera.camera_front;
-            pathTracingComputeSystem.computeModel_.ubo.currentSample += 1;
-            pathTracingComputeSystem.computeModel_.ubo.rand1 = distrib(gen);
-            pathTracingComputeSystem.computeModel_.ubo.rand2 = distrib(gen);
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraPosition = scene.camera.position;
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraFront = scene.camera.camera_front;
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.currentSample += 1;
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.rand1 = distrib(gen);
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.rand2 = distrib(gen);
 
-            pathTracingComputeSystem.updateUniformBuffer(frameIndex);
+            uiManager.pathTracingComputeSystem_->updateUniformBuffer(frameIndex);
 
-            auto [local_x, local_y, local_z] = pathTracingComputeSystem.computeModel_.getLocalSize();
-            auto [x, y, z] = pathTracingComputeSystem.computeModel_.getSize();
+            auto [local_x, local_y, local_z] = uiManager.pathTracingComputeSystem_->computeModel_.getLocalSize();
+            auto [x, y, z] = uiManager.pathTracingComputeSystem_->computeModel_.getSize();
 
             vkCmdDispatch(commandBuffer, x / local_x, y / local_y, z / local_z);
 
@@ -294,21 +258,6 @@ void Application::run() {
                                  &tranSrc2ReadOnly);
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
-
-            GlobalUbo ubo{};
-            ubo.view =
-                glm::lookAt(glm::vec3{0.0f, 0.0f, 1.0f}, glm::vec3{0.0f, 0.0f, 0.5f}, glm::vec3{0.0f, -1.0f, 0.0f});
-            ubo.proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
-            ubo.model = glm::mat4(1.0f);
-            ubo.pointLight = scene.pointLight;
-            ubo.cameraPos = scene.camera.position;
-            model.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-            model.uniformBuffers[frameIndex]->flush();
-
-            FrameInfo<VklModel> modelFrameInfo{
-                frameIndex, currentFrame, commandBuffer, scene.camera, &model.descriptorSets[frameIndex], model};
-
-            backGroundRenderSystem.renderObject(modelFrameInfo);
 
             /* ImGui Rendering */
             ImGui::Render();
