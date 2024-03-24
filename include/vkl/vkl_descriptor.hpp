@@ -15,8 +15,7 @@
  * ## DescriptorPool
  */
 
-template<typename T>
-struct VklDescriptor {
+template <typename T> struct VklDescriptor {
     T *data;
     uint32_t binding;
     VkShaderStageFlags shaderStageFlags;

@@ -4,11 +4,11 @@
 class UIManager;
 
 class MaterialUI {
-private:
+  private:
     VklScene &scene_;
     UIManager &uiManager_;
 
-public:
+  public:
     explicit MaterialUI(VklScene &scene, UIManager &uiManager);
 
     void renderImgui();

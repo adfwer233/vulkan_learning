@@ -33,7 +33,7 @@ class VklObject {
     int get_triangle_num();
 
     void setMaterial(int materialIndex) {
-        for (auto model: models) {
+        for (auto model : models) {
             model->materialIndex = materialIndex;
         }
     }

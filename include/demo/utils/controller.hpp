@@ -7,9 +7,9 @@
 
 #include "ray_tracer/ray_picker.hpp"
 
+#include "../../../src/demo/ui/ui_manager.hpp"
 #include "GLFW/glfw3.h"
 #include "vkl/vkl_scene.hpp"
-#include "../../../src/demo/ui/ui_manager.hpp"
 
 class KeyboardCameraController {
   private:

@@ -2,7 +2,7 @@
 
 #include "imgui.h"
 
-UIManager::UIManager(VklDevice &device, VklScene &scene): scene_(scene), device_(device) {
+UIManager::UIManager(VklDevice &device, VklScene &scene) : scene_(scene), device_(device) {
     sceneUi = std::make_unique<SceneUI>(scene, *this);
     pickingUi = std::make_unique<PickingUI>(scene, *this);
     renderModeUi = std::make_unique<RenderModeUI>(scene, *this);

@@ -9,6 +9,7 @@ class SceneRenderUI {
     UIManager &uiManager_;
 
     std::vector<VkDescriptorSet> resTex;
+
   public:
     explicit SceneRenderUI(VklScene &scene, UIManager &uiManager);
 

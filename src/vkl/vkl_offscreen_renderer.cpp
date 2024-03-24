@@ -5,7 +5,7 @@
 
 #include "vkl/vkl_swap_chain.hpp"
 
-VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int height): device_(device) {
+VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int height) : device_(device) {
     createImages();
     createDepthResources();
     createRenderPass();
@@ -29,9 +29,9 @@ void VklOffscreenRenderer::createImages() {
 }
 
 void VklOffscreenRenderer::createDepthResources() {
-    VkFormat depthFormat = device_.findSupportedFormat(
-            {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL,
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    VkFormat depthFormat =
+        device_.findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+                                    VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     VkExtent2D extent(1024, 1024);
 
     depthImages_.resize(images_.size());
@@ -77,9 +77,9 @@ void VklOffscreenRenderer::createDepthResources() {
 
 void VklOffscreenRenderer::createRenderPass() {
     VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = device_.findSupportedFormat(
-            {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, VK_IMAGE_TILING_OPTIMAL,
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    depthAttachment.format =
+        device_.findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+                                    VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -117,11 +117,11 @@ void VklOffscreenRenderer::createRenderPass() {
     dependency.dstSubpass = 0;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     dependency.dstStageMask =
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.srcAccessMask = 0;
     dependency.srcStageMask =
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
     std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
 
@@ -155,8 +155,7 @@ void VklOffscreenRenderer::createFrameBuffer() {
         framebufferInfo.height = extent.height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(device_.device(), &framebufferInfo, nullptr, &framebuffers_[i]) !=
-            VK_SUCCESS) {
+        if (vkCreateFramebuffer(device_.device(), &framebufferInfo, nullptr, &framebuffers_[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
@@ -239,20 +238,20 @@ void VklOffscreenRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
 }
 
 VklOffscreenRenderer::~VklOffscreenRenderer() {
-    for (auto image: images_)
+    for (auto image : images_)
         vkDestroyImage(device_.device(), image, nullptr);
-    for (auto image: depthImages_)
+    for (auto image : depthImages_)
         vkDestroyImage(device_.device(), image, nullptr);
-    for (auto imageview: imageViews_)
+    for (auto imageview : imageViews_)
         vkDestroyImageView(device_.device(), imageview, nullptr);
-    for (auto imageview: depthImageViews_)
+    for (auto imageview : depthImageViews_)
         vkDestroyImageView(device_.device(), imageview, nullptr);
-    for (auto mem: memory_)
+    for (auto mem : memory_)
         vkFreeMemory(device_.device(), mem, nullptr);
-    for (auto mem: depthImageMemories_)
+    for (auto mem : depthImageMemories_)
         vkFreeMemory(device_.device(), mem, nullptr);
 
-    for (auto fb: framebuffers_)
+    for (auto fb : framebuffers_)
         vkDestroyFramebuffer(device_.device(), fb, nullptr);
 
     vkDestroySampler(device_.device(), imageSampler, nullptr);

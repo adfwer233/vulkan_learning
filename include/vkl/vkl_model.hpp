@@ -156,12 +156,11 @@ class VklModelTemplate {
     friend class VklBVH;
 };
 
-template<VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::createDescriptorSetLayout() {
     auto setLayoutBuilder = VklDescriptorSetLayout::Builder(device_);
 
     int bindingCount = 0;
-
 }
 
 using VklModel = VklModelTemplate<Vertex3D>;

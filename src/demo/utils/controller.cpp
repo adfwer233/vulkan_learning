@@ -10,7 +10,7 @@
 float KeyboardCameraController::mouse_x_pos = 0.0;
 float KeyboardCameraController::mouse_y_pos = 0.0;
 
-std::function<void()> KeyboardCameraController::actionCallBack = [](){};
+std::function<void()> KeyboardCameraController::actionCallBack = []() {};
 
 std::optional<std::reference_wrapper<VklScene>> KeyboardCameraController::scene_;
 
@@ -39,8 +39,6 @@ void KeyboardCameraController::processInput(GLFWwindow *window, float deltaTime)
         callProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         callProcessKeyboard(DOWN, deltaTime);
-
-
 }
 
 void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offset, double y_offset) {

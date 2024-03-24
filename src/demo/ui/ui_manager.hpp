@@ -2,19 +2,19 @@
 
 #include "vkl/vkl_scene.hpp"
 
-#include "scene_ui.hpp"
-#include "scene_render_ui.hpp"
-#include "picking_ui.hpp"
-#include "render_mode_ui.hpp"
 #include "material_ui.hpp"
-#include "scene_manager.hpp"
-#include <optional>
+#include "picking_ui.hpp"
 #include "ray_tracer/ray_picker.hpp"
+#include "render_mode_ui.hpp"
+#include "scene_manager.hpp"
+#include "scene_render_ui.hpp"
+#include "scene_ui.hpp"
+#include <optional>
 
 #include "vkl/system/path_tracing_compute_system.hpp"
 
 class UIManager {
-private:
+  private:
     VklDevice &device_;
     VklScene &scene_;
 
@@ -25,7 +25,7 @@ private:
     std::unique_ptr<SceneRenderUI> sceneRenderUi;
     std::unique_ptr<SceneManagerUI> sceneManagerUi;
 
-public:
+  public:
     // used in scene ui
     float deltaTime;
 

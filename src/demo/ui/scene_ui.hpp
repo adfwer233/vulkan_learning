@@ -1,15 +1,15 @@
 #pragma once
 
 #include "vkl/vkl_scene.hpp"
-//#include "ui_manager.hpp"
+// #include "ui_manager.hpp"
 class UIManager;
 
 class SceneUI {
-private:
+  private:
     VklScene &scene_;
     UIManager &uiManager_;
 
-public:
+  public:
     explicit SceneUI(VklScene &scene, UIManager &uiManager);
 
     void renderImgui();

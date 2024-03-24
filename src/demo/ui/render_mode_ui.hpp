@@ -4,11 +4,11 @@
 class UIManager;
 
 class RenderModeUI {
-private:
+  private:
     VklScene &scene_;
     UIManager &uiManager_;
 
-public:
+  public:
     explicit RenderModeUI(VklScene &scene, UIManager &uiManager);
 
     void renderImgui();

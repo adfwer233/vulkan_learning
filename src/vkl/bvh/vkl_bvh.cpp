@@ -50,7 +50,8 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
 
         auto comparator = (axis == 0) ? boxXCompare : (axis == 1) ? boxYCompare : boxZCompare;
 
-        if (currentNode.objects.empty()) continue;
+        if (currentNode.objects.empty())
+            continue;
 
         std::ranges::sort(currentNode.objects, comparator);
 

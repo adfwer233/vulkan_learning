@@ -5,27 +5,27 @@
 class UIManager;
 
 namespace SceneManagerUINamespace {
-    struct LightModel {
-        uint32_t object_index;
-        uint32_t model_index;
-    };
+struct LightModel {
+    uint32_t object_index;
+    uint32_t model_index;
+};
 
-    struct MaterialSetting {
-        uint32_t object_index;
-        uint32_t model_index;
-        uint32_t material_index;
-    };
+struct MaterialSetting {
+    uint32_t object_index;
+    uint32_t model_index;
+    uint32_t material_index;
+};
 
-    struct SceneInfo {
-        std::string sceneName;
-        std::vector<std::string> object_paths;
-        LightModel lightModel;
-        std::vector<MaterialSetting> materialSettings;
-    };
-}
+struct SceneInfo {
+    std::string sceneName;
+    std::vector<std::string> object_paths;
+    LightModel lightModel;
+    std::vector<MaterialSetting> materialSettings;
+};
+} // namespace SceneManagerUINamespace
 
 class SceneManagerUI {
-private:
+  private:
     VklScene &scene_;
     UIManager &uiManager_;
 
@@ -33,7 +33,7 @@ private:
 
     int current_scene_index = 0;
 
-public:
+  public:
     explicit SceneManagerUI(VklScene &scene, UIManager &uiManager);
 
     void renderImgui();

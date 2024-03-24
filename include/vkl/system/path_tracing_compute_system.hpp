@@ -97,7 +97,7 @@ class PathTracingComputeModel {
         images.push_back(targetTexture);
         images.push_back(accumulationTexture);
 
-        for (auto & image : images) {
+        for (auto &image : images) {
             imageDescriptors_.push_back({image, VK_SHADER_STAGE_COMPUTE_BIT});
         }
 
@@ -197,7 +197,7 @@ class PathTracingComputeModel {
         stagingBuffer1.writeToBuffer((void *)bvh.triangles.data());
 
         device_.copyBuffer(stagingBuffer1.getBuffer(), storageBuffers[0]->getBuffer(),
-                          sizeof(VklBVHGPUModel::Triangle) * trianglesNum);
+                           sizeof(VklBVHGPUModel::Triangle) * trianglesNum);
 
         // create material buffer
 
@@ -210,7 +210,7 @@ class PathTracingComputeModel {
         stagingBuffer2.writeToBuffer((void *)scene_.materials.data());
 
         device_.copyBuffer(stagingBuffer2.getBuffer(), storageBuffers[1]->getBuffer(),
-                          sizeof(VklBVHGPUModel::Material) * materialNum);
+                           sizeof(VklBVHGPUModel::Material) * materialNum);
 
         // create aabb buffer
 
@@ -221,7 +221,7 @@ class PathTracingComputeModel {
         stagingBuffer3.writeToBuffer((void *)bvhTree.data());
 
         device_.copyBuffer(stagingBuffer3.getBuffer(), storageBuffers[2]->getBuffer(),
-                          sizeof(VklBVHGPUModel::BVHNode) * aabbNum);
+                           sizeof(VklBVHGPUModel::BVHNode) * aabbNum);
 
         // create light buffer
 
@@ -232,19 +232,19 @@ class PathTracingComputeModel {
         stagingBuffer4.writeToBuffer((void *)bvh.lights.data());
 
         device_.copyBuffer(stagingBuffer4.getBuffer(), storageBuffers[3]->getBuffer(),
-                          sizeof(VklBVHGPUModel::Light) * lightNum);
+                           sizeof(VklBVHGPUModel::Light) * lightNum);
 
         ubo.numLights = lightNum;
     }
 
     ~PathTracingComputeModel() {
-        for (auto buffer: uniformBuffers) {
+        for (auto buffer : uniformBuffers) {
             delete buffer;
         }
-        for (auto buffer: storageBuffers) {
+        for (auto buffer : storageBuffers) {
             delete buffer;
         }
-        for (auto image: images) {
+        for (auto image : images) {
             delete image;
         }
     }

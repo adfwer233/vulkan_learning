@@ -147,7 +147,7 @@ void Application::run() {
 
     UIManager uiManager(device_, scene);
 
-    VklTexture* renderRes = new VklTexture(device_, 1024, 1024, 4);
+    VklTexture *renderRes = new VklTexture(device_, 1024, 1024, 4);
 
     device_.transitionImageLayout(renderRes->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -184,7 +184,6 @@ void Application::run() {
 
         KeyboardCameraController::processInput(window_.getGLFWwindow(), deltaTime);
 
-
         int frameIndex = renderer_.getFrameIndex();
         uiManager.frameIndex = frameIndex;
 
@@ -199,15 +198,15 @@ void Application::run() {
 
             VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
 
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
 
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                               uiManager.pathTracingComputeSystem_->pipeline_->computePipeline_);
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                                    uiManager.pathTracingComputeSystem_->pipelineLayout_, 0, 1,
-                                    &uiManager.pathTracingComputeSystem_->computeDescriptorSets[frameIndex], 0, nullptr);
+            vkCmdBindDescriptorSets(
+                commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, uiManager.pathTracingComputeSystem_->pipelineLayout_, 0,
+                1, &uiManager.pathTracingComputeSystem_->computeDescriptorSets[frameIndex], 0, nullptr);
 
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraPosition = scene.camera.position;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
@@ -225,17 +224,17 @@ void Application::run() {
 
             VkImageMemoryBarrier gen2TranSrc = VklImageUtils::generalToTransferSrcBarrier(targetTexture);
 
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &gen2TranSrc);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                                 0, nullptr, 0, nullptr, 1, &gen2TranSrc);
 
             VkImageMemoryBarrier gen2TranDst = VklImageUtils::generalToTransferDstBarrier(accumulationTexture);
 
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &gen2TranDst);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                                 0, nullptr, 0, nullptr, 1, &gen2TranDst);
 
             VkImageMemoryBarrier resultRead2Gen = VklImageUtils::ReadOnlyToDstBarrier(renderRes->image_);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &resultRead2Gen);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                 0, 0, nullptr, 0, nullptr, 1, &resultRead2Gen);
 
             VkImageCopy region = VklImageUtils::imageCopyRegion(1024, 1024);
             vkCmdCopyImage(commandBuffer, targetTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, accumulationTexture,
@@ -245,17 +244,16 @@ void Application::run() {
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
             VkImageMemoryBarrier resultTranGen2Dst = VklImageUtils::transferDstToReadOnlyBarrier(renderRes->image_);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &resultTranGen2Dst);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                 0, 0, nullptr, 0, nullptr, 1, &resultTranGen2Dst);
 
             VkImageMemoryBarrier tranDst2Gen = VklImageUtils::transferDstToGeneralBarrier(accumulationTexture);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &tranDst2Gen);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,
+                                 0, nullptr, 0, nullptr, 1, &tranDst2Gen);
 
             VkImageMemoryBarrier tranSrc2ReadOnly = VklImageUtils::transferSrcToReadOnlyBarrier(targetTexture);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
-                                 &tranSrc2ReadOnly);
+            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                 0, 0, nullptr, 0, nullptr, 1, &tranSrc2ReadOnly);
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
 
@@ -314,14 +312,13 @@ void Application::run() {
                             renderSystem.renderObject(modelFrameInfo);
                     }
 
-//                    offscreenRenderSystem.renderObject(modelFrameInfo);
+                    //                    offscreenRenderSystem.renderObject(modelFrameInfo);
                 }
             }
 
             if (uiManager.picking_result.has_value()) {
                 auto &object_picked = scene.objects[uiManager.picking_result->object_index];
-                auto &model_picked =
-                    object_picked->models[uiManager.picking_result->model_index];
+                auto &model_picked = object_picked->models[uiManager.picking_result->model_index];
                 auto box = model_picked->box;
                 box.apply_transform(object_picked->getModelTransformation());
                 auto box_trans = box.get_box_transformation();
@@ -329,9 +326,12 @@ void Application::run() {
                 ubo.model = box_trans;
                 boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                 boxModel.uniformBuffers[frameIndex]->flush();
-                FrameInfo<VklBoxModel3D> boxFrameInfo{
-                    frameIndex, currentFrame, offscreenCommandBuffer, scene.camera, &boxModel.descriptorSets[frameIndex],
-                    boxModel};
+                FrameInfo<VklBoxModel3D> boxFrameInfo{frameIndex,
+                                                      currentFrame,
+                                                      offscreenCommandBuffer,
+                                                      scene.camera,
+                                                      &boxModel.descriptorSets[frameIndex],
+                                                      boxModel};
                 lineRenderSystem.renderObject(boxFrameInfo);
             }
 
@@ -339,7 +339,6 @@ void Application::run() {
             offscreenRenderer_.endFrame();
 
             /* ImGui Rendering */
-
 
             ImGui::Render();
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
@@ -355,7 +354,6 @@ void Application::run() {
 
             renderer_.endFrame();
         }
-
     }
 
     vkDeviceWaitIdle(device_.device());

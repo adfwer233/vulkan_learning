@@ -3,7 +3,8 @@
 #include "ui_manager.hpp"
 #include "vkl/ray_tracing/vkl_cpu_ray_tracer.hpp"
 
-RenderModeUI::RenderModeUI(VklScene &scene, UIManager &uiManager): scene_(scene), uiManager_(uiManager) {}
+RenderModeUI::RenderModeUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
+}
 
 void RenderModeUI::renderImgui() {
     ImGui::Begin("Rendering Options");

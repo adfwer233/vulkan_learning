@@ -3,21 +3,21 @@
 #include "vkl_device.hpp"
 
 namespace VklImageUtils {
-    VkImageMemoryBarrier ReadOnlyToGeneralBarrier(const VkImage &image);
+VkImageMemoryBarrier ReadOnlyToGeneralBarrier(const VkImage &image);
 
-    VkImageMemoryBarrier ReadOnlyToDstBarrier(const VkImage &image);
+VkImageMemoryBarrier ReadOnlyToDstBarrier(const VkImage &image);
 
-    VkImageMemoryBarrier generalToTransferDstBarrier(const VkImage &image);
+VkImageMemoryBarrier generalToTransferDstBarrier(const VkImage &image);
 
-    VkImageMemoryBarrier generalToTransferSrcBarrier(const VkImage &image);
+VkImageMemoryBarrier generalToTransferSrcBarrier(const VkImage &image);
 
-    VkImageMemoryBarrier transferDstToGeneralBarrier(const VkImage &image);
+VkImageMemoryBarrier transferDstToGeneralBarrier(const VkImage &image);
 
-    VkImageMemoryBarrier transferDstToReadOnlyBarrier(const VkImage &image);
+VkImageMemoryBarrier transferDstToReadOnlyBarrier(const VkImage &image);
 
-    VkImageMemoryBarrier transferSrcToReadOnlyBarrier(const VkImage &image);
+VkImageMemoryBarrier transferSrcToReadOnlyBarrier(const VkImage &image);
 
-    VkImageCopy imageCopyRegion(uint32_t width, uint32_t height);
+VkImageCopy imageCopyRegion(uint32_t width, uint32_t height);
 } // namespace VklImageUtils
 
 class VklImage {

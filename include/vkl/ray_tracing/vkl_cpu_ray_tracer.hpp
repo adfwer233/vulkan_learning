@@ -1,9 +1,9 @@
 #pragma once
 
 #include <array>
+#include <iostream>
 #include <optional>
 #include <stack>
-#include <iostream>
 
 #include "vkl/io/ppm_exporter.hpp"
 

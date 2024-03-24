@@ -19,14 +19,14 @@ class VklScene {
         using namespace VklBVHGPUModel;
 
         setLayout_ = VklDescriptorSetLayout::Builder(device_)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                .build();
+                         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                         .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+                         .build();
 
         descriptorPool_ = VklDescriptorPool::Builder(device_)
-                .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                .build();
+                              .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+                              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+                              .build();
 
         pointLight.position = {0, -3, 3, 0};
         pointLight.color = {1.0, 1.0, 1.0, 1.0};

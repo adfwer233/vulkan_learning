@@ -358,8 +358,6 @@ VkResult VklSwapChain::acquireNextImage(uint32_t *imageIndex) {
     return result;
 }
 
-
-
 VkResult VklSwapChain::submitCommandBuffers(std::vector<VkCommandBuffer> &buffers, uint32_t *imageIndex,
                                             std::vector<VkSemaphore> toWait) {
     if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {

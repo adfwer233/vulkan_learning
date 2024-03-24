@@ -2,8 +2,7 @@
 
 #include "ui_manager.hpp"
 
-MaterialUI::MaterialUI(VklScene &scene, UIManager &uiManager): scene_(scene), uiManager_(uiManager) {
-
+MaterialUI::MaterialUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
 }
 
 void MaterialUI::renderImgui() {
@@ -17,19 +16,19 @@ void MaterialUI::renderImgui() {
 
         auto &material = scene_.materials[model_picked->materialIndex];
 
-        ImGui::LabelText("Albedo", std::format("{:.3f}, {:.3f}, {:.3f}", material.albedo.x, material.albedo.y, material.albedo.z).c_str());
+        ImGui::LabelText(
+            "Albedo",
+            std::format("{:.3f}, {:.3f}, {:.3f}", material.albedo.x, material.albedo.y, material.albedo.z).c_str());
         ImGui::ColorEdit3("Base Color", &material.albedo.x);
         ImGui::SliderFloat("Material Metallic", &material.metallic, 0.0f, 1.0f);
         ImGui::SliderFloat("Material Roughness", &material.roughness, 0.0f, 1.0f);
         ImGui::SliderFloat("Material Ao", &material.ao, 0.0f, 1.0f);
 
-//        ImGui::LabelText("Metal")
+        //        ImGui::LabelText("Metal")
 
-        const char* items[] = { "Gray", "Red", "Green", "White Light", "Metal", "Glass" };
+        const char *items[] = {"Gray", "Red", "Green", "White Light", "Metal", "Glass"};
 
-        ImGui::Combo("model combo",&model_picked->materialIndex, items,IM_ARRAYSIZE(items));
+        ImGui::Combo("model combo", &model_picked->materialIndex, items, IM_ARRAYSIZE(items));
     }
     ImGui::End();
 }
-
-

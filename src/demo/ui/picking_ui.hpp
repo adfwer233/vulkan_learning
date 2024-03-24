@@ -4,11 +4,11 @@
 class UIManager;
 
 class PickingUI {
-private:
+  private:
     VklScene &scene_;
     UIManager &uiManager_;
 
-public:
+  public:
     explicit PickingUI(VklScene &scene, UIManager &uiManager);
 
     void renderImgui();

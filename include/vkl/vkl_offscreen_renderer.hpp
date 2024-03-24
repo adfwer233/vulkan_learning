@@ -31,7 +31,6 @@ class VklOffscreenRenderer {
     void createFrameBuffer();
 
   public:
-
     VkSampler imageSampler;
 
     VklOffscreenRenderer(VklDevice &device, int width, int height);
