@@ -255,4 +255,5 @@ VklOffscreenRenderer::~VklOffscreenRenderer() {
         vkDestroyFramebuffer(device_.device(), fb, nullptr);
 
     vkDestroySampler(device_.device(), imageSampler, nullptr);
+    vkDestroyRenderPass(device_.device(), renderPass_, nullptr);
 }

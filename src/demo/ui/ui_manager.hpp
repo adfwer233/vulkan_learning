@@ -58,6 +58,10 @@ class UIManager {
 
     explicit UIManager(VklDevice &device, VklScene &scene);
 
+    ~UIManager() {
+        delete renderResultTexture;
+    }
+
     void renderImgui();
 
     void resetBVH();
