@@ -80,7 +80,7 @@ void SceneManagerUI::renderImgui() {
 
     for (auto i = 0; i < sceneInfo.materialSettings.size(); i++) {
         auto materialSetting = sceneInfo.materialSettings[i];
-        ImGui::Text("<%d, %d>: %d", materialSetting.object_index, materialSetting.model_index,
+        ImGui::Text("object %d, model %d: %d", materialSetting.object_index, materialSetting.model_index,
                     materialSetting.material_index);
     }
 
