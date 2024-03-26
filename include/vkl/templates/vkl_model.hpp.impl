@@ -208,3 +208,21 @@ int VklModelTemplate<VertexType, IndexType, BoxType>::get_triangle_num() const {
     result += vertexCount_ / IndexType::vertexCount();
     return result;
 }
+
+template<VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+void VklModelTemplate<VertexType, IndexType, BoxType>::allocDescriptorSets(VklDescriptorPool &pool) {
+    if (this->descriptorSetLayout_ == VK_NULL_HANDLE) {
+        createDescriptorSetLayout();
+    }
+    allocDescriptorSets(*this->descriptorSetLayout_, pool);
+}
+
+template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+void VklModelTemplate<VertexType, IndexType, BoxType>::createDescriptorSetLayout() {
+    auto setLayoutBuilder = VklDescriptorSetLayout::Builder(device_)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+    for (int i = 0; i < this->textures_.size(); i++) {
+        setLayoutBuilder.addBinding(i + 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+    }
+    this->descriptorSetLayout_ = setLayoutBuilder.build();
+}

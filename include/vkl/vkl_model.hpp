@@ -75,7 +75,7 @@ class VklModelTemplate {
     std::vector<std::unique_ptr<VklBuffer>> uniformBuffers;
     std::vector<VkDescriptorSet> descriptorSets;
 
-    VkDescriptorSetLayout descriptorSetLayout_;
+    std::unique_ptr<VklDescriptorSetLayout> descriptorSetLayout_;
 
     BoxType box; /** Axis aligned bounding box, has not transformed */
 
@@ -138,6 +138,8 @@ class VklModelTemplate {
 
     void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
 
+    void allocDescriptorSets(VklDescriptorPool &pool);
+
     void bind(VkCommandBuffer commandBuffer);
 
     void draw(VkCommandBuffer commandBuffer);
@@ -155,13 +157,6 @@ class VklModelTemplate {
     friend class RayPicker;
     friend class VklBVH;
 };
-
-template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
-void VklModelTemplate<VertexType, IndexType, BoxType>::createDescriptorSetLayout() {
-    auto setLayoutBuilder = VklDescriptorSetLayout::Builder(device_);
-
-    int bindingCount = 0;
-}
 
 using VklModel = VklModelTemplate<Vertex3D>;
 
