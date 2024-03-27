@@ -196,18 +196,6 @@ void Application::run() {
             auto targetTexture = uiManager.pathTracingComputeModel_->getTargetTexture();
             auto accumulationTexture = uiManager.pathTracingComputeModel_->getAccumulationTexture();
 
-            VkImageMemoryBarrier read2Gen = VklImageUtils::ReadOnlyToGeneralBarrier(targetTexture);
-
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                 0, 0, nullptr, 0, nullptr, 1, &read2Gen);
-
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                              uiManager.pathTracingComputeSystem_->pipeline_->computePipeline_);
-
-            vkCmdBindDescriptorSets(
-                commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, uiManager.pathTracingComputeSystem_->pipelineLayout_, 0,
-                1, &uiManager.pathTracingComputeSystem_->computeDescriptorSets[frameIndex], 0, nullptr);
-
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraPosition = scene.camera.position;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraFront = scene.camera.camera_front;
@@ -217,43 +205,8 @@ void Application::run() {
 
             uiManager.pathTracingComputeSystem_->updateUniformBuffer(frameIndex);
 
-            auto [local_x, local_y, local_z] = uiManager.pathTracingComputeSystem_->computeModel_.getLocalSize();
-            auto [x, y, z] = uiManager.pathTracingComputeSystem_->computeModel_.getSize();
-
-            vkCmdDispatch(commandBuffer, x / local_x, y / local_y, z / local_z);
-
-            VkImageMemoryBarrier gen2TranSrc = VklImageUtils::generalToTransferSrcBarrier(targetTexture);
-
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                                 0, nullptr, 0, nullptr, 1, &gen2TranSrc);
-
-            VkImageMemoryBarrier gen2TranDst = VklImageUtils::generalToTransferDstBarrier(accumulationTexture);
-
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                                 0, nullptr, 0, nullptr, 1, &gen2TranDst);
-
-            VkImageMemoryBarrier resultRead2Gen = VklImageUtils::ReadOnlyToDstBarrier(renderRes->image_);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                                 0, 0, nullptr, 0, nullptr, 1, &resultRead2Gen);
-
-            VkImageCopy region = VklImageUtils::imageCopyRegion(1024, 1024);
-            vkCmdCopyImage(commandBuffer, targetTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, accumulationTexture,
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-            vkCmdCopyImage(commandBuffer, targetTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, renderRes->image_,
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-            VkImageMemoryBarrier resultTranGen2Dst = VklImageUtils::transferDstToReadOnlyBarrier(renderRes->image_);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                 0, 0, nullptr, 0, nullptr, 1, &resultTranGen2Dst);
-
-            VkImageMemoryBarrier tranDst2Gen = VklImageUtils::transferDstToGeneralBarrier(accumulationTexture);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0,
-                                 0, nullptr, 0, nullptr, 1, &tranDst2Gen);
-
-            VkImageMemoryBarrier tranSrc2ReadOnly = VklImageUtils::transferSrcToReadOnlyBarrier(targetTexture);
-            vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                 0, 0, nullptr, 0, nullptr, 1, &tranSrc2ReadOnly);
+            uiManager.pathTracingComputeSystem_->recordCommandBuffer(commandBuffer, targetTexture, accumulationTexture,
+                                                                     renderRes->image_, frameIndex);
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
 

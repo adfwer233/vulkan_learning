@@ -49,7 +49,7 @@ glm::mat4 VklObject::getModelTransformation() {
 }
 
 void VklObject::allocDescriptorSets(VklDescriptorPool &pool) {
-    for (auto model: models) {
+    for (auto model : models) {
         model->allocDescriptorSets(pool);
     }
 }

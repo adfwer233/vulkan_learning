@@ -248,31 +248,6 @@ void BaseComputeSystem<UniformBufferType, ComputeModelType>::recordComputeComman
 }
 
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
-void BaseComputeSystem<UniformBufferType, ComputeModelType>::computeSubmission(size_t frameIndex) {
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    vkWaitForFences(device_.device(), 1, &computeInFlightFences[frameIndex], VK_TRUE, UINT64_MAX);
-
-    updateUniformBuffer(frameIndex);
-
-    vkResetFences(device_.device(), 1, &computeInFlightFences[frameIndex]);
-
-    vkResetCommandBuffer(computeCommandBuffers[frameIndex], /*VkCommandBufferResetFlagBits*/ 0);
-
-    recordComputeCommandBuffer(frameIndex);
-
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &computeCommandBuffers[frameIndex];
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &computeFinishedSemaphores[frameIndex];
-
-    if (vkQueueSubmit(device_.computeQueue(), 1, &submitInfo, computeInFlightFences[frameIndex]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit compute command buffer!");
-    }
-}
-
-template <typename UniformBufferType, VklComputeModel ComputeModelType>
 BaseComputeSystem<UniformBufferType, ComputeModelType>::~BaseComputeSystem() {
     for (auto semaphore : this->computeFinishedSemaphores) {
         vkDestroySemaphore(device_.device(), semaphore, nullptr);
@@ -290,4 +265,10 @@ BaseComputeSystem<UniformBufferType, ComputeModelType>::~BaseComputeSystem() {
 template <typename UniformBufferType, VklComputeModel ComputeModelType>
 void BaseComputeSystem<UniformBufferType, ComputeModelType>::updateUniformBuffer(uint32_t frameIndex) {
     uniformBuffers_[frameIndex]->writeToBuffer((void *)&computeModel_.ubo);
+}
+
+template <typename UniformBufferType, VklComputeModel ComputeModelType>
+template <typename... Args>
+void BaseComputeSystem<UniformBufferType, ComputeModelType>::recordCommandBuffer(Args... args) {
+    computeModel_.recordCommandBuffer(args..., pipeline_.get(), pipelineLayout_, computeDescriptorSets);
 }

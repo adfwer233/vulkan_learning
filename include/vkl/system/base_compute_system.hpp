@@ -60,7 +60,7 @@ template <typename UniformBufferType, VklComputeModel ComputeModelType> class Ba
     BaseComputeSystem(const BaseComputeSystem &) = delete;
     BaseComputeSystem operator=(const BaseComputeSystem &) = delete;
 
-    void computeSubmission(size_t frameIndex);
+    template <typename... Args> void recordCommandBuffer(Args... args);
 };
 
 #include "base_compute_system.hpp.impl"
