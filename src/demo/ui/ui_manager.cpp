@@ -9,6 +9,7 @@ UIManager::UIManager(VklDevice &device, VklScene &scene) : scene_(scene), device
     materialUi = std::make_unique<MaterialUI>(scene, *this);
     sceneRenderUi = std::make_unique<SceneRenderUI>(scene, *this);
     sceneManagerUi = std::make_unique<SceneManagerUI>(scene, *this);
+    geometryProcessingUi = std::make_unique<GeometryProcessingUI>(scene, *this);
 }
 
 void UIManager::renderImgui() {
@@ -19,6 +20,7 @@ void UIManager::renderImgui() {
     materialUi->renderImgui();
     sceneRenderUi->renderImgui();
     sceneManagerUi->renderImgui();
+    geometryProcessingUi->renderImgui();
 }
 
 void UIManager::pickObject(float mouse_x_pos, float mouse_y_pos) {

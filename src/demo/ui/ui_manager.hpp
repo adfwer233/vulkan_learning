@@ -9,6 +9,7 @@
 #include "scene_manager.hpp"
 #include "scene_render_ui.hpp"
 #include "scene_ui.hpp"
+#include "geometry_processing_ui.hpp"
 #include <optional>
 
 #include "vkl/system/path_tracing_compute_system.hpp"
@@ -24,6 +25,7 @@ class UIManager {
     std::unique_ptr<MaterialUI> materialUi;
     std::unique_ptr<SceneRenderUI> sceneRenderUi;
     std::unique_ptr<SceneManagerUI> sceneManagerUi;
+    std::unique_ptr<GeometryProcessingUI> geometryProcessingUi;
 
   public:
     // used in scene ui
