@@ -235,6 +235,10 @@ void Application::run() {
             ubo.pointLight = scene.pointLight;
             ubo.cameraPos = scene.camera.position;
 
+            if (uiManager.shadingMode == 1) {
+                ubo.pointLight.position = glm::vec4(ubo.cameraPos, 1.0f);
+            }
+
             for (auto &object_item : scene.objects) {
                 for (auto model : object_item->models) {
                     ubo.model = object_item->getModelTransformation();

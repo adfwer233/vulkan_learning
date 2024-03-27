@@ -40,6 +40,11 @@ class UIManager {
     int renderMode = 0;
 
     /**
+     * shading mode, point light or solid
+     */
+    int shadingMode = 0;
+
+    /**
      * path tracing result texture
      */
     VklTexture *renderResultTexture = nullptr;

@@ -8,6 +8,9 @@ RenderModeUI::RenderModeUI(VklScene &scene, UIManager &uiManager) : scene_(scene
 
 void RenderModeUI::renderImgui() {
     ImGui::Begin("Rendering Options");
+
+    ImGui::SeparatorText("Rendering Mode");
+
     ImGui::RadioButton("Raw", &uiManager_.renderMode, 0);
     ImGui::SameLine();
     ImGui::RadioButton("Wire Frame", &uiManager_.renderMode, 1);
@@ -15,6 +18,14 @@ void RenderModeUI::renderImgui() {
     ImGui::RadioButton("With Texture", &uiManager_.renderMode, 2);
     ImGui::SameLine();
     ImGui::RadioButton("Path Tracing", &uiManager_.renderMode, 3);
+
+    ImGui::SeparatorText("Shading Mode");
+
+    ImGui::RadioButton("Point Light Shading", &uiManager_.shadingMode, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("Solid Shading", &uiManager_.shadingMode, 1);
+
+    ImGui::SeparatorText("Utils");
 
     if (ImGui::Button("Reset BVH Info")) {
         uiManager_.resetBVH();
