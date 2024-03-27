@@ -19,11 +19,11 @@ void GeometryProcessingUI::renderImgui() {
         auto object_index = uiManager_.picking_result->object_index;
         auto model_index = uiManager_.picking_result->model_index;
 
-        auto model = this->scene_.objects[object_index]->models[model_index];
+        auto object = this->scene_.objects[object_index].get();
 
         if (ImGui::Button("Compute Gauss Curvature")) {
             GaussCurvature gaussCurvature;
-            gaussCurvature.perform(*model);
+            gaussCurvature.perform(*object);
         }
     }
 

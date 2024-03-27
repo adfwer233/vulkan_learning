@@ -53,8 +53,10 @@ void SceneManagerUI::renderImgui() {
 
     if (ImGui::Button("Load Scene")) {
         for (auto &objectPath : sceneInfo.object_paths) {
-            VklObject::ImportBuilder builder(std::format("{}/{}", DATA_DIR, objectPath));
+            std::string full_path = std::format("{}/{}", DATA_DIR, objectPath);
+            VklObject::ImportBuilder builder(full_path);
             scene_.addObject(builder);
+            scene_.objects.back()->dataFilePath = full_path;
         }
         scene_.objects[sceneInfo.lightModel.object_index]->models[sceneInfo.lightModel.model_index]->materialIndex = 3;
         for (auto &materialSetting : sceneInfo.materialSettings) {
@@ -62,6 +64,7 @@ void SceneManagerUI::renderImgui() {
                 materialSetting.material_index;
         }
         uiManager_.resetPathTracingCompute();
+        scene_.objects.back()->modelScaling = glm::vec3(10.0f, 10.0f, 10.0f);
     }
 
     ImGui::SeparatorText("Scene Information");

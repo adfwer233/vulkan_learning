@@ -1,8 +1,8 @@
 #pragma once
 
-#include "vkl/vkl_model.hpp"
+#include "vkl/vkl_object.hpp"
 
 class GaussCurvature {
 public:
-    void perform(VklModel &model);
+    void perform(VklObject &model);
 };

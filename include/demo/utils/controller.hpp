@@ -29,6 +29,8 @@ class KeyboardCameraController {
 
     static bool pressing_shift;
 
+    static bool in_region;
+
   public:
     static std::function<void()> actionCallBack;
 

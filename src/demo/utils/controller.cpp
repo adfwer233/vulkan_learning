@@ -11,6 +11,7 @@ float KeyboardCameraController::mouse_x_pos = 0.0;
 float KeyboardCameraController::mouse_y_pos = 0.0;
 
 bool KeyboardCameraController::pressing_shift = false;
+bool KeyboardCameraController::in_region = false;
 
 std::function<void()> KeyboardCameraController::actionCallBack = []() {};
 
@@ -40,6 +41,9 @@ void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offs
 }
 
 void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int button, int state, int mod) {
+    if (not in_region)
+        return;
+
     if (button == GLFW_MOUSE_BUTTON_MIDDLE and state == GLFW_PRESS) {
         is_mouse_pressing = true;
     }
@@ -68,6 +72,12 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
 void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
     mouse_x_pos = static_cast<float>(xposIn);
     mouse_y_pos = static_cast<float>(yposIn);
+
+    if (xposIn > 1024 or yposIn > 1024)
+        in_region = false;
+    else
+        in_region = true;
+
     if (not is_mouse_pressing)
         return;
 

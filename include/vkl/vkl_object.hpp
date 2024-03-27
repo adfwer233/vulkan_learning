@@ -26,6 +26,8 @@ class VklObject {
 
     std::vector<VklModel *> models;
 
+    std::optional<std::string> dataFilePath;
+
     void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
 
     void allocDescriptorSets(VklDescriptorPool &pool);

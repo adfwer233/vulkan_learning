@@ -2,6 +2,16 @@
     "scene_num": 1,
     "scenes": [
         {
+            "scene_name": "bunny",
+            "object_paths": [
+                "models/common_model/stanford-bunny.obj"
+            ],
+            "light_model": {
+                "object_index": 0,
+                "model_index": 0
+            }
+        },
+        {
             "scene_name": "cornell_box",
             "object_paths": [
                 "models/cornell_box/cornell_box.obj"
