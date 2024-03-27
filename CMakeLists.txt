@@ -46,6 +46,7 @@ add_subdirectory(src/vkl)
 add_subdirectory(src/ray_tracer)
 add_subdirectory(src/demo)
 add_subdirectory(src/particle)
+add_subdirectory(src/geometry_processing)
 add_subdirectory(src/bezier_curve)
 
 find_package(OpenMP)
