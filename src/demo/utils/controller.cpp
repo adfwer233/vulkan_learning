@@ -10,6 +10,8 @@
 float KeyboardCameraController::mouse_x_pos = 0.0;
 float KeyboardCameraController::mouse_y_pos = 0.0;
 
+bool KeyboardCameraController::pressing_shift = false;
+
 std::function<void()> KeyboardCameraController::actionCallBack = []() {};
 
 std::optional<std::reference_wrapper<VklScene>> KeyboardCameraController::scene_;
@@ -27,18 +29,10 @@ void KeyboardCameraController::processInput(GLFWwindow *window, float deltaTime)
         camera->process_keyboard(direction, deltaTime);
     };
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        callProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        callProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        callProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        callProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        callProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        callProcessKeyboard(DOWN, deltaTime);
+        pressing_shift = true;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+        pressing_shift = false;
 }
 
 void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offset, double y_offset) {
@@ -47,18 +41,24 @@ void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offs
 
 void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int button, int state, int mod) {
     if (button == GLFW_MOUSE_BUTTON_MIDDLE and state == GLFW_PRESS) {
-        uiManager_->pickObject(mouse_x_pos, mouse_y_pos);
-    }
-
-    if (button == GLFW_MOUSE_BUTTON_RIGHT and state == GLFW_PRESS) {
-        uiManager_->pickObject(mouse_x_pos, mouse_y_pos);
-    }
-
-    if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
         is_mouse_pressing = true;
     }
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_RELEASE) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT and state == GLFW_PRESS) {
+        is_mouse_pressing = true;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
+        uiManager_->pickObject(mouse_x_pos, mouse_y_pos);
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE and state == GLFW_RELEASE) {
+        actionCallBack();
+        mouse_flag = true;
+        is_mouse_pressing = false;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT and state == GLFW_RELEASE) {
         actionCallBack();
         mouse_flag = true;
         is_mouse_pressing = false;
@@ -83,7 +83,10 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
     last_x = mouse_x_pos;
     last_y = mouse_y_pos;
 
-    camera->process_mouse_movement(x_offset, y_offset);
+    if (pressing_shift)
+        camera->process_mouse_shift_movement(x_offset, y_offset);
+    else
+        camera->process_mouse_movement(x_offset, y_offset);
 }
 
 void KeyboardCameraController::set_scene(VklScene &scene) {

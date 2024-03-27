@@ -57,16 +57,6 @@ class Camera {
     glm::vec3 world_up;
 
     /**
-     * @brief euler angle: yaw
-     */
-    float yaw;
-
-    /**
-     * @brief euler angle: pitch
-     */
-    float pitch;
-
-    /**
      * @brief camera zoom
      */
     float zoom;
@@ -81,13 +71,17 @@ class Camera {
      */
     const float mouse_sensitivity;
 
+    float theta, phi;
+
     Camera(glm::vec3 pos, glm::vec3 up, float t_yaw = default_yaw, float t_pitch = default_pitch)
         : zoom(45), move_speed(2.5), mouse_sensitivity(0.1f) {
         position = pos;
         camera_up_axis = up;
-        yaw = t_yaw;
-        pitch = t_pitch;
         world_up = up;
+        camera_target = glm::vec3(0.0f);
+        theta = 90.0f;
+        phi = 0.0f;
+
         update_camera_vectors();
     }
 
@@ -107,6 +101,13 @@ class Camera {
      * @param y_offset
      */
     void process_mouse_movement(float x_offset, float y_offset);
+
+    /**
+     * @brief update camera state with offsets given by mouse movement when pressing shift
+     * @param x_offset
+     * @param y_offset
+     */
+    void process_mouse_shift_movement(float x_offset, float y_offset);
 
     /**
      * @brief process keyboard with given direction and delta time

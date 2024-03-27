@@ -27,6 +27,8 @@ class KeyboardCameraController {
 
     static std::optional<std::reference_wrapper<VklScene>> scene_;
 
+    static bool pressing_shift;
+
   public:
     static std::function<void()> actionCallBack;
 

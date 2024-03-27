@@ -35,11 +35,6 @@ Application::~Application() {
 
 void Application::run() {
 
-    VklObject::ImportBuilder objectBuilder(std::format("{}/nanosuit/nanosuit.obj", DATA_DIR));
-
-    VklObject::ImportBuilder lightSourceBuilder(std::format("{}/light/light_source.obj", DATA_DIR));
-    VklObject::ImportBuilder model1Builder(std::format("{}/models/model1.obj", DATA_DIR));
-    VklObject::ImportBuilder cornell_box(std::format("{}/models/cornell_box/cornell_box.obj", DATA_DIR));
     VklScene scene(device_, {0, 0, 10}, {0, 1, 0});
 
     /** set uniform buffers */
@@ -196,15 +191,14 @@ void Application::run() {
             auto targetTexture = uiManager.pathTracingComputeModel_->getTargetTexture();
             auto accumulationTexture = uiManager.pathTracingComputeModel_->getAccumulationTexture();
 
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraZoom = scene.camera.zoom;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraPosition = scene.camera.position;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraFront = scene.camera.camera_front;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.currentSample += 1;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.rand1 = distrib(gen);
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.rand2 = distrib(gen);
-
             uiManager.pathTracingComputeSystem_->updateUniformBuffer(frameIndex);
-
             uiManager.pathTracingComputeSystem_->recordCommandBuffer(commandBuffer, targetTexture, accumulationTexture,
                                                                      renderRes->image_, frameIndex);
 
@@ -264,8 +258,6 @@ void Application::run() {
                         else
                             renderSystem.renderObject(modelFrameInfo);
                     }
-
-                    //                    offscreenRenderSystem.renderObject(modelFrameInfo);
                 }
             }
 
