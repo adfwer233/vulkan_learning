@@ -21,7 +21,8 @@ class VklAssimpLoader {
     void process_node(aiNode *node, const aiScene *scene, std::vector<MeshModel> &meshes);
 
   public:
-    explicit VklAssimpLoader(std::string_view path): model_path(path) {}
+    explicit VklAssimpLoader(std::string_view path) : model_path(path) {
+    }
 
     std::vector<MeshModel> load_model();
 };

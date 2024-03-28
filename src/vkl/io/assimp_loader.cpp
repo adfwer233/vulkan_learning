@@ -57,7 +57,8 @@ void VklAssimpLoader::process_node(aiNode *node, const aiScene *scene, std::vect
 
 std::vector<MeshModel> VklAssimpLoader::load_model() {
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(model_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+    const aiScene *scene =
+        importer.ReadFile(model_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 
     std::vector<MeshModel> res;
 

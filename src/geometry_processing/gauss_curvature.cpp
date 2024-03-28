@@ -1,9 +1,9 @@
 #include "geometry_processing/map/gauss_curvature.hpp"
 
 #include "igl/gaussian_curvature.h"
-#include "igl/readOBJ.h"
-#include "igl/massmatrix.h"
 #include "igl/invert_diag.h"
+#include "igl/massmatrix.h"
+#include "igl/readOBJ.h"
 
 GaussCurvature::GaussCurvature(VklModel &model) {
     int n = model.vertices_.size();

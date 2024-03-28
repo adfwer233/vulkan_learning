@@ -1,13 +1,14 @@
 #pragma once
 
-#include "vkl/vkl_object.hpp"
 #include "Eigen/Eigen"
+#include "vkl/vkl_object.hpp"
 
 class GaussCurvature {
-private:
+  private:
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
-public:
+
+  public:
     explicit GaussCurvature(VklModel &model);
 
     Eigen::VectorXd perform();

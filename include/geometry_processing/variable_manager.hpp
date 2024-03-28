@@ -12,22 +12,20 @@
 #include <vector>
 
 class GeometryVariableManager {
-private:
+  private:
     std::vector<std::unique_ptr<VertexScalarQuantity>> vertexScalarQuantities;
     std::vector<std::unique_ptr<VertexVertexQuantity>> vertexVectorQuantities;
 
-public:
+  public:
+    template <MeshToVertexScalarQuantityMap Map> void meshToVertexMap(VklModel &model);
 
-    template<MeshToVertexScalarQuantityMap Map>
-    void meshToVertexMap(VklModel &model);
-
-    template<SingleVertexToVertexScalarQuantityMap Map>
+    template <SingleVertexToVertexScalarQuantityMap Map>
     void singleVertexToVertexScalarQuantityMap(VklModel &model, uint32_t vertexIndex);
 
-    std::vector<VertexScalarQuantity*> getModelScalarQuantities(VklModel &model) {
-        std::vector<VertexScalarQuantity*> result;
+    std::vector<VertexScalarQuantity *> getModelScalarQuantities(VklModel &model) {
+        std::vector<VertexScalarQuantity *> result;
 
-        for(auto &quant: this->vertexScalarQuantities) {
+        for (auto &quant : this->vertexScalarQuantities) {
             if (quant->modelPtr == &model) {
                 result.push_back(quant.get());
             }

@@ -3,7 +3,7 @@
 
 #include "vkl/io/tiny_obj_loader.hpp"
 
-std::vector<MeshModel> VklTinyObjLoader::load_model()  {
+std::vector<MeshModel> VklTinyObjLoader::load_model() {
     std::vector<MeshModel> result;
 
     tinyobj::ObjReaderConfig readerConfig;
@@ -24,9 +24,9 @@ std::vector<MeshModel> VklTinyObjLoader::load_model()  {
         std::cout << "TinyObjReader: " << reader.Warning();
     }
 
-    auto& attrib = reader.GetAttrib();
-    auto& shapes = reader.GetShapes();
-    auto& materials = reader.GetMaterials();
+    auto &attrib = reader.GetAttrib();
+    auto &shapes = reader.GetShapes();
+    auto &materials = reader.GetMaterials();
 
     // Loop over shapes
     for (size_t s = 0; s < shapes.size(); s++) {
@@ -35,16 +35,16 @@ std::vector<MeshModel> VklTinyObjLoader::load_model()  {
         for (size_t v = 0; v < attrib.vertices.size() / 3; v++) {
             decltype(model.vertices)::value_type vertex;
 
-            tinyobj::real_t vx = attrib.vertices[3*size_t(v)+0];
-            tinyobj::real_t vy = attrib.vertices[3*size_t(v)+1];
-            tinyobj::real_t vz = attrib.vertices[3*size_t(v)+2];
+            tinyobj::real_t vx = attrib.vertices[3 * size_t(v) + 0];
+            tinyobj::real_t vy = attrib.vertices[3 * size_t(v) + 1];
+            tinyobj::real_t vz = attrib.vertices[3 * size_t(v) + 2];
 
             vertex.position = {vx, -vy, vz};
 
             if (not attrib.normals.empty()) {
-                tinyobj::real_t nx = attrib.normals[3*size_t(v)+0];
-                tinyobj::real_t ny = attrib.normals[3*size_t(v)+1];
-                tinyobj::real_t nz = attrib.normals[3*size_t(v)+2];
+                tinyobj::real_t nx = attrib.normals[3 * size_t(v) + 0];
+                tinyobj::real_t ny = attrib.normals[3 * size_t(v) + 1];
+                tinyobj::real_t nz = attrib.normals[3 * size_t(v) + 2];
 
                 vertex.normal = {nx, -ny, nz};
             }
@@ -71,7 +71,8 @@ std::vector<MeshModel> VklTinyObjLoader::load_model()  {
             tinyobj::index_t idx2 = shapes[s].mesh.indices[index_offset + 1];
             tinyobj::index_t idx3 = shapes[s].mesh.indices[index_offset + 2];
 
-            model.indices.push_back({static_cast<uint32_t>(idx1.vertex_index), static_cast<uint32_t>(idx2.vertex_index), static_cast<uint32_t>(idx3.vertex_index)});
+            model.indices.push_back({static_cast<uint32_t>(idx1.vertex_index), static_cast<uint32_t>(idx2.vertex_index),
+                                     static_cast<uint32_t>(idx3.vertex_index)});
             index_offset += fv;
         }
     }

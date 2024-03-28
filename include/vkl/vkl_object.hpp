@@ -18,13 +18,11 @@ class VklObject {
     glm::quat modelRotation{};
     glm::vec3 modelTranslation{};
 
-    template<VklModelLoader Loader>
-    struct ImportBuilder {
+    template <VklModelLoader Loader> struct ImportBuilder {
         std::string modelPath;
     };
 
-    template<VklModelLoader Loader>
-    explicit VklObject(VklDevice &device, ImportBuilder<Loader> builder);
+    template <VklModelLoader Loader> explicit VklObject(VklDevice &device, ImportBuilder<Loader> builder);
 
     ~VklObject();
 

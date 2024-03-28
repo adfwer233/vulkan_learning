@@ -1,6 +1,4 @@
 #pragma once
 
-template<typename T>
-concept VertexPairToSingleScalarQuantityMap = requires (T t) {
-    t.perform();
-};
+template <typename T>
+concept VertexPairToSingleScalarQuantityMap = requires(T t) { t.perform(); };

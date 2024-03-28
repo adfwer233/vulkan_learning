@@ -1,5 +1,3 @@
 #pragma once
 
-class VertexVertexQuantity {
-
-};
+class VertexVertexQuantity {};

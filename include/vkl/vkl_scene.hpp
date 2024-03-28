@@ -54,8 +54,7 @@ class VklScene {
     Camera camera;
     PointLight pointLight;
 
-    template<VklModelLoader Loader>
-    void addObject(VklObject::ImportBuilder<Loader> builder);
+    template <VklModelLoader Loader> void addObject(VklObject::ImportBuilder<Loader> builder);
 
     [[nodiscard]] int getSceneTriangleNum() const {
         int triangle_num = 0;

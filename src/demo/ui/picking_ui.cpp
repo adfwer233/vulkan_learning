@@ -11,7 +11,8 @@ void PickingUI::renderImgui() {
         auto &object_picked = scene_.objects[uiManager_.picking_result->object_index];
         auto model_picked = object_picked->models[uiManager_.picking_result->model_index];
 
-        auto [u, v, w] = std::tuple{uiManager_.picking_result->u, uiManager_.picking_result->v, uiManager_.picking_result->w};
+        auto [u, v, w] =
+            std::tuple{uiManager_.picking_result->u, uiManager_.picking_result->v, uiManager_.picking_result->w};
 
         if (u < v and u < w) {
             uiManager_.picking_result->vertex_index = model_picked->indices_[uiManager_.picking_result->face_index].i;

@@ -5,11 +5,11 @@
 #include "Eigen/Eigen"
 
 class SingleSourceExactGeodesicDistance {
-private:
+  private:
     Eigen::MatrixXd V;
     Eigen::MatrixXd F;
 
-public:
+  public:
     explicit SingleSourceExactGeodesicDistance(VklModel &model);
 
     Eigen::VectorXd perform(uint32_t vertexIndex);

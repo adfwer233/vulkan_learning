@@ -85,10 +85,10 @@ void Application::run() {
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
 
-    SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(device_, offscreenRenderer_.getSwapChainRenderPass(),
-                                                                globalSetLayout->getDescriptorSetLayout(),
-                                                                std::format("{}/simple_shader.vert.spv", SHADER_DIR),
-                                                                std::format("{}/simple_color_shader.frag.spv", SHADER_DIR));
+    SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        std::format("{}/simple_shader.vert.spv", SHADER_DIR),
+        std::format("{}/simple_color_shader.frag.spv", SHADER_DIR));
 
     SimpleRenderSystem<VklModel::vertex_type> backGroundRenderSystem(
         device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),

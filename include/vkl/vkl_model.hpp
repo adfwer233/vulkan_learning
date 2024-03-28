@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <string>
 #include <optional>
+#include <string>
 
 #include "glm/glm.hpp"
 
@@ -129,7 +129,6 @@ class VklModelTemplate {
 
     VklModelTemplate(const VklModelTemplate &) = delete;
     VklModelTemplate &operator=(const VklModelTemplate &) = delete;
-
 
     std::vector<VertexType> vertices_{};
     std::vector<IndexType> indices_{};

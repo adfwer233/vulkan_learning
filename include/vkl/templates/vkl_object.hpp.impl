@@ -3,16 +3,16 @@
 #include "glm/gtc/quaternion.hpp"
 #include "vkl/io/assimp_loader.hpp"
 
-template<VklModelLoader Loader>
+template <VklModelLoader Loader>
 VklObject::VklObject(VklDevice &device, ImportBuilder<Loader> builder) : device_(device) {
-        Loader model_loader(builder.modelPath);
-        auto modelBuilders = model_loader.load_model();
+    Loader model_loader(builder.modelPath);
+    auto modelBuilders = model_loader.load_model();
 
-        for (auto modelBuilder : modelBuilders) {
-            this->models.push_back(new VklModel(device, modelBuilder));
-        }
+    for (auto modelBuilder : modelBuilders) {
+        this->models.push_back(new VklModel(device, modelBuilder));
+    }
 
-        modelScaling = glm::vec3(1.0f, 1.0f, 1.0f);
-        modelTranslation = glm::vec3(0, 0, 0);
-        modelRotation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
+    modelScaling = glm::vec3(1.0f, 1.0f, 1.0f);
+    modelTranslation = glm::vec3(0, 0, 0);
+    modelRotation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
 }

@@ -4,7 +4,7 @@
 class UIManager;
 
 class GeometryProcessingUI {
-private:
+  private:
     VklScene &scene_;
     UIManager &uiManager_;
 
@@ -13,7 +13,7 @@ private:
     glm::vec3 lowColor{0.0f, 0.0f, 0.f};
     glm::vec3 highColor{1.0f, 0.0f, 0.0f};
 
-public:
+  public:
     explicit GeometryProcessingUI(VklScene &scene, UIManager &uiManager);
 
     void renderImgui();

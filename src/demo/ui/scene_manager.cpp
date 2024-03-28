@@ -44,7 +44,7 @@ SceneManagerUI::SceneManagerUI(VklScene &scene, UIManager &uiManager) : scene_(s
 
         auto model_scale_infos_json = scene_json["model_scale"];
 
-        for (auto model_scale_info_json: model_scale_infos_json) {
+        for (auto model_scale_info_json : model_scale_infos_json) {
             auto &model_scale = scene_info.modelScaleInfos.emplace_back();
             model_scale.object_index = model_scale_info_json["object_index"].get<uint32_t>();
             model_scale.scale = model_scale_info_json["scale"].get<float>();
@@ -85,7 +85,7 @@ void SceneManagerUI::renderImgui() {
             scene_.objects[materialSetting.object_index]->models[materialSetting.model_index]->materialIndex =
                 materialSetting.material_index;
         }
-        for (auto &scaleInfo: sceneInfo.modelScaleInfos) {
+        for (auto &scaleInfo : sceneInfo.modelScaleInfos) {
             scene_.objects[scaleInfo.object_index]->modelScaling = {scaleInfo.scale, scaleInfo.scale, scaleInfo.scale};
         }
         uiManager_.resetPathTracingCompute();

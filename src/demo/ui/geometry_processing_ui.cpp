@@ -6,10 +6,11 @@
 
 #include "geometry_processing/map/gauss_curvature.hpp"
 #include "geometry_processing/map/single_source_exact_geodesic_distance.hpp"
-#include "geometry_processing/visualization/vertex_scalar_quantity_to_color.hpp"
 #include "geometry_processing/variable_manager.hpp"
+#include "geometry_processing/visualization/vertex_scalar_quantity_to_color.hpp"
 
-GeometryProcessingUI::GeometryProcessingUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
+GeometryProcessingUI::GeometryProcessingUI(VklScene &scene, UIManager &uiManager)
+    : scene_(scene), uiManager_(uiManager) {
 }
 
 void GeometryProcessingUI::renderImgui() {
@@ -28,7 +29,8 @@ void GeometryProcessingUI::renderImgui() {
         }
 
         if (ImGui::Button("Compute Exact Geodesic Distance")) {
-            uiManager_.geometryVariableManager.singleVertexToVertexScalarQuantityMap<SingleSourceExactGeodesicDistance>(*model, uiManager_.picking_result->vertex_index);
+            uiManager_.geometryVariableManager.singleVertexToVertexScalarQuantityMap<SingleSourceExactGeodesicDistance>(
+                *model, uiManager_.picking_result->vertex_index);
         }
     }
 
@@ -48,7 +50,7 @@ void GeometryProcessingUI::renderImgui() {
         auto model = this->scene_.objects[object_index]->models[model_index];
         auto modelVariables = uiManager_.geometryVariableManager.getModelScalarQuantities(*model);
 
-        for (int i = 0; auto var: modelVariables) {
+        for (int i = 0; auto var : modelVariables) {
             ImGui::RadioButton(std::format("{}: {}", i, var->description).c_str(), &this->variableIndex, i);
             i++;
         }
@@ -56,7 +58,6 @@ void GeometryProcessingUI::renderImgui() {
             VertexScalarQuantityToColor::visualize(*model, modelVariables[variableIndex], lowColor, highColor);
         }
     }
-
 
     ImGui::End();
 }
