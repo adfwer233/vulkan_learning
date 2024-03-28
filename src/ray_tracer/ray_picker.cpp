@@ -28,7 +28,7 @@ std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
                     model_transformation * glm::vec4(model->vertices_[face.k].position, 1.0f));
 
                 if (flag) {
-                    param_result_map[t] = {object_index, model_index, face_index, t, u, v, w};
+                    param_result_map[t] = {object_index, model_index, face_index, 0, t, u, v, w};
                 }
             }
         }

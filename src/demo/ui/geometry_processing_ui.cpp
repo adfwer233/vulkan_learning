@@ -28,7 +28,7 @@ void GeometryProcessingUI::renderImgui() {
         }
 
         if (ImGui::Button("Compute Exact Geodesic Distance")) {
-            uiManager_.geometryVariableManager.singleVertexToVertexScalarQuantityMap<SingleSourceExactGeodesicDistance>(*model, 0);
+            uiManager_.geometryVariableManager.singleVertexToVertexScalarQuantityMap<SingleSourceExactGeodesicDistance>(*model, uiManager_.picking_result->vertex_index);
         }
     }
 
@@ -49,7 +49,7 @@ void GeometryProcessingUI::renderImgui() {
         auto modelVariables = uiManager_.geometryVariableManager.getModelScalarQuantities(*model);
 
         for (int i = 0; auto var: modelVariables) {
-            ImGui::RadioButton(var->description.c_str(), &this->variableIndex, i);
+            ImGui::RadioButton(std::format("{}: {}", i, var->description).c_str(), &this->variableIndex, i);
             i++;
         }
         if (ImGui::Button("Visualize Chosen Variable")) {

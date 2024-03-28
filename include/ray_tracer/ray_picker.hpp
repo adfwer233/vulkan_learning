@@ -18,6 +18,7 @@ class RayPicker {
         size_t object_index;
         size_t model_index;
         size_t face_index;
+        size_t vertex_index;
         float param;
         float u, v, w;
     };
