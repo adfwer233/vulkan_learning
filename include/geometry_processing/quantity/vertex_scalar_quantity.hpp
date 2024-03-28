@@ -9,6 +9,7 @@ class VertexScalarQuantity {
 public:
     Eigen::VectorXd data;
     VklModel *modelPtr;
+    std::string description;
 
     template<MeshToVertexScalarQuantityMap Map>
     explicit VertexScalarQuantity(VklModel& model, Map* map);

@@ -28,7 +28,6 @@ public:
                 result.push_back(quant.get());
             }
         }
-
         return result;
     }
 };

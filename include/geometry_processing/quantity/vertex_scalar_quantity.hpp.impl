@@ -4,5 +4,7 @@ template<MeshToVertexScalarQuantityMap Map>
 VertexScalarQuantity::VertexScalarQuantity(VklModel& model, Map* map_null) {
     Map map(model);
     modelPtr = &model;
+    description = map.description();
+
     this->data = map.perform();
 }
