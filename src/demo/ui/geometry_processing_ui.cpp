@@ -5,6 +5,7 @@
 #include "ui_manager.hpp"
 
 #include "geometry_processing/map/gauss_curvature.hpp"
+#include "geometry_processing/map/single_source_exact_geodesic_distance.hpp"
 #include "geometry_processing/visualization/vertex_scalar_quantity_to_color.hpp"
 #include "geometry_processing/variable_manager.hpp"
 
@@ -24,6 +25,10 @@ void GeometryProcessingUI::renderImgui() {
 
         if (ImGui::Button("Compute Gauss Curvature")) {
             uiManager_.geometryVariableManager.meshToVertexMap<GaussCurvature>(*model);
+        }
+
+        if (ImGui::Button("Compute Exact Geodesic Distance")) {
+            uiManager_.geometryVariableManager.singleVertexToVertexScalarQuantityMap<SingleSourceExactGeodesicDistance>(*model, 0);
         }
     }
 

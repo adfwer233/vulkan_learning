@@ -6,6 +6,7 @@
 #include "vkl/vkl_model.hpp"
 
 #include "map_concept/mesh_to_vertex_scalar_quantity.hpp"
+#include "map_concept/single_vertex_to_vertex_scalar_quantity.hpp"
 
 #include <memory>
 #include <vector>
@@ -19,6 +20,9 @@ public:
 
     template<MeshToVertexScalarQuantityMap Map>
     void meshToVertexMap(VklModel &model);
+
+    template<SingleVertexToVertexScalarQuantityMap Map>
+    void singleVertexToVertexScalarQuantityMap(VklModel &model, uint32_t vertexIndex);
 
     std::vector<VertexScalarQuantity*> getModelScalarQuantities(VklModel &model) {
         std::vector<VertexScalarQuantity*> result;
