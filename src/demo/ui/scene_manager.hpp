@@ -16,12 +16,19 @@ struct MaterialSetting {
     uint32_t material_index;
 };
 
+struct ModelScale {
+    uint32_t object_index;
+    float scale;
+};
+
 struct SceneInfo {
     std::string sceneName;
     std::vector<std::string> object_paths;
     LightModel lightModel;
     std::vector<MaterialSetting> materialSettings;
+    std::vector<ModelScale> modelScaleInfos;
 };
+
 } // namespace SceneManagerUINamespace
 
 enum ModelLoader {

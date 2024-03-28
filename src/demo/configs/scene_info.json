@@ -9,7 +9,13 @@
             "light_model": {
                 "object_index": 0,
                 "model_index": 0
-            }
+            },
+            "model_scale": [
+                {
+                    "object_index": 0,
+                    "scale": 10.0
+                }
+            ]
         },
         {
             "scene_name": "bumpy",
