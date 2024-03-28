@@ -35,15 +35,6 @@ void GaussCurvature::perform(VklObject &object) {
 
     igl::gaussian_curvature(V, F, K);
 
-    Eigen::SparseMatrix<double> M, Minv;
-
-    igl::massmatrix(V,F,igl::MASSMATRIX_TYPE_DEFAULT,M);
-
-    igl::invert_diag(M,Minv);
-
-    // Divide by area to get integral average
-    K = (Minv*K).eval();
-
     auto max_curvature = K.maxCoeff();
     auto min_curvature = K.minCoeff();
 
@@ -54,7 +45,7 @@ void GaussCurvature::perform(VklObject &object) {
 
         int n = K.size();
         for (int i = 0; i < n; i++) {
-            model->vertices_[i].color = glm::vec4(float(K[i]) * 1.0f, 1.0f, 0.0f, 1.0f) / float(bound);
+            model->vertices_[i].color = glm::vec4(float(K[i] - min_curvature) * 1.0f, 0.0f, 0.0f, 1.0f) / float(max_curvature - min_curvature);
         }
 
         model->updateVertexBuffer();

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iterator>
 
-void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType type, MeshModel &model) {
+void VklAssimpLoader::load_material_texture(aiMaterial *material, aiTextureType type, MeshModel &model) {
     for (auto i = 0; i < material->GetTextureCount(type); i++) {
         aiString str;
         material->GetTexture(type, i, &str);
@@ -20,7 +20,7 @@ void AssimpLoader::load_material_texture(aiMaterial *material, aiTextureType typ
     }
 }
 
-MeshModel AssimpLoader::process_mesh(aiMesh *mesh, const aiScene *scene) {
+MeshModel VklAssimpLoader::process_mesh(aiMesh *mesh, const aiScene *scene) {
     MeshModel model;
 
     for (auto i = 0; i < mesh->mNumVertices; i++) {
@@ -45,7 +45,7 @@ MeshModel AssimpLoader::process_mesh(aiMesh *mesh, const aiScene *scene) {
     return model;
 }
 
-void AssimpLoader::process_node(aiNode *node, const aiScene *scene, std::vector<MeshModel> &meshes) {
+void VklAssimpLoader::process_node(aiNode *node, const aiScene *scene, std::vector<MeshModel> &meshes) {
     for (auto i = 0; i < node->mNumMeshes; i++) {
         auto mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(process_mesh(mesh, scene));
@@ -55,9 +55,9 @@ void AssimpLoader::process_node(aiNode *node, const aiScene *scene, std::vector<
     }
 }
 
-std::vector<MeshModel> AssimpLoader::read_model(std::string model_path) {
+std::vector<MeshModel> VklAssimpLoader::load_model() {
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(model_path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = importer.ReadFile(model_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 
     std::vector<MeshModel> res;
 

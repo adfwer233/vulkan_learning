@@ -3,6 +3,8 @@
 #include "vkl_model.hpp"
 #include "vkl_swap_chain.hpp"
 
+#include "vkl/io/model_loader_concept.hpp"
+
 #include "glm/gtc/quaternion.hpp"
 
 class VklObject {
@@ -12,15 +14,17 @@ class VklObject {
   public:
     glm::mat4 getModelTransformation();
 
-    glm::vec3 modelScaling;
-    glm::quat modelRotation;
-    glm::vec3 modelTranslation;
+    glm::vec3 modelScaling{};
+    glm::quat modelRotation{};
+    glm::vec3 modelTranslation{};
 
+    template<VklModelLoader Loader>
     struct ImportBuilder {
         std::string modelPath;
     };
 
-    explicit VklObject(VklDevice &device, ImportBuilder builder);
+    template<VklModelLoader Loader>
+    explicit VklObject(VklDevice &device, ImportBuilder<Loader> builder);
 
     ~VklObject();
 
@@ -42,3 +46,5 @@ class VklObject {
         }
     }
 };
+
+#include "templates/vkl_object.hpp.impl"

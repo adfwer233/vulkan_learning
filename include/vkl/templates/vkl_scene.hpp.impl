@@ -1,7 +1,7 @@
-#include "vkl/vkl_scene.hpp"
-#include "vkl/vkl_object.hpp"
+#include "../vkl_scene.hpp"
 
-void VklScene::addObject(VklObject::ImportBuilder builder) {
+template<VklModelLoader Loader>
+void VklScene::addObject(VklObject::ImportBuilder<Loader> builder){
     objects.push_back(std::make_unique<VklObject>(device_, builder));
     objects.back()->allocDescriptorSets(*setLayout_, *descriptorPool_);
 }

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "vkl/vkl_scene.hpp"
 #include "vkl_bvh_gpu.hpp"
 
 #include <numeric>
+
+class VklScene;
 
 class VklBVH {
   public:

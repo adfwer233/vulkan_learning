@@ -14,11 +14,11 @@ set(SRC_FILE vkl_window.cpp
         io/assimp_loader.cpp
         vkl_texture.cpp
         vkl_compute_pipeline.cpp
-        vkl_scene.cpp
         bvh/vkl_bvh.cpp
         system/path_tracing_compute_system.cpp
         vkl_image.cpp
         vkl_offscreen_renderer.cpp
+        io/tiny_obj_loader.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})

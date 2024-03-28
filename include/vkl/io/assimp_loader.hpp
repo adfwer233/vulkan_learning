@@ -11,14 +11,17 @@
 
 using MeshModel = VklModel::BuilderFromImmediateData;
 
-class AssimpLoader {
+class VklAssimpLoader {
   private:
     std::string directory;
+    std::string model_path;
 
     void load_material_texture(aiMaterial *material, aiTextureType type, MeshModel &vklModel);
     MeshModel process_mesh(aiMesh *mesh, const aiScene *scene);
     void process_node(aiNode *node, const aiScene *scene, std::vector<MeshModel> &meshes);
 
   public:
-    std::vector<MeshModel> read_model(std::string model_path);
+    explicit VklAssimpLoader(std::string_view path): model_path(path) {}
+
+    std::vector<MeshModel> load_model();
 };

@@ -7,6 +7,9 @@
 #include "ui_manager.hpp"
 
 #include "nlohmann/json.hpp"
+#include "vkl/io/assimp_loader.hpp"
+#include "vkl/io/tiny_obj_loader.hpp"
+
 using json = nlohmann::json;
 
 using namespace SceneManagerUINamespace;
@@ -51,11 +54,22 @@ void SceneManagerUI::renderImgui() {
 
     ImGui::Begin("Scene Manager");
 
+    ImGui::SeparatorText("Scene Loading");
+
+    ImGui::RadioButton("Assimp Loader", reinterpret_cast<int *>(&uiManager_.modelLoader), ModelLoader::AssimpLoader);
+    ImGui::SameLine();
+    ImGui::RadioButton("TinyObj Loader", reinterpret_cast<int *>(&uiManager_.modelLoader), ModelLoader::TinyObjLoader);
+
     if (ImGui::Button("Load Scene")) {
         for (auto &objectPath : sceneInfo.object_paths) {
             std::string full_path = std::format("{}/{}", DATA_DIR, objectPath);
-            VklObject::ImportBuilder builder(full_path);
-            scene_.addObject(builder);
+            if (uiManager_.modelLoader == AssimpLoader) {
+                VklObject::ImportBuilder<VklAssimpLoader> builder(full_path);
+                scene_.addObject(builder);
+            } else if (uiManager_.modelLoader == TinyObjLoader) {
+                VklObject::ImportBuilder<VklTinyObjLoader> builder(full_path);
+                scene_.addObject(builder);
+            }
             scene_.objects.back()->dataFilePath = full_path;
         }
         scene_.objects[sceneInfo.lightModel.object_index]->models[sceneInfo.lightModel.model_index]->materialIndex = 3;

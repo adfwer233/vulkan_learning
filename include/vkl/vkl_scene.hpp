@@ -6,6 +6,8 @@
 #include "bvh/vkl_bvh_gpu.hpp"
 #include "vkl_object.hpp"
 
+#include "io/model_loader_concept.hpp"
+
 class VklScene {
   private:
     VklDevice &device_;
@@ -52,7 +54,8 @@ class VklScene {
     Camera camera;
     PointLight pointLight;
 
-    void addObject(VklObject::ImportBuilder builder);
+    template<VklModelLoader Loader>
+    void addObject(VklObject::ImportBuilder<Loader> builder);
 
     [[nodiscard]] int getSceneTriangleNum() const {
         int triangle_num = 0;
@@ -66,3 +69,5 @@ class VklScene {
         objects[objectIndex]->setMaterial(materialIndex);
     }
 };
+
+#include "templates/vkl_scene.hpp.impl"

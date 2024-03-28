@@ -46,6 +46,8 @@ class UIManager {
      */
     int shadingMode = 0;
 
+    ModelLoader modelLoader = AssimpLoader;
+
     /**
      * path tracing result texture
      */

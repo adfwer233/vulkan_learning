@@ -24,6 +24,11 @@ struct SceneInfo {
 };
 } // namespace SceneManagerUINamespace
 
+enum ModelLoader {
+    AssimpLoader,
+    TinyObjLoader
+};
+
 class SceneManagerUI {
   private:
     VklScene &scene_;

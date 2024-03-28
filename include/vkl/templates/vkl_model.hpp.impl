@@ -205,7 +205,7 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::allocDescriptorSets(VklDe
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 int VklModelTemplate<VertexType, IndexType, BoxType>::get_triangle_num() const {
     int result = 0;
-    result += vertexCount_ / IndexType::vertexCount();
+    result += this->indices_.size();
     return result;
 }
 
