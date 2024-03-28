@@ -126,7 +126,7 @@
 //         auto buffer =
 //                 std::make_unique<VklBuffer>(device_, bufferSize, 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 //                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-//         buffer->map();
+//         buffer->map_concept();
 //         uniformBuffers_.push_back(std::move(buffer));
 //     }
 // }

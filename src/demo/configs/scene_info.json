@@ -12,6 +12,16 @@
             }
         },
         {
+            "scene_name": "bumpy",
+            "object_paths": [
+                "models/common_model/bumpy.off"
+            ],
+            "light_model": {
+                "object_index": 0,
+                "model_index": 0
+            }
+        },
+        {
             "scene_name": "cornell_box",
             "object_paths": [
                 "models/cornell_box/cornell_box.obj"

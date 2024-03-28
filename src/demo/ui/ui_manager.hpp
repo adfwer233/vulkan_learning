@@ -14,6 +14,8 @@
 
 #include "vkl/system/path_tracing_compute_system.hpp"
 
+#include "geometry_processing/variable_manager.hpp"
+
 class UIManager {
   private:
     VklDevice &device_;
@@ -59,6 +61,8 @@ class UIManager {
      */
     std::vector<VkImageView> *offscreenImageViews;
     VkSampler offscreenSampler;
+
+    GeometryVariableManager geometryVariableManager;
 
     std::unique_ptr<PathTracingComputeModel> pathTracingComputeModel_;
     std::unique_ptr<PathTracingComputeSystem> pathTracingComputeSystem_;

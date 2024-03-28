@@ -9,7 +9,7 @@ glm::mat4 Camera::get_view_transformation() const {
 }
 
 glm::mat4 Camera::get_proj_transformation() const {
-    return glm::perspective(glm::radians(this->zoom), 1.0f, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(this->zoom), 1.0f, 0.1f, 1000.0f);
 }
 
 void Camera::process_mouse_scroll(float offset) {

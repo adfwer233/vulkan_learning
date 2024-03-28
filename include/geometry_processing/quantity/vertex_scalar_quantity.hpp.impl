@@ -1,0 +1,8 @@
+#include "vertex_scalar_quantity.hpp"
+
+template<MeshToVertexScalarQuantityMap Map>
+VertexScalarQuantity::VertexScalarQuantity(VklModel& model, Map* map_null) {
+    Map map(model);
+    modelPtr = &model;
+    this->data = map.perform();
+}

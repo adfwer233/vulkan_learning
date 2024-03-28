@@ -1,0 +1,6 @@
+#include "variable_manager.hpp"
+
+template<MeshToVertexScalarQuantityMap Map>
+void GeometryVariableManager::meshToVertexMap(VklModel &model) {
+    vertexScalarQuantities.emplace_back(std::move(std::make_unique<VertexScalarQuantity>(model, (Map*) nullptr)));
+}
