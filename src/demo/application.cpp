@@ -85,6 +85,11 @@ void Application::run() {
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
 
+    SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(device_, offscreenRenderer_.getSwapChainRenderPass(),
+                                                                globalSetLayout->getDescriptorSetLayout(),
+                                                                std::format("{}/simple_shader.vert.spv", SHADER_DIR),
+                                                                std::format("{}/simple_color_shader.frag.spv", SHADER_DIR));
+
     SimpleRenderSystem<VklModel::vertex_type> backGroundRenderSystem(
         device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/simple_shader.vert.spv", SHADER_DIR),
@@ -253,7 +258,11 @@ void Application::run() {
                                                        *model};
 
                     if (uiManager.renderMode == 0) {
-                        rawRenderSystem.renderObject(modelFrameInfo);
+                        if (uiManager.shadingMode == 0 or uiManager.shadingMode == 1) {
+                            rawRenderSystem.renderObject(modelFrameInfo);
+                        } else if (uiManager.shadingMode == 2) {
+                            colorRenderSystem.renderObject(modelFrameInfo);
+                        }
                     } else if (uiManager.renderMode == 1) {
                         wireFrameRenderSystem.renderObject(modelFrameInfo);
                     } else if (uiManager.renderMode == 2) {

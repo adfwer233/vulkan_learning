@@ -83,9 +83,6 @@ class VklModelTemplate {
   private:
     VklDevice &device_;
 
-    std::vector<VertexType> vertices_{};
-    std::vector<IndexType> indices_{};
-
     std::vector<std::unique_ptr<VklBuffer>> vertexBuffer_;
     std::vector<std::unique_ptr<VklBuffer>> indexBuffer_;
 
@@ -133,6 +130,10 @@ class VklModelTemplate {
     VklModelTemplate(const VklModelTemplate &) = delete;
     VklModelTemplate &operator=(const VklModelTemplate &) = delete;
 
+
+    std::vector<VertexType> vertices_{};
+    std::vector<IndexType> indices_{};
+
     [[nodiscard]] int get_triangle_num() const;
 
     void createDescriptorSetLayout();
@@ -154,6 +155,8 @@ class VklModelTemplate {
     VkBuffer getVertexBuffer(size_t index) {
         return vertexBuffer_[index]->getBuffer();
     };
+
+    void updateVertexBuffer();
 
     friend class RayPicker;
     friend class VklBVH;

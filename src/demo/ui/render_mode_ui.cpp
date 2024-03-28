@@ -24,6 +24,8 @@ void RenderModeUI::renderImgui() {
     ImGui::RadioButton("Point Light Shading", &uiManager_.shadingMode, 0);
     ImGui::SameLine();
     ImGui::RadioButton("Solid Shading", &uiManager_.shadingMode, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("Pure Color", &uiManager_.shadingMode, 2);
 
     ImGui::SeparatorText("Utils");
 
