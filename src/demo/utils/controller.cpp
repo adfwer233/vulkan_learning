@@ -2,7 +2,7 @@
 
 #include "ray_tracer/ray_picker.hpp"
 
-#include "vkl/vkl_scene.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 
 #include <format>
 #include <iostream>

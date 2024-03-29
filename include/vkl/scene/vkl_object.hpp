@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vkl_model.hpp"
-#include "vkl_swap_chain.hpp"
+#include "vkl/core/vkl_swap_chain.hpp"
 
 #include "vkl/io/model_loader_concept.hpp"
 
@@ -45,4 +45,4 @@ class VklObject {
     }
 };
 
-#include "templates/vkl_object.hpp.impl"
+#include "vkl_object.hpp.impl"

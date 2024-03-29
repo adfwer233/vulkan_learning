@@ -1,4 +1,4 @@
-#include "vkl/vkl_window.hpp"
+#include "vkl/core/vkl_window.hpp"
 
 #include <stdexcept>
 

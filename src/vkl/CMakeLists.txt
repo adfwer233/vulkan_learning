@@ -2,22 +2,22 @@ project(vkl VERSION 1.0 DESCRIPTION "Vulkan Learning Project Engine" LANGUAGES C
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(SRC_FILE vkl_window.cpp
-        vkl_device.cpp
-        vkl_swap_chain.cpp
-        vkl_renderer.cpp
-        vkl_buffer.cpp
-        vkl_model.cpp
-        vkl_camera.cpp
-        vkl_descriptor.cpp
-        vkl_object.cpp
+set(SRC_FILE core/vkl_window.cpp
+        core/vkl_device.cpp
+        core/vkl_swap_chain.cpp
+        core/vkl_renderer.cpp
+        core/vkl_buffer.cpp
+        scene/vkl_model.cpp
+        utils/vkl_camera.cpp
+        core/vkl_descriptor.cpp
+        scene/vkl_object.cpp
         io/assimp_loader.cpp
-        vkl_texture.cpp
-        vkl_compute_pipeline.cpp
+        core/vkl_texture.cpp
+        core/vkl_compute_pipeline.cpp
         bvh/vkl_bvh.cpp
         system/path_tracing_compute_system.cpp
-        vkl_image.cpp
-        vkl_offscreen_renderer.cpp
+        core/vkl_image.cpp
+        core/vkl_offscreen_renderer.cpp
         io/tiny_obj_loader.cpp
 )
 

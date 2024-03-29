@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#include "vkl/vkl_model.hpp"
+#include "vkl/scene/vkl_model.hpp"
 
 using MeshModel = VklModel::BuilderFromImmediateData;
 

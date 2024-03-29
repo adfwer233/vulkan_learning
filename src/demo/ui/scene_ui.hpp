@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vkl/vkl_scene.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 // #include "ui_manager.hpp"
 class UIManager;
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ray.hpp"
-#include "vkl/vkl_object.hpp"
-#include "vkl/vkl_scene.hpp"
+#include "vkl/scene/vkl_object.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 
 #include <optional>
 #include <vector>

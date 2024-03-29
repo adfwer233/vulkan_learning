@@ -1,8 +1,8 @@
 #pragma once
 
-#include "vkl/vkl_device.hpp"
-#include "vkl/vkl_renderer.hpp"
-#include "vkl/vkl_window.hpp"
+#include "vkl/core/vkl_device.hpp"
+#include "vkl/core/vkl_renderer.hpp"
+#include "vkl/core/vkl_window.hpp"
 
 #ifndef DATA_DIR
 #define DATA_DIR "./shader/"

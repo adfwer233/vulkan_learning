@@ -3,10 +3,10 @@
 #include <map>
 #include <vector>
 
-#include "bvh/vkl_bvh_gpu.hpp"
+#include "vkl/bvh/vkl_bvh_gpu.hpp"
 #include "vkl_object.hpp"
 
-#include "io/model_loader_concept.hpp"
+#include "vkl/io/model_loader_concept.hpp"
 
 class VklScene {
   private:
@@ -69,4 +69,4 @@ class VklScene {
     }
 };
 
-#include "templates/vkl_scene.hpp.impl"
+#include "vkl_scene.hpp.impl"

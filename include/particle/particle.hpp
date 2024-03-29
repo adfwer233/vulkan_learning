@@ -2,11 +2,11 @@
 
 #include "glm/glm.hpp"
 
-#include "vkl/vkl_buffer.hpp"
-#include "vkl/vkl_descriptor.hpp"
-#include "vkl/vkl_device.hpp"
+#include "vkl/core/vkl_buffer.hpp"
+#include "vkl/core/vkl_descriptor.hpp"
+#include "vkl/core/vkl_device.hpp"
 
-#include "vkl/vkl_box.hpp"
+#include "vkl/utils/vkl_box.hpp"
 
 struct Particle {
     glm::vec2 position{};

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vkl_device.hpp"
+#include "vkl/core/vkl_device.hpp"
 
 class VklBuffer {
 

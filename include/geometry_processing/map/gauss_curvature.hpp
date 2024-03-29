@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Eigen/Eigen"
-#include "vkl/vkl_object.hpp"
+#include "vkl/scene/vkl_object.hpp"
 
 class GaussCurvature {
   private:

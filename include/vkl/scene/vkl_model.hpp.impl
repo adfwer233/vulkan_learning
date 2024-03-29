@@ -2,9 +2,9 @@
 
 #include "stb_image.h"
 
-#include "vkl/vkl_frame_info.hpp"
-#include "vkl/vkl_swap_chain.hpp"
-#include "vkl/vkl_texture.hpp"
+#include "vkl/core/vkl_frame_info.hpp"
+#include "vkl/core/vkl_swap_chain.hpp"
+#include "vkl/core/vkl_texture.hpp"
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &device,

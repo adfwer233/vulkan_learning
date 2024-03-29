@@ -1,6 +1,6 @@
 #include "application.hpp"
-#include "vkl/vkl_descriptor.hpp"
-#include "vkl/vkl_object.hpp"
+#include "vkl/core/vkl_descriptor.hpp"
+#include "vkl/scene/vkl_object.hpp"
 
 #include "particle/system/particle_render_system.hpp"
 #include "particle/system/particle_simulation_system.hpp"

@@ -1,4 +1,4 @@
-#include "vkl/vkl_camera.hpp"
+#include "vkl/utils/vkl_camera.hpp"
 
 /**
  * @brief get view transformation from camera

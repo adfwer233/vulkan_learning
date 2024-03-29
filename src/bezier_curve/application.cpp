@@ -1,6 +1,6 @@
 #include "application.hpp"
-#include "vkl/vkl_descriptor.hpp"
-#include "vkl/vkl_object.hpp"
+#include "vkl/core/vkl_descriptor.hpp"
+#include "vkl/scene/vkl_object.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

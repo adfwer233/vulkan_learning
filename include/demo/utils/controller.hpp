@@ -2,14 +2,14 @@
 
 #include <functional>
 
-#include "vkl/vkl_camera.hpp"
-#include "vkl/vkl_object.hpp"
+#include "vkl/utils/vkl_camera.hpp"
+#include "vkl/scene/vkl_object.hpp"
 
 #include "ray_tracer/ray_picker.hpp"
 
 #include "../../../src/demo/ui/ui_manager.hpp"
 #include "GLFW/glfw3.h"
-#include "vkl/vkl_scene.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 
 class KeyboardCameraController {
   private:

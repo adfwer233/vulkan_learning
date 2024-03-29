@@ -3,7 +3,7 @@
 #include "quantity/vertex_scalar_quantity.hpp"
 #include "quantity/vertex_vector_quantity.hpp"
 
-#include "vkl/vkl_model.hpp"
+#include "vkl/scene/vkl_model.hpp"
 
 #include "map_concept/mesh_to_vertex_scalar_quantity.hpp"
 #include "map_concept/single_vertex_to_vertex_scalar_quantity.hpp"

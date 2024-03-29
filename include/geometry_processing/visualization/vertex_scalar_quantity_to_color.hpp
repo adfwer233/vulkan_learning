@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../quantity/vertex_scalar_quantity.hpp"
-#include "vkl/vkl_model.hpp"
+#include "vkl/scene/vkl_model.hpp"
 
 class VertexScalarQuantityToColor {
   public:

@@ -1,9 +1,9 @@
-#include "vkl/vkl_offscreen_renderer.hpp"
+#include "vkl/core/vkl_offscreen_renderer.hpp"
 
 #include <array>
 #include <stdexcept>
 
-#include "vkl/vkl_swap_chain.hpp"
+#include "vkl/core/vkl_swap_chain.hpp"
 
 VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int height) : device_(device) {
     createImages();

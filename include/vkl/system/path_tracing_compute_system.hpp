@@ -5,7 +5,7 @@
 #include "base_compute_system.hpp"
 
 #include "vkl/bvh/vkl_bvh.hpp"
-#include "vkl/vkl_image.hpp"
+#include "vkl/core/vkl_image.hpp"
 
 #include "glm/glm.hpp"
 

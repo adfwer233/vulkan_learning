@@ -6,15 +6,15 @@
 
 #include "glm/glm.hpp"
 
-#include "vkl_box.hpp"
-#include "vkl_buffer.hpp"
-#include "vkl_descriptor.hpp"
-#include "vkl_device.hpp"
-#include "vkl_texture.hpp"
+#include "vkl/utils/vkl_box.hpp"
+#include "vkl/core/vkl_buffer.hpp"
+#include "vkl/core/vkl_descriptor.hpp"
+#include "vkl/core/vkl_device.hpp"
+#include "vkl/core/vkl_texture.hpp"
 
-#include "templates/vkl_index.hpp"
+#include "vkl/templates/vkl_index.hpp"
 
-#include "templates/vkl_concept.hpp"
+#include "vkl/templates/vkl_concept.hpp"
 
 struct Vertex3D {
     glm::vec3 position{};
@@ -163,4 +163,4 @@ class VklModelTemplate {
 
 using VklModel = VklModelTemplate<Vertex3D>;
 
-#include "templates/vkl_model.hpp.impl"
+#include "vkl_model.hpp.impl"

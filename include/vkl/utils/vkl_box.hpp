@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vkl_buffer.hpp"
-#include "vkl_descriptor.hpp"
+#include "vkl/core/vkl_buffer.hpp"
+#include "vkl/core/vkl_descriptor.hpp"
 #include <vector>
 
 #include "glm/ext/matrix_transform.hpp"

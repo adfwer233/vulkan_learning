@@ -1,4 +1,4 @@
-#include "vkl/vkl_image.hpp"
+#include "vkl/core/vkl_image.hpp"
 
 namespace VklImageUtils {
 VkImageMemoryBarrier ReadOnlyToGeneralBarrier(const VkImage &image) {

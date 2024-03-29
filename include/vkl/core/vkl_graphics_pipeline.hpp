@@ -29,4 +29,4 @@ template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeli
     static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
 };
 
-#include "templates/vkl_graphics_pipeline.hpp.impl"
+#include "vkl_graphics_pipeline.hpp.impl"

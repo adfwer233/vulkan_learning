@@ -1,4 +1,4 @@
-#include "vkl/vkl_compute_pipeline.hpp"
+#include "vkl/core/vkl_compute_pipeline.hpp"
 
 #include <fstream>
 

@@ -1,4 +1,4 @@
-#include "vkl/vkl_renderer.hpp"
+#include "vkl/core/vkl_renderer.hpp"
 
 #include <array>
 #include <iostream>

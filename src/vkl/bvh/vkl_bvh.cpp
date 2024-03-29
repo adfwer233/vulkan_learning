@@ -1,5 +1,5 @@
 #include "vkl/bvh/vkl_bvh.hpp"
-#include "vkl/vkl_scene.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 #include <algorithm>
 #include <ranges>
 #include <stack>

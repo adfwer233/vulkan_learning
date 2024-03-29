@@ -25,6 +25,7 @@ Eigen::VectorXd SingleSourceExactGeodesicDistance::perform(uint32_t vertexIndex)
     Eigen::VectorXi VS, FS, VT, FT;
 
     VS.resize(1);
+
     VS << vertexIndex;
     VT.setLinSpaced(V.rows(), 0, V.rows() - 1);
 

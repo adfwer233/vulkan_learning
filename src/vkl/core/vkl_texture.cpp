@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "vkl/vkl_texture.hpp"
+#include "vkl/core/vkl_texture.hpp"
 
 VklTexture::VklTexture(VklDevice &device, int texWidth, int texHeight, int texChannels, VkImageUsageFlags usage)
     : device_(device) {

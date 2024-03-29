@@ -1,10 +1,10 @@
 #include "application.hpp"
-#include "vkl/vkl_box.hpp"
-#include "vkl/vkl_box_model.hpp"
-#include "vkl/vkl_descriptor.hpp"
-#include "vkl/vkl_image.hpp"
-#include "vkl/vkl_object.hpp"
-#include "vkl/vkl_scene.hpp"
+#include "vkl/utils/vkl_box.hpp"
+#include "vkl/utils/vkl_box_model.hpp"
+#include "vkl/core/vkl_descriptor.hpp"
+#include "vkl/core/vkl_image.hpp"
+#include "vkl/scene/vkl_object.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/line_render_system.hpp"
@@ -14,7 +14,7 @@
 #include "vkl/system/base_compute_system.hpp"
 #include "vkl/system/path_tracing_compute_system.hpp"
 
-#include "vkl/vkl_offscreen_renderer.hpp"
+#include "vkl/core/vkl_offscreen_renderer.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

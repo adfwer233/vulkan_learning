@@ -3,9 +3,9 @@
 #include "glm/glm.hpp"
 #include "vulkan/vulkan.h"
 
-#include "vkl_camera.hpp"
+#include "vkl/utils/vkl_camera.hpp"
 
-#include "templates/vkl_concept.hpp"
+#include "vkl/templates/vkl_concept.hpp"
 
 struct SimplePushConstantData {
     glm::mat4 modelMatrix{1.f};

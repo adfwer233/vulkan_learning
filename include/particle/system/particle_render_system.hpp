@@ -3,8 +3,8 @@
 #include <format>
 #include <string>
 
-#include "vkl/vkl_frame_info.hpp"
-#include "vkl/vkl_graphics_pipeline.hpp"
+#include "vkl/core/vkl_frame_info.hpp"
+#include "vkl/core/vkl_graphics_pipeline.hpp"
 
 #include "particle/particle.hpp"
 #include "vkl/templates/vkl_concept.hpp"

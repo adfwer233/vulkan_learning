@@ -4,7 +4,7 @@
 #include "../map_concept/single_vertex_to_vertex_scalar_quantity.hpp"
 #include "Eigen/Eigen"
 
-#include "vkl/vkl_model.hpp"
+#include "vkl/scene/vkl_model.hpp"
 
 class VertexScalarQuantity {
   public:

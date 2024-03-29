@@ -8,7 +8,7 @@
 #include "vkl/io/ppm_exporter.hpp"
 
 #include "vkl/bvh/vkl_bvh.hpp"
-#include "vkl/vkl_scene.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 #include "vkl_ray.hpp"
 
 #include <numbers>

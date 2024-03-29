@@ -1,4 +1,4 @@
-#include "vkl/vkl_object.hpp"
+#include "vkl/scene/vkl_object.hpp"
 
 #include "glm/gtc/quaternion.hpp"
 #include "vkl/io/assimp_loader.hpp"
