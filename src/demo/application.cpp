@@ -96,7 +96,7 @@ void Application::run() {
         std::format("{}/simple_shader.vert.spv", SHADER_DIR),
         std::format("{}/path_tracing_post_shader.frag.spv", SHADER_DIR));
 
-    NormalRenderSystem<VklBoxModel3D::vertex_type> normalRenderSystem(
+    NormalRenderSystem<VklModel::vertex_type> normalRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/normal_shader.vert.spv", SHADER_DIR),
         std::format("{}/line_shader.frag.spv", SHADER_DIR),
