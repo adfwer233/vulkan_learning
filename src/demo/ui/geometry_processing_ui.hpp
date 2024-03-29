@@ -8,7 +8,8 @@ class GeometryProcessingUI {
     VklScene &scene_;
     UIManager &uiManager_;
 
-    int variableIndex = 0;
+    int vertexScalarVariableIndex = 0;
+    int vertexVectorVariableIndex = 0;
 
     glm::vec3 lowColor{0.0f, 0.0f, 0.f};
     glm::vec3 highColor{1.0f, 0.0f, 0.0f};

@@ -1,0 +1,10 @@
+#include "vertex_vector_quantity.hpp"
+
+template <MeshToVertexVectorQuantityMap Map>
+VertexVectorQuantity::VertexVectorQuantity(VklModel &model, Map *map_null) {
+    Map map(model);
+    modelPtr = &model;
+    description = map.description();
+
+    this->data = map.perform();
+}
