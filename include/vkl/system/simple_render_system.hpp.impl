@@ -7,10 +7,22 @@ SimpleRenderSystem<VertexType, PipelineModifierType>::SimpleRenderSystem(VklDevi
                                                                          VkDescriptorSetLayout globalSetLayout,
                                                                          std::string vertex_shader_path,
                                                                          std::string fragment_shader_path)
-    : device_(device), vertex_shader_path_(vertex_shader_path), fragment_shader_path_(fragment_shader_path) {
+    : device_(device), vertex_shader_path_(vertex_shader_path), fragment_shader_path_(fragment_shader_path), geometry_shader_path_("") {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass);
 }
+
+template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
+SimpleRenderSystem<VertexType, PipelineModifierType>::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
+                                                                         VkDescriptorSetLayout globalSetLayout,
+                                                                         std::string vertex_shader_path,
+                                                                         std::string fragment_shader_path,
+                                                                         std::string geometry_shader_path)
+    : device_(device), vertex_shader_path_(vertex_shader_path), fragment_shader_path_(fragment_shader_path), geometry_shader_path_(geometry_shader_path) {
+    createPipelineLayout(globalSetLayout);
+    createPipeline(renderPass);
+}
+
 
 template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
 SimpleRenderSystem<VertexType, PipelineModifierType>::~SimpleRenderSystem() {
@@ -48,8 +60,13 @@ void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipeline(VkRend
 
     pipelineConfigInfo.renderPass = renderPass;
     pipelineConfigInfo.pipelineLayout = pipelineLayout_;
-    pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, vertex_shader_path_, fragment_shader_path_,
+    if (geometry_shader_path_.empty()) {
+        pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, vertex_shader_path_, fragment_shader_path_,
                                                                   pipelineConfigInfo);
+    } else {
+        pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, vertex_shader_path_, fragment_shader_path_,
+                                                                      geometry_shader_path_, pipelineConfigInfo);
+    }
 }
 
 template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>

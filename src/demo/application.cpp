@@ -10,6 +10,7 @@
 #include "vkl/system/line_render_system.hpp"
 #include "vkl/system/simple_render_system.hpp"
 #include "vkl/system/simple_wireframe_render_system.hpp"
+#include "vkl/system/normal_render_system.hpp"
 
 #include "vkl/system/base_compute_system.hpp"
 #include "vkl/system/path_tracing_compute_system.hpp"
@@ -94,6 +95,12 @@ void Application::run() {
         device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/simple_shader.vert.spv", SHADER_DIR),
         std::format("{}/path_tracing_post_shader.frag.spv", SHADER_DIR));
+
+    NormalRenderSystem<VklBoxModel3D::vertex_type> normalRenderSystem(
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        std::format("{}/normal_shader.vert.spv", SHADER_DIR),
+        std::format("{}/line_shader.frag.spv", SHADER_DIR),
+        std::format("{}/normal_generation.geom.spv", SHADER_DIR));
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -271,6 +278,8 @@ void Application::run() {
                         else
                             renderSystem.renderObject(modelFrameInfo);
                     }
+
+                    normalRenderSystem.renderObject(modelFrameInfo);
                 }
             }
 

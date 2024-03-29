@@ -9,14 +9,21 @@ template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeli
   private:
     VkShaderModule vertShaderModule_{};
     VkShaderModule fragShaderModule_{};
+    VkShaderModule geomShaderModule_{};
 
     void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
                                 const PipelineConfigInfo &configInfo);
 
+    void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
+                                const std::string &geomFilepath, const PipelineConfigInfo &configInfo);
   public:
     VkPipeline graphicsPipeline_{};
 
     VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
+                        const PipelineConfigInfo &configInfo);
+
+    VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
+                        const std::string &geomFilepath,
                         const PipelineConfigInfo &configInfo);
 
     ~VklGraphicsPipeline();
