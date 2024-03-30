@@ -15,7 +15,6 @@ set(SRC_FILE core/vkl_window.cpp
         core/vkl_texture.cpp
         core/vkl_compute_pipeline.cpp
         bvh/vkl_bvh.cpp
-        system/path_tracing_compute_system.cpp
         core/vkl_image.cpp
         core/vkl_offscreen_renderer.cpp
         io/tiny_obj_loader.cpp

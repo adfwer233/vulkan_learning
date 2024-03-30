@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_FILE main.cpp
         application.cpp
-        system/particle_render_system.cpp
         system/particle_simulation_system.cpp
 )
 

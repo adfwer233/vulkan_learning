@@ -5,6 +5,7 @@
 
 #include "vkl/core/vkl_frame_info.hpp"
 #include "vkl/core/vkl_graphics_pipeline.hpp"
+#include "vkl/system/simple_render_system.hpp"
 
 #include "particle/particle.hpp"
 #include "vkl/templates/vkl_concept.hpp"
@@ -13,26 +14,12 @@
 #define PARTICLE_SHADER_DIR "./shader/"
 #endif
 
-class ParticleRenderSystem {
-  private:
-    const std::string vertex_shader_path = std::format("{}/particle.vert.spv", PARTICLE_SHADER_DIR);
-    const std::string fragment_shader_path = std::format("{}/particle.frag.spv", PARTICLE_SHADER_DIR);
-
-    VklDevice &device_;
-
-    void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-    void createPipeline(VkRenderPass renderPass);
-
-  public:
-    std::unique_ptr<VklGraphicsPipeline<Particle>> pipeline_;
-    VkPipelineLayout pipelineLayout_;
-
-    ParticleRenderSystem(VklDevice &device_, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-
-    ParticleRenderSystem(const ParticleRenderSystem &) = delete;
-    ParticleRenderSystem operator=(const ParticleRenderSystem &) = delete;
-
-    ~ParticleRenderSystem();
-
-    void renderObject(FrameInfo<VklModelTemplate<Particle, TriangleIndex, VklBox2D>> &frameInfo);
+struct ParticleRenderPipelineModifier {
+    static void modifyPipeline(PipelineConfigInfo &configInfo) {
+        configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        configInfo.depthStencilInfo.depthTestEnable = VK_FALSE;
+        configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
+    }
 };
+
+using ParticleRenderSystem = SimpleRenderSystem<Particle, SimplePushConstantInfoList, ParticleRenderPipelineModifier>;

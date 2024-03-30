@@ -49,7 +49,7 @@ void Application::run() {
 
     VklParticleModel model(device_, builder);
 
-    auto globalSetLayout = VklDescriptorSetLayout::Builder(device_).build();
+    auto globalSetLayout = VklDescriptorSetLayout::Builder(device_).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
 
     auto globalPool = VklDescriptorPool::Builder(device_).setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200).build();
 
@@ -64,7 +64,9 @@ void Application::run() {
     float deltaTime = 0, lastFrame = 0;
 
     ParticleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(),
-                                      globalSetLayout->getDescriptorSetLayout());
+                                      globalSetLayout->getDescriptorSetLayout(),
+                                      std::format("{}/particle.vert.spv", PARTICLE_SHADER_DIR),
+                                      std::format("{}/particle.frag.spv", PARTICLE_SHADER_DIR));
 
     ParticleSimulationSystem computeSystem(device_, model, particle_number);
 
@@ -159,6 +161,15 @@ void Application::run() {
             ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
             renderer_.endSwapChainRenderPass(commandBuffer);
+
+            if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+                throw std::runtime_error("failed to record command buffer!");
+            }
+
+            std::vector<VkCommandBuffer> commandBuffers{commandBuffer};
+
+            auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex, renderer_.getSemaphoreToWait());
+
             renderer_.endFrame();
         }
     }

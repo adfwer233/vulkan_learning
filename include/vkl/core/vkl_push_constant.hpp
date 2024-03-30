@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <array>
 
 template<typename T>
 concept VklPushConstant = requires {

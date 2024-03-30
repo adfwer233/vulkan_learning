@@ -55,6 +55,10 @@ class VklRenderer {
 
     void setSemaphoreToWait(VkSemaphore semaphore);
 
+    std::vector<VkSemaphore> getSemaphoreToWait() {
+        return semaphoreToWait;
+    }
+
     VkCommandBuffer beginFrame();
     void endFrame();
     void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
