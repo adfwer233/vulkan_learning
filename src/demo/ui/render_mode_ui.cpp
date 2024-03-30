@@ -27,6 +27,11 @@ void RenderModeUI::renderImgui() {
     ImGui::SameLine();
     ImGui::RadioButton("Pure Color", &uiManager_.shadingMode, 2);
 
+    ImGui::SeparatorText("Options");
+    ImGui::Checkbox("Show Normal", &uiManager_.showNormal);
+    ImGui::InputFloat("Normal Strength", &uiManager_.normalStrength, 0.1f);
+    ImGui::ColorEdit3("Normal Color", (float *)&uiManager_.normalColor.x);
+
     ImGui::SeparatorText("Utils");
 
     if (ImGui::Button("Reset BVH Info")) {

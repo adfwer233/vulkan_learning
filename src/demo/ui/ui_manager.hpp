@@ -48,6 +48,15 @@ class UIManager {
      */
     int shadingMode = 0;
 
+    /**
+     * whether show the normal vector
+     */
+    bool showNormal = false;
+
+    float normalStrength = 0.1;
+
+    glm::vec3 normalColor{1.0, 0.0, 0.0};
+
     ModelLoader modelLoader = AssimpLoader;
 
     /**

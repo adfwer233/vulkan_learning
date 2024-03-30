@@ -279,7 +279,9 @@ void Application::run() {
                             renderSystem.renderObject(modelFrameInfo);
                     }
 
-                    normalRenderSystem.renderObject(modelFrameInfo);
+                    if (uiManager.showNormal) {
+                        normalRenderSystem.renderObject(modelFrameInfo);
+                    }
                 }
             }
 
