@@ -7,11 +7,6 @@
 
 #include "vkl/templates/vkl_concept.hpp"
 
-struct SimplePushConstantData {
-    glm::mat4 modelMatrix{1.f};
-    glm::mat4 normalMatrix{1.f};
-};
-
 struct PointLight {
     glm::vec4 position;
     glm::vec4 color;

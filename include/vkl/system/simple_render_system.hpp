@@ -9,6 +9,7 @@
 #include <optional>
 
 #include "vkl/templates/vkl_concept.hpp"
+#include "vkl/core/vkl_push_constant.hpp"
 
 #ifndef SHADER_DIR
 #define SHADER_DIR "./shader/"
@@ -23,7 +24,7 @@ struct NullPipelineModifier {
     }
 };
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType = NullPipelineModifier>
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList = SimplePushConstantInfoList , VklPipelineModifierType PipelineModifierType = NullPipelineModifier>
 class SimpleRenderSystem {
   private:
     std::string vertex_shader_path_, fragment_shader_path_, geometry_shader_path_;

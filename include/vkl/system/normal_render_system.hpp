@@ -8,4 +8,4 @@ struct NormalRenderPipelineModifier {
     }
 };
 
-template <VklVertexType VertexType> using NormalRenderSystem = SimpleRenderSystem<VertexType, NormalRenderPipelineModifier>;
+template <VklVertexType VertexType> using NormalRenderSystem = SimpleRenderSystem<VertexType, SimplePushConstantInfoList, NormalRenderPipelineModifier>;

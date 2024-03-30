@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
-SimpleRenderSystem<VertexType, PipelineModifierType>::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
+SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
                                                                          VkDescriptorSetLayout globalSetLayout,
                                                                          std::string vertex_shader_path,
                                                                          std::string fragment_shader_path)
@@ -12,8 +12,8 @@ SimpleRenderSystem<VertexType, PipelineModifierType>::SimpleRenderSystem(VklDevi
     createPipeline(renderPass);
 }
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
-SimpleRenderSystem<VertexType, PipelineModifierType>::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
+SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass,
                                                                          VkDescriptorSetLayout globalSetLayout,
                                                                          std::string vertex_shader_path,
                                                                          std::string fragment_shader_path,
@@ -24,17 +24,14 @@ SimpleRenderSystem<VertexType, PipelineModifierType>::SimpleRenderSystem(VklDevi
 }
 
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
-SimpleRenderSystem<VertexType, PipelineModifierType>::~SimpleRenderSystem() {
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
+SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::~SimpleRenderSystem() {
     vkDestroyPipelineLayout(device_.device(), pipelineLayout_, nullptr);
 }
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
-void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
-    VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
+void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
+    auto pushConstantRangeVector = PushConstantInfoList::getPushConstantInfo();
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -42,16 +39,16 @@ void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipelineLayout(
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 1;
-    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+    pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRangeVector.size());
+    pipelineLayoutInfo.pPushConstantRanges = pushConstantRangeVector.data();
 
     if (vkCreatePipelineLayout(device_.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 }
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
-void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipeline(VkRenderPass renderPass) {
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
+void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::createPipeline(VkRenderPass renderPass) {
     PipelineConfigInfo pipelineConfigInfo{};
 
     VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(pipelineConfigInfo);
@@ -69,9 +66,9 @@ void SimpleRenderSystem<VertexType, PipelineModifierType>::createPipeline(VkRend
     }
 }
 
-template <VklVertexType VertexType, VklPipelineModifierType PipelineModifierType>
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
 template <VklRenderable ModelType>
-void SimpleRenderSystem<VertexType, PipelineModifierType>::renderObject(FrameInfo<ModelType> &frameInfo) {
+void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::renderObject(FrameInfo<ModelType> &frameInfo) {
 
     vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);
 

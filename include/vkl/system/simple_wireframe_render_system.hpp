@@ -7,4 +7,4 @@ struct WireFramePipelineModifier {
 };
 
 template <VklVertexType VertexType>
-using SimpleWireFrameRenderSystem = SimpleRenderSystem<VertexType, WireFramePipelineModifier>;
+using SimpleWireFrameRenderSystem = SimpleRenderSystem<VertexType, SimplePushConstantInfoList, WireFramePipelineModifier>;
