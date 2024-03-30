@@ -31,6 +31,8 @@ class SimpleRenderSystem {
 
     VklDevice &device_;
 
+    std::vector<VkPushConstantRange> pushConstantRanges_;
+
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
     void createPipeline(VkRenderPass renderPass);
 
@@ -52,6 +54,7 @@ class SimpleRenderSystem {
     ~SimpleRenderSystem();
 
     template <VklRenderable ModelType> void renderObject(FrameInfo<ModelType> &frameInfo);
+    template <VklRenderable ModelType> void renderObject(FrameInfo<ModelType> &frameInfo, PushConstantInfoList pushData);
 };
 
 #include "simple_render_system.hpp.impl"

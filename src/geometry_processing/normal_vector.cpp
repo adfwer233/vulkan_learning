@@ -8,7 +8,7 @@ NormalVector::NormalVector(VklModel &model) {
     V.resize(n, 3);
     for (int i = 0; i < n; i++) {
         V(i, 0) = model.vertices_[i].position.x;
-        V(i, 1) = model.vertices_[i].position.y;
+        V(i, 1) = -model.vertices_[i].position.y;
         V(i, 2) = model.vertices_[i].position.z;
     }
 

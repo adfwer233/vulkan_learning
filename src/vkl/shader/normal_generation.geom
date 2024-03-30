@@ -12,6 +12,11 @@ struct PointLight {
     vec4 color;
 };
 
+layout(push_constant) uniform PushConstants {
+    float normalStrength;
+    vec3 normalColor;
+} pushConstants;
+
 layout(set = 0, binding = 0) uniform GlobalUbo {
     mat4 model;
     mat4 view;
@@ -22,18 +27,18 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 } ubo;
 
 void main(void) {
-    float normalLength = 0.1;
+    float normalLength = pushConstants.normalStrength;
 
     for (int i = 0; i < gl_in.length(); i++) {
         vec3 pos = gl_in[i].gl_Position.xyz;
         vec3 normal = normalize(inNormal[i]);
 
         gl_Position = ubo.proj * ubo.view * ubo.model * vec4(pos, 1.0);
-        outColor = vec3(1.0, 0.0, 0.0);
+        outColor = pushConstants.normalColor;
         EmitVertex();
 
         gl_Position = ubo.proj * ubo.view * ubo.model * (vec4(pos + normalLength * normal, 1.0));
-        outColor = vec3(1.0, 0.0, 0.0);
+        outColor = pushConstants.normalColor;
         EmitVertex();
 
         EndPrimitive();

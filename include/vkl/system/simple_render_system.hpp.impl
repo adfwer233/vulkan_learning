@@ -31,7 +31,7 @@ SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::~Sim
 
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
 void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
-    auto pushConstantRangeVector = PushConstantInfoList::getPushConstantInfo();
+    pushConstantRanges_ = PushConstantInfoList::getPushConstantInfo();
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -39,8 +39,8 @@ void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>:
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRangeVector.size());
-    pipelineLayoutInfo.pPushConstantRanges = pushConstantRangeVector.data();
+    pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges_.size());
+    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges_.data();
 
     if (vkCreatePipelineLayout(device_.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
@@ -64,6 +64,25 @@ void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>:
         pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, vertex_shader_path_, fragment_shader_path_,
                                                                       geometry_shader_path_, pipelineConfigInfo);
     }
+}
+
+template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>
+template <VklRenderable ModelType>
+void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::renderObject(FrameInfo<ModelType> &frameInfo, PushConstantInfoList pushData) {
+
+    vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);
+
+    vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout_, 0, 1,
+                            frameInfo.pGlobalDescriptorSet, 0, nullptr);
+
+    for (int i = 0; auto pushRange: pushConstantRanges_) {
+        vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_, pushRange.stageFlags, pushRange.offset, pushRange.size, pushData.data[i]);
+        i++;
+    }
+
+
+    frameInfo.model.bind(frameInfo.commandBuffer);
+    frameInfo.model.draw(frameInfo.commandBuffer);
 }
 
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList, VklPipelineModifierType PipelineModifierType>

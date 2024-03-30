@@ -4,8 +4,19 @@
 
 struct NormalRenderPipelineModifier {
     static void modifyPipeline(PipelineConfigInfo &configInfo) {
-//        configInfo.inputAssemblyInfo.topology = VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+       // configInfo.inputAssemblyInfo.topology = VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
     }
 };
 
-template <VklVertexType VertexType> using NormalRenderSystem = SimpleRenderSystem<VertexType, SimplePushConstantInfoList, NormalRenderPipelineModifier>;
+struct NormalRenderSystemPushConstantData {
+    alignas(4) float normalStrength;
+    alignas(16) glm::vec3 normalColor;
+
+    static VkShaderStageFlags getStageFlags() {
+        return VK_SHADER_STAGE_GEOMETRY_BIT;
+    };
+};
+
+using NormalRenderSystemPushConstantDataList = VklPushConstantInfoList<NormalRenderSystemPushConstantData>;
+
+template <VklVertexType VertexType> using NormalRenderSystem = SimpleRenderSystem<VertexType, NormalRenderSystemPushConstantDataList,  NormalRenderPipelineModifier>;

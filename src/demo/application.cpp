@@ -280,7 +280,12 @@ void Application::run() {
                     }
 
                     if (uiManager.showNormal) {
-                        normalRenderSystem.renderObject(modelFrameInfo);
+                        NormalRenderSystemPushConstantData normalRenderSystemPushConstantData{};
+                        normalRenderSystemPushConstantData.normalStrength = uiManager.normalStrength;
+                        normalRenderSystemPushConstantData.normalColor = uiManager.normalColor;
+                        NormalRenderSystemPushConstantDataList list;
+                        list.data[0] = (void *)&normalRenderSystemPushConstantData;
+                        normalRenderSystem.renderObject(modelFrameInfo, list);
                     }
                 }
             }

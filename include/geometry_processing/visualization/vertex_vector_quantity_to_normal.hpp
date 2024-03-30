@@ -9,7 +9,7 @@ public:
         int n = quantity->data.rows();
 
         for (int i = 0; i < n; i++) {
-            model.vertices_[i].normal = {quantity->data(i, 0), quantity->data(i, 1), quantity->data(i, 2)};
+            model.vertices_[i].normal = {quantity->data(i, 0), -quantity->data(i, 1), quantity->data(i, 2)};
         }
 
         model.updateVertexBuffer();

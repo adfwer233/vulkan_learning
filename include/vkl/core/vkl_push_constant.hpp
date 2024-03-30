@@ -12,6 +12,7 @@ concept VklPushConstant = requires {
 
 template<VklPushConstant ...args>
 struct VklPushConstantInfoList {
+    std::array<void*, sizeof...(args)> data;
     static std::vector<VkPushConstantRange> getPushConstantInfo();
 };
 
