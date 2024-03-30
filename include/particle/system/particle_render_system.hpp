@@ -5,7 +5,7 @@
 
 #include "vkl/core/vkl_frame_info.hpp"
 #include "vkl/core/vkl_graphics_pipeline.hpp"
-#include "vkl/system/simple_render_system.hpp"
+#include "vkl/system/render_system/simple_render_system.hpp"
 
 #include "particle/particle.hpp"
 #include "vkl/templates/vkl_concept.hpp"

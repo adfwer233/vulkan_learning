@@ -4,7 +4,7 @@
 
 #include "particle/system/particle_render_system.hpp"
 #include "particle/system/particle_simulation_system.hpp"
-#include "vkl/system/simple_render_system.hpp"
+#include "vkl/system/render_system/simple_render_system.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

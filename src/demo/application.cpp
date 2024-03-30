@@ -7,13 +7,13 @@
 #include "vkl/scene/vkl_scene.hpp"
 
 #include "demo/utils/controller.hpp"
-#include "vkl/system/line_render_system.hpp"
-#include "vkl/system/simple_render_system.hpp"
-#include "vkl/system/simple_wireframe_render_system.hpp"
-#include "vkl/system/normal_render_system.hpp"
+#include "vkl/system/render_system/line_render_system.hpp"
+#include "vkl/system/render_system/simple_render_system.hpp"
+#include "vkl/system/render_system/simple_wireframe_render_system.hpp"
+#include "vkl/system/render_system/normal_render_system.hpp"
 
-#include "vkl/system/base_compute_system.hpp"
-#include "vkl/system/path_tracing_compute_system.hpp"
+#include "vkl/system/compute_system/base_compute_system.hpp"
+#include "vkl/system/compute_system/path_tracing_compute_system.hpp"
 
 #include "vkl/core/vkl_offscreen_renderer.hpp"
 

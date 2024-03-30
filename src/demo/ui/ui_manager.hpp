@@ -12,7 +12,7 @@
 #include "scene_ui.hpp"
 #include <optional>
 
-#include "vkl/system/path_tracing_compute_system.hpp"
+#include "vkl/system/compute_system/path_tracing_compute_system.hpp"
 
 #include "geometry_processing/variable_manager.hpp"
 
