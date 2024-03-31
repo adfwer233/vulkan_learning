@@ -41,6 +41,9 @@ namespace VklTypeList {
     template<template<typename> typename F, typename ...Ts>
     struct Map<TypeList<Ts...>, F>: TypeList<typename F<Ts>::type...> {};
 
+    template<TL In, template<typename> typename F>
+    using Map_t = typename Map<In, F>::type;
+
     template <typename List, typename T>
     struct Append;
 
