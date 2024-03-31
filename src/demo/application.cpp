@@ -38,15 +38,6 @@ void Application::run() {
 
     VklScene scene(device_, {0, 0, 10}, {0, 1, 0});
 
-    /** set uniform buffers */
-
-    std::vector<std::unique_ptr<VklBuffer>> uniformBuffers(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < uniformBuffers.size(); i++) {
-        uniformBuffers[i] = std::make_unique<VklBuffer>(
-            device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-        uniformBuffers[i]->map();
-    }
-
     auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
                                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
                                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
@@ -90,11 +81,6 @@ void Application::run() {
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         std::format("{}/simple_shader.vert.spv", SHADER_DIR),
         std::format("{}/simple_color_shader.frag.spv", SHADER_DIR));
-
-    SimpleRenderSystem<VklModel::vertex_type> backGroundRenderSystem(
-        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-        std::format("{}/simple_shader.vert.spv", SHADER_DIR),
-        std::format("{}/path_tracing_post_shader.frag.spv", SHADER_DIR));
 
     NormalRenderSystem<VklModel::vertex_type> normalRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),

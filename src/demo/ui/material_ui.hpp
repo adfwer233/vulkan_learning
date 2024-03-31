@@ -1,6 +1,9 @@
 #pragma once
 
 #include "vkl/scene/vkl_scene.hpp"
+
+#include "ui_manager_register.hpp"
+
 class UIManager;
 
 class MaterialUI {
@@ -13,3 +16,5 @@ class MaterialUI {
 
     void renderImgui();
 };
+
+REGISTER_TYPE(UIManagerRegisteredTypeTag, MaterialUI)

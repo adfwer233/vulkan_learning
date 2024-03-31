@@ -16,18 +16,14 @@
 
 #include "geometry_processing/variable_manager.hpp"
 
+#include "ui_manager_register.hpp"
+
 class UIManager {
   private:
     VklDevice &device_;
     VklScene &scene_;
 
-    std::unique_ptr<SceneUI> sceneUi;
-    std::unique_ptr<PickingUI> pickingUi;
-    std::unique_ptr<RenderModeUI> renderModeUi;
-    std::unique_ptr<MaterialUI> materialUi;
-    std::unique_ptr<SceneRenderUI> sceneRenderUi;
-    std::unique_ptr<SceneManagerUI> sceneManagerUi;
-    std::unique_ptr<GeometryProcessingUI> geometryProcessingUi;
+    GET_REGISTERED_TYPES(UIManagerRegisteredTypeTag) uiManagerComponentList;
 
   public:
     // used in scene ui
