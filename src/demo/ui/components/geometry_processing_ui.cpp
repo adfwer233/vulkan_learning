@@ -2,7 +2,7 @@
 
 #include "material_ui.hpp"
 
-#include "ui_manager.hpp"
+#include "../ui_manager.hpp"
 
 #include "geometry_processing/map/gauss_curvature.hpp"
 #include "geometry_processing/map/normal_vector.hpp"

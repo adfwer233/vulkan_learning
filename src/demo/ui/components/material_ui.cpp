@@ -1,6 +1,6 @@
 #include "material_ui.hpp"
 
-#include "ui_manager.hpp"
+#include "../ui_manager.hpp"
 
 MaterialUI::MaterialUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
 }

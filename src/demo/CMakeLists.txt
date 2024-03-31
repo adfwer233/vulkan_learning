@@ -5,14 +5,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(SRC_FILE main.cpp
         application.cpp
         utils/controller.cpp
-        ui/scene_ui.cpp
-        ui/picking_ui.cpp
+        ui/components/scene_ui.cpp
+        ui/components/picking_ui.cpp
         ui/ui_manager.cpp
-        ui/render_mode_ui.cpp
-        ui/material_ui.cpp
-        ui/scene_render_ui.cpp
-        ui/scene_manager.cpp
-        ui/geometry_processing_ui.cpp
+        ui/components/render_mode_ui.cpp
+        ui/components/material_ui.cpp
+        ui/components/scene_render_ui.cpp
+        ui/components/scene_manager.cpp
+        ui/components/geometry_processing_ui.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})

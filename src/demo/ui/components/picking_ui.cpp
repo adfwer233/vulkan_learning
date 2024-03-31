@@ -1,6 +1,6 @@
 #include "picking_ui.hpp"
 
-#include "ui_manager.hpp"
+#include "../ui_manager.hpp"
 
 PickingUI::PickingUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
 }

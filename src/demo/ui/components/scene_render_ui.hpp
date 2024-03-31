@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vkl/scene/vkl_scene.hpp"
-#include "ui_manager_register.hpp"
+#include "../ui_manager_register.hpp"
 
 class UIManager;
 

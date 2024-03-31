@@ -1,6 +1,6 @@
 #include "scene_render_ui.hpp"
 
-#include "ui_manager.hpp"
+#include "../ui_manager.hpp"
 
 SceneRenderUI::SceneRenderUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
 }
