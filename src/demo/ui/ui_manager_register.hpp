@@ -77,6 +77,6 @@ TypeList<> GetTypes(Tag*, Rank<0>) { return {}; }
 #define REGISTER_TYPE(Tag, Type) \
     inline Append<GET_REGISTERED_TYPES(Tag), Type>::type GetTypes(Tag*, Rank<GET_REGISTERED_TYPES(Tag)::size + 1>) { \
         return {};                                                                                                   \
-    }                                                                                                                \
+    }
 
 struct UIManagerRegisteredTypeTag {};
