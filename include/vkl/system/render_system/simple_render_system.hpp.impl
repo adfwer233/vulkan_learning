@@ -75,11 +75,12 @@ void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>:
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout_, 0, 1,
                             frameInfo.pGlobalDescriptorSet, 0, nullptr);
 
+    auto pushConstantRawPointers = pushData.getDataRawPointer();
+
     for (int i = 0; auto pushRange: pushConstantRanges_) {
-        vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_, pushRange.stageFlags, pushRange.offset, pushRange.size, pushData.data[i]);
+        vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout_, pushRange.stageFlags, pushRange.offset, pushRange.size, pushConstantRawPointers[i]);
         i++;
     }
-
 
     frameInfo.model.bind(frameInfo.commandBuffer);
     frameInfo.model.draw(frameInfo.commandBuffer);

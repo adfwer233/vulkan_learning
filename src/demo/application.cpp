@@ -284,7 +284,7 @@ void Application::run() {
                         normalRenderSystemPushConstantData.normalStrength = uiManager.normalStrength;
                         normalRenderSystemPushConstantData.normalColor = uiManager.normalColor;
                         NormalRenderSystemPushConstantDataList list;
-                        list.data[0] = (void *)&normalRenderSystemPushConstantData;
+                        list.data[0] = normalRenderSystemPushConstantData;
                         normalRenderSystem.renderObject(modelFrameInfo, list);
                     }
                 }

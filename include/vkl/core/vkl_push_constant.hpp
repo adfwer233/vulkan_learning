@@ -4,16 +4,32 @@
 
 #include <vector>
 #include <string>
+#include <concepts>
 #include <array>
+#include <format>
+#include <type_traits>
+#include <variant>
 
 template<typename T>
 concept VklPushConstant = requires {
     {T::getStageFlags()} -> std::same_as<VkShaderStageFlags>;
 };
 
+template<int N, typename... Types>
+using NthTypeOf = typename std::tuple_element<N, std::tuple<Types...>>::type;
+
 template<VklPushConstant ...args>
 struct VklPushConstantInfoList {
-    std::array<void*, sizeof...(args)> data;
+private:
+    std::array<void*, sizeof...(args)> rawPointers;
+
+    template<typename T, T ...indices>
+    constexpr void getDataRawPointerLoop(std::integer_sequence<T, indices...>);
+
+public:
+    std::array<std::variant<args...>, sizeof...(args)> data;
+
+    std::array<void*, sizeof...(args)> getDataRawPointer();
     static std::vector<VkPushConstantRange> getPushConstantInfo();
 };
 
