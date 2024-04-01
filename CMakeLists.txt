@@ -26,6 +26,8 @@ INCLUDE_DIRECTORIES(${tinyobjloader_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${imgui_fetch_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${imgui_fetch_SOURCE_DIR}/backends)
 
+message(STATUS ${gtest_SOURCE_DIR})
+
 # set vulkan SDK
 if(NOT DEFINED ENV{VULKAN_SDK})
     message(FATAL_ERROR "VK_SDK_PATH not defined!")
@@ -62,3 +64,6 @@ include(build-doxygen)
 build_doxygen()
 
 include(clang-format)
+
+add_custom_target(BUILD_ALL)
+add_dependencies(BUILD_ALL vkl demo particle test)
