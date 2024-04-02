@@ -3,6 +3,8 @@
 #include <array>
 #include <variant>
 
+class VklScene;
+
 enum {
     UIComponentMaxRegisteredTypes = 15
 };
