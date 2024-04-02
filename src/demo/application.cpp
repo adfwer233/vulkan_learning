@@ -1,16 +1,16 @@
 #include "application.hpp"
-#include "vkl/utils/vkl_box.hpp"
-#include "vkl/utils/vkl_box_model.hpp"
 #include "vkl/core/vkl_descriptor.hpp"
 #include "vkl/core/vkl_image.hpp"
 #include "vkl/scene/vkl_object.hpp"
 #include "vkl/scene/vkl_scene.hpp"
+#include "vkl/utils/vkl_box.hpp"
+#include "vkl/utils/vkl_box_model.hpp"
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/render_system/line_render_system.hpp"
+#include "vkl/system/render_system/normal_render_system.hpp"
 #include "vkl/system/render_system/simple_render_system.hpp"
 #include "vkl/system/render_system/simple_wireframe_render_system.hpp"
-#include "vkl/system/render_system/normal_render_system.hpp"
 
 #include "vkl/system/compute_system/base_compute_system.hpp"
 #include "vkl/system/compute_system/path_tracing_compute_system.hpp"
@@ -84,8 +84,7 @@ void Application::run() {
 
     NormalRenderSystem<VklModel::vertex_type> normalRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-        std::format("{}/normal_shader.vert.spv", SHADER_DIR),
-        std::format("{}/line_shader.frag.spv", SHADER_DIR),
+        std::format("{}/normal_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR),
         std::format("{}/normal_generation.geom.spv", SHADER_DIR));
 
     float deltaTime = 0, lastFrame = 0;

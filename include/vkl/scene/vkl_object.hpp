@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vkl_model.hpp"
 #include "vkl/core/vkl_swap_chain.hpp"
+#include "vkl_model.hpp"
 
 #include "vkl/io/model_loader_concept.hpp"
 

@@ -4,7 +4,7 @@
 #include "vkl/scene/vkl_model.hpp"
 
 class VertexVectorQuantityToNormal {
-public:
+  public:
     static void visualize(VklModel &model, VertexVectorQuantity *quantity) {
         int n = quantity->data.rows();
 

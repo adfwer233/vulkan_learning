@@ -2,8 +2,8 @@
 
 #include <functional>
 
-#include "vkl/utils/vkl_camera.hpp"
 #include "vkl/scene/vkl_object.hpp"
+#include "vkl/utils/vkl_camera.hpp"
 
 #include "ray_tracer/ray_picker.hpp"
 

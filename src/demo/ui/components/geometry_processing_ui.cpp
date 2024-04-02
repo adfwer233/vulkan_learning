@@ -62,7 +62,8 @@ void GeometryProcessingUI::renderImgui() {
             i++;
         }
         if (ImGui::Button("Visualize Chosen Variable")) {
-            VertexScalarQuantityToColor::visualize(*model, modelScalarVariables[vertexScalarVariableIndex], lowColor, highColor);
+            VertexScalarQuantityToColor::visualize(*model, modelScalarVariables[vertexScalarVariableIndex], lowColor,
+                                                   highColor);
         }
 
         ImGui::SeparatorText("Vertex Vector Variables");

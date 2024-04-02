@@ -5,14 +5,16 @@
 #include <stdexcept>
 
 template <VklVertexType VertexType>
-VklGraphicsPipeline<VertexType>::VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo): VklPipeline(device) {
+VklGraphicsPipeline<VertexType>::VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath,
+                                                     const std::string &fragFilepath,
+                                                     const PipelineConfigInfo &configInfo)
+    : VklPipeline(device) {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
 }
 
 template <VklVertexType VertexType>
 VklGraphicsPipeline<VertexType>::VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath,
-                                                     const std::string &fragFilepath,
-                                                     const std::string &geomFilepath,
+                                                     const std::string &fragFilepath, const std::string &geomFilepath,
                                                      const PipelineConfigInfo &configInfo)
     : VklPipeline(device) {
     createGraphicsPipeline(vertFilepath, fragFilepath, geomFilepath, configInfo);

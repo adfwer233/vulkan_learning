@@ -4,11 +4,11 @@
 #include "vkl/scene/vkl_object.hpp"
 
 class NormalVector {
-private:
+  private:
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
 
-public:
+  public:
     explicit NormalVector(VklModel &model);
 
     Eigen::MatrixXd perform();

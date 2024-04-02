@@ -2,7 +2,8 @@
 
 #include "imgui.h"
 
-UIManager::UIManager(VklDevice &device, VklScene &scene) : scene_(scene), device_(device), uiManagerComponentList(scene, *this) {
+UIManager::UIManager(VklDevice &device, VklScene &scene)
+    : scene_(scene), device_(device), uiManagerComponentList(scene, *this) {
 }
 
 void UIManager::renderImgui() {

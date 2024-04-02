@@ -49,7 +49,9 @@ void Application::run() {
 
     VklParticleModel model(device_, builder);
 
-    auto globalSetLayout = VklDescriptorSetLayout::Builder(device_).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS).build();
+    auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
+                               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                               .build();
 
     auto globalPool = VklDescriptorPool::Builder(device_).setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200).build();
 
@@ -168,7 +170,8 @@ void Application::run() {
 
             std::vector<VkCommandBuffer> commandBuffers{commandBuffer};
 
-            auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex, renderer_.getSemaphoreToWait());
+            auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex,
+                                                                     renderer_.getSemaphoreToWait());
 
             renderer_.endFrame();
         }

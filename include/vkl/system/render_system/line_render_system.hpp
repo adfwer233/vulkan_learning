@@ -8,4 +8,5 @@ struct LinePipelineModifier {
     }
 };
 
-template <VklVertexType VertexType> using LineRenderSystem = SimpleRenderSystem<VertexType, SimplePushConstantInfoList, LinePipelineModifier>;
+template <VklVertexType VertexType>
+using LineRenderSystem = SimpleRenderSystem<VertexType, SimplePushConstantInfoList, LinePipelineModifier>;

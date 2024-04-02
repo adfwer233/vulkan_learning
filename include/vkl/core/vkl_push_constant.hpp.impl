@@ -1,20 +1,20 @@
 #include "vkl_push_constant.hpp"
 
-template<VklPushConstant ...args>
-template<typename T, T ...indices>
+template <VklPushConstant... args>
+template <typename T, T... indices>
 constexpr void VklPushConstantInfoList<args...>::getDataRawPointerLoop(std::integer_sequence<T, indices...>) {
-    ((rawPointers[indices] = (void*)&std::get<NthTypeOf<indices, args>>(data[indices])), ...);
+    ((rawPointers[indices] = (void *)&std::get<NthTypeOf<indices, args>>(data[indices])), ...);
 }
 
-template<VklPushConstant ...args>
-std::array<void*, sizeof...(args)> VklPushConstantInfoList<args...>::getDataRawPointer() {
+template <VklPushConstant... args>
+std::array<void *, sizeof...(args)> VklPushConstantInfoList<args...>::getDataRawPointer() {
     constexpr int n = sizeof...(args);
     constexpr auto index_seq = std::make_integer_sequence<int, n>{};
     getDataRawPointerLoop(index_seq);
     return rawPointers;
 }
 
-template<VklPushConstant ...args>
+template <VklPushConstant... args>
 std::vector<VkPushConstantRange> VklPushConstantInfoList<args...>::getPushConstantInfo() {
     int n = sizeof...(args);
 

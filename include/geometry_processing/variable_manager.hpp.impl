@@ -10,7 +10,6 @@ void GeometryVariableManager::singleVertexToVertexScalarQuantityMap(VklModel &mo
         std::move(std::make_unique<VertexScalarQuantity>(model, vertexIndex, (Map *)nullptr)));
 }
 
-template<MeshToVertexVectorQuantityMap Map>
-void GeometryVariableManager::meshToVectorMap(VklModel &model) {
+template <MeshToVertexVectorQuantityMap Map> void GeometryVariableManager::meshToVectorMap(VklModel &model) {
     vertexVectorQuantities.emplace_back(std::move(std::make_unique<VertexVectorQuantity>(model, (Map *)nullptr)));
 }

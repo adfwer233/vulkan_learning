@@ -5,11 +5,11 @@
 #include "components/geometry_processing_ui.hpp"
 #include "components/material_ui.hpp"
 #include "components/picking_ui.hpp"
-#include "ray_tracer/ray_picker.hpp"
 #include "components/render_mode_ui.hpp"
 #include "components/scene_manager.hpp"
 #include "components/scene_render_ui.hpp"
 #include "components/scene_ui.hpp"
+#include "ray_tracer/ray_picker.hpp"
 #include <optional>
 
 #include "vkl/system/compute_system/path_tracing_compute_system.hpp"

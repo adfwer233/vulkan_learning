@@ -2,8 +2,8 @@
 
 #include <format>
 
-#include "imgui.h"
 #include "../ui_manager.hpp"
+#include "imgui.h"
 
 SceneUI::SceneUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
 }

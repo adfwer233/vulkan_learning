@@ -4,7 +4,7 @@
 
 struct NormalRenderPipelineModifier {
     static void modifyPipeline(PipelineConfigInfo &configInfo) {
-       // configInfo.inputAssemblyInfo.topology = VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        // configInfo.inputAssemblyInfo.topology = VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
     }
 };
 
@@ -19,4 +19,6 @@ struct NormalRenderSystemPushConstantData {
 
 using NormalRenderSystemPushConstantDataList = VklPushConstantInfoList<NormalRenderSystemPushConstantData>;
 
-template <VklVertexType VertexType> using NormalRenderSystem = SimpleRenderSystem<VertexType, NormalRenderSystemPushConstantDataList,  NormalRenderPipelineModifier>;
+template <VklVertexType VertexType>
+using NormalRenderSystem =
+    SimpleRenderSystem<VertexType, NormalRenderSystemPushConstantDataList, NormalRenderPipelineModifier>;

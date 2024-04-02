@@ -38,7 +38,7 @@ class GeometryVariableManager {
     std::vector<VertexVectorQuantity *> getModelVectorQuantities(VklModel &model) {
         std::vector<VertexVectorQuantity *> result;
 
-        for (auto &quant: this->vertexVectorQuantities) {
+        for (auto &quant : this->vertexVectorQuantities) {
             if (quant->modelPtr == &model) {
                 result.push_back(quant.get());
             }

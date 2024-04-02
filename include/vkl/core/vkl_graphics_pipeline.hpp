@@ -16,6 +16,7 @@ template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeli
 
     void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
                                 const std::string &geomFilepath, const PipelineConfigInfo &configInfo);
+
   public:
     VkPipeline graphicsPipeline_{};
 
@@ -23,8 +24,7 @@ template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeli
                         const PipelineConfigInfo &configInfo);
 
     VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
-                        const std::string &geomFilepath,
-                        const PipelineConfigInfo &configInfo);
+                        const std::string &geomFilepath, const PipelineConfigInfo &configInfo);
 
     ~VklGraphicsPipeline();
 

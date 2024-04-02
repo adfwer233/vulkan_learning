@@ -3,8 +3,8 @@
 #include <format>
 #include <iostream>
 
-#include "imgui.h"
 #include "../ui_manager.hpp"
+#include "imgui.h"
 
 #include "nlohmann/json.hpp"
 #include "vkl/io/assimp_loader.hpp"

@@ -2,40 +2,37 @@
 
 #include "vkl/core/vkl_device.hpp"
 
-#include <vector>
-#include <string>
-#include <concepts>
 #include <array>
+#include <concepts>
 #include <format>
+#include <string>
 #include <type_traits>
 #include <variant>
+#include <vector>
 
-template<typename T>
+template <typename T>
 concept VklPushConstant = requires {
-    {T::getStageFlags()} -> std::same_as<VkShaderStageFlags>;
+    { T::getStageFlags() } -> std::same_as<VkShaderStageFlags>;
 };
 
-template<int N, typename... Types>
-using NthTypeOf = typename std::tuple_element<N, std::tuple<Types...>>::type;
+template <int N, typename... Types> using NthTypeOf = typename std::tuple_element<N, std::tuple<Types...>>::type;
 
-template<VklPushConstant ...args>
-struct VklPushConstantInfoList {
-private:
-    std::array<void*, sizeof...(args)> rawPointers;
+template <VklPushConstant... args> struct VklPushConstantInfoList {
+  private:
+    std::array<void *, sizeof...(args)> rawPointers;
 
-    template<typename T, T ...indices>
-    constexpr void getDataRawPointerLoop(std::integer_sequence<T, indices...>);
+    template <typename T, T... indices> constexpr void getDataRawPointerLoop(std::integer_sequence<T, indices...>);
 
-public:
+  public:
     std::array<std::variant<args...>, sizeof...(args)> data;
 
-    std::array<void*, sizeof...(args)> getDataRawPointer();
+    std::array<void *, sizeof...(args)> getDataRawPointer();
     static std::vector<VkPushConstantRange> getPushConstantInfo();
 };
 
-template<typename T>
+template <typename T>
 concept VklPushConstantInfoListConcept = requires {
-    {T::getPushConstantInfo()} -> std::same_as<std::vector<VkPushConstantRange>>;
+    { T::getPushConstantInfo() } -> std::same_as<std::vector<VkPushConstantRange>>;
 };
 
 struct SimplePushConstantData {
