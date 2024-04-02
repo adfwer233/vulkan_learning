@@ -9,3 +9,5 @@ set(SRC_FILE
 add_executable(${PROJECT_NAME} ${SRC_FILE})
 
 target_link_libraries(${PROJECT_NAME} glm glfw vkl GTest::gtest_main)
+
+add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
