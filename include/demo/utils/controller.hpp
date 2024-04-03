@@ -31,6 +31,7 @@ class KeyboardCameraController {
 
     bool in_region;
 
+
     static KeyboardCameraController *instance_;
 
   public:
@@ -57,4 +58,8 @@ class KeyboardCameraController {
     void set_scene(VklScene &scene);
 
     void setUIManager(UIManager &uiManager);
+
+    glm::vec2 scope_min;
+
+    glm::vec2 scope_max;
 };

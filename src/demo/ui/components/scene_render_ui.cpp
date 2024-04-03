@@ -1,11 +1,14 @@
 #include "scene_render_ui.hpp"
 
 #include "../ui_manager.hpp"
+#include "demo/utils/controller.hpp"
 
 SceneRenderUI::SceneRenderUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
 }
 
 void SceneRenderUI::renderImgui() {
+    auto controller = KeyboardCameraController::instance();
+
     ImGui::Begin("Render Result");
     {
         ImGui::Button("3D Scene");
@@ -37,6 +40,13 @@ void SceneRenderUI::renderImgui() {
         } else {
             ImGui::Image(resTex[uiManager_.frameIndex], wsize);
         }
+
+        auto min_pos = ImGui::GetItemRectMin();
+        auto max_pos = ImGui::GetItemRectMax();
+
+        controller->scope_min = {min_pos.x, min_pos.y};
+        controller->scope_max = {max_pos.x, max_pos.y};
+
         ImGui::EndChild();
     }
     ImGui::End();
