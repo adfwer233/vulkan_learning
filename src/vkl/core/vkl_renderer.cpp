@@ -16,7 +16,25 @@ VklRenderer::~VklRenderer() {
 }
 
 void VklRenderer::recreateSwapChain() {
-    swapChain_ = std::make_unique<VklSwapChain>(device_, window_.getExtent());
+
+    auto extent = window_.getExtent();
+    while (extent.width == 0 || extent.height == 0) {
+        extent = window_.getExtent();
+        glfwWaitEvents();
+    }
+    vkDeviceWaitIdle(device_.device());
+
+    if (swapChain_ == nullptr) {
+        swapChain_ = std::make_unique<VklSwapChain>(device_, extent);
+    } else {
+        std::shared_ptr<VklSwapChain> oldSwapChain = std::move(swapChain_);
+        swapChain_ = std::make_unique<VklSwapChain>(device_, extent, oldSwapChain);
+
+        if (!oldSwapChain->compareSwapFormats(*swapChain_.get())) {
+            throw std::runtime_error("Swap chain image(or depth) format has changed!");
+        }
+    }
+    // swapChain_ = std::make_unique<VklSwapChain>(device_, window_.getExtent());
 }
 
 void VklRenderer::createCommandBuffers() {
@@ -60,13 +78,13 @@ VkCommandBuffer VklRenderer::beginFrame() {
 }
 
 void VklRenderer::endFrame() {
-    //    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
-    //        window_.wasWindowResized()) {
-    //        window_.resetWindowResizedFlag();
-    //        recreateSwapChain();
-    //    } else if (result != VK_SUCCESS) {
-    //        throw std::runtime_error("failed to present swap chain image!");
-    //    }
+       // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+       //     window_.wasWindowResized()) {
+       //     window_.resetWindowResizedFlag();
+       //     recreateSwapChain();
+       // } else if (result != VK_SUCCESS) {
+       //     throw std::runtime_error("failed to present swap chain image!");
+       // }
 
     isFrameStarted = false;
     currentFrameIndex = (currentFrameIndex + 1) % VklSwapChain::MAX_FRAMES_IN_FLIGHT;
@@ -108,4 +126,9 @@ void VklRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
 void VklRenderer::setSemaphoreToWait(VkSemaphore semaphore) {
     this->semaphoreToWait.clear();
     this->semaphoreToWait.push_back(semaphore);
+}
+
+void VklRenderer::windowUpdate() {
+    window_.resetWindowResizedFlag();
+    recreateSwapChain();
 }

@@ -34,4 +34,11 @@ class VklWindow {
     VkExtent2D getExtent() {
         return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)};
     }
+
+    static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
+
+    bool wasWindowResized() { return framebufferResized; }
+    void resetWindowResizedFlag() { framebufferResized = false; }
+
+    bool framebufferResized = false;
 };
