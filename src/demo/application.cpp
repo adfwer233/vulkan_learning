@@ -315,6 +315,10 @@ void Application::run() {
 
             auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex);
 
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window_.wasWindowResized()) {
+                renderer_.windowUpdate();
+            }
+
             renderer_.endFrame();
         }
     }

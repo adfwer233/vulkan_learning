@@ -144,5 +144,10 @@ class VklSwapChain {
     VkResult submitCommandBuffers(std::vector<VkCommandBuffer> &buffers, uint32_t *imageIndex,
                                   std::vector<VkSemaphore> toWait = std::vector<VkSemaphore>());
 
+    bool compareSwapFormats(const VklSwapChain &swapChain) const {
+        return swapChain.swapChainDepthFormat_ == swapChainDepthFormat_ &&
+               swapChain.swapChainImageFormat_ == swapChainImageFormat_;
+    }
+
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 };

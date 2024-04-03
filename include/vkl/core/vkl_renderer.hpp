@@ -25,6 +25,8 @@ class VklRenderer {
   public:
     uint32_t currentImageIndex;
 
+    void windowUpdate();
+
     std::unique_ptr<VklSwapChain> swapChain_;
 
     VklRenderer(VklWindow &window, VklDevice &device);
