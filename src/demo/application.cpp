@@ -51,7 +51,9 @@ void Application::run() {
     auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
     boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
 
-    KeyboardCameraController::setCamera(scene.camera);
+    auto controller = KeyboardCameraController::instance();
+
+    controller->setCamera(scene.camera);
 
     GLFWwindow *window = window_.getGLFWwindow();
 
@@ -152,10 +154,10 @@ void Application::run() {
     uiManager.offscreenImageViews = offscreenRenderer_.getImageView();
     uiManager.offscreenSampler = offscreenRenderer_.imageSampler;
 
-    KeyboardCameraController::set_scene(scene);
-    KeyboardCameraController::setUIManager(uiManager);
+    controller->set_scene(scene);
+    controller->setUIManager(uiManager);
 
-    KeyboardCameraController::actionCallBack = [&]() {
+    controller->actionCallBack = [&]() {
         if (uiManager.pathTracingComputeSystem_ != nullptr) {
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.currentSample = 0;
         }
@@ -178,7 +180,7 @@ void Application::run() {
 
         uiManager.deltaTime = deltaTime;
 
-        KeyboardCameraController::processInput(window_.getGLFWwindow(), deltaTime);
+        controller->processInput(window_.getGLFWwindow(), deltaTime);
 
         int frameIndex = renderer_.getFrameIndex();
         uiManager.frameIndex = frameIndex;
