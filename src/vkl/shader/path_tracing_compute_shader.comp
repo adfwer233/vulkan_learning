@@ -439,7 +439,7 @@ void main() {
     float viewportWidth = imageSize.x / imageSize.y * viewportHeight;
 
     vec3 vertical = viewportHeight * -ubo.cameraUp;
-    vec3 horizontal = viewportWidth * normalize(cross(ubo.cameraFront, ubo.cameraUp));
+    vec3 horizontal = viewportWidth * normalize(cross(ubo.cameraFront, ubo.cameraUp)) * ubo.rand1;
 
     vec3 origin = ubo.cameraPosition;
     vec3 lowerLeftCorner = origin + ubo.cameraFront - horizontal / 2 - vertical / 2;

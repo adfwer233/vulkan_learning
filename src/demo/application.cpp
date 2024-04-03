@@ -199,7 +199,7 @@ void Application::run() {
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraUp = scene.camera.camera_up_axis;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.cameraFront = scene.camera.camera_front;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.currentSample += 1;
-            uiManager.pathTracingComputeSystem_->computeModel_.ubo.rand1 = distrib(gen);
+            uiManager.pathTracingComputeSystem_->computeModel_.ubo.rand1 = scene.camera.ratio;
             uiManager.pathTracingComputeSystem_->computeModel_.ubo.rand2 = distrib(gen);
             uiManager.pathTracingComputeSystem_->updateUniformBuffer(frameIndex);
             uiManager.pathTracingComputeSystem_->recordCommandBuffer(commandBuffer, targetTexture, accumulationTexture,

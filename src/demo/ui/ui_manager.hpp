@@ -99,5 +99,5 @@ class UIManager {
 
     void resetPathTracingCompute();
 
-    void pickObject(float mouse_x_pos, float mouse_y_pos);
+    void pickObject(float mouse_x_pos, float mouse_y_pos, float width, float height);
 };
