@@ -13,7 +13,13 @@ void SceneRenderUI::renderImgui() {
         ImGui::Button("UV Visualization");
 
         ImGui::BeginChild("RenderResult");
-        ImVec2 wsize(1024, 1024);
+        ImVec2 wsize = ImGui::GetContentRegionMax();
+
+        scene_.camera.ratio = wsize.x / wsize.y;
+
+        // ImGuiIO& io = ImGui::GetIO();
+        // io.WantCaptureMouse = true;
+
         if (resTex.empty()) {
             resTex.resize(uiManager_.offscreenImageViews->size());
             for (uint32_t i = 0; i < uiManager_.offscreenImageViews->size(); i++)

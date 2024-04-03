@@ -71,6 +71,8 @@ class Camera {
      */
     const float mouse_sensitivity;
 
+    float ratio = 1.0;
+
     float theta, phi;
 
     Camera(glm::vec3 pos, glm::vec3 up, float t_yaw = default_yaw, float t_pitch = default_pitch)
