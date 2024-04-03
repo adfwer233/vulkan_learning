@@ -60,32 +60,36 @@ void Application::run() {
     glfwSetMouseButtonCallback(window, KeyboardCameraController::mouse_button_callback);
 
     /** render system */
-    SimpleRenderSystem<VklModel::vertex_type> renderSystem(device_, offscreenRenderer_.getSwapChainRenderPass(),
-                                                           globalSetLayout->getDescriptorSetLayout());
+    SimpleRenderSystem<VklModel::vertex_type> renderSystem(
+            device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+            {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+             {std::format("{}/simple_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-        std::format("{}/simple_shader.vert.spv", SHADER_DIR),
-        std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
+        {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-        std::format("{}/simple_shader.vert.spv", SHADER_DIR),
-        std::format("{}/point_light_shader.frag.spv", SHADER_DIR));
+        {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+        {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-        std::format("{}/line_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR));
+        {{std::format("{}/line_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-        std::format("{}/simple_shader.vert.spv", SHADER_DIR),
-        std::format("{}/simple_color_shader.frag.spv", SHADER_DIR));
+        {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/simple_color_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     NormalRenderSystem<VklModel::vertex_type> normalRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-        std::format("{}/normal_shader.vert.spv", SHADER_DIR), std::format("{}/line_shader.frag.spv", SHADER_DIR),
-        std::format("{}/normal_generation.geom.spv", SHADER_DIR));
+        {{std::format("{}/normal_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT},
+         {std::format("{}/normal_generation.geom.spv", SHADER_DIR), VK_SHADER_STAGE_GEOMETRY_BIT}});
 
     float deltaTime = 0, lastFrame = 0;
 

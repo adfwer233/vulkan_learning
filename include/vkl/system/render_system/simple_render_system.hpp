@@ -35,18 +35,13 @@ class SimpleRenderSystem {
     std::vector<VkPushConstantRange> pushConstantRanges_;
 
     void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-    void createPipeline(VkRenderPass renderPass);
+    void createPipeline(VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos);
 
   public:
     std::unique_ptr<VklGraphicsPipeline<VertexType>> pipeline_;
     VkPipelineLayout pipelineLayout_{};
     SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
-                       std::string vertex_shader_path = std::format("{}/simple_shader.vert.spv", SHADER_DIR),
-                       std::string fragment_shader_path = std::format("{}/simple_shader.frag.spv", SHADER_DIR));
-
-    SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
-                       std::string vertex_shader_path, std::string fragment_shader_path,
-                       std::string geometry_shader_path);
+                       std::vector<VklShaderModuleInfo> shaderInfos);
 
     SimpleRenderSystem(const SimpleRenderSystem &) = delete;
     SimpleRenderSystem operator=(const SimpleRenderSystem &) = delete;

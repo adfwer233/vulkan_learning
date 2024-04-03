@@ -5,23 +5,10 @@
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
 SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(
-    VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::string vertex_shader_path,
-    std::string fragment_shader_path)
-    : device_(device), vertex_shader_path_(vertex_shader_path), fragment_shader_path_(fragment_shader_path),
-      geometry_shader_path_("") {
+    VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::vector<VklShaderModuleInfo> shaderInfos)
+    : device_(device) {
     createPipelineLayout(globalSetLayout);
-    createPipeline(renderPass);
-}
-
-template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList,
-          VklPipelineModifierType PipelineModifierType>
-SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(
-    VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::string vertex_shader_path,
-    std::string fragment_shader_path, std::string geometry_shader_path)
-    : device_(device), vertex_shader_path_(vertex_shader_path), fragment_shader_path_(fragment_shader_path),
-      geometry_shader_path_(geometry_shader_path) {
-    createPipelineLayout(globalSetLayout);
-    createPipeline(renderPass);
+    createPipeline(renderPass, shaderInfos);
 }
 
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList,
@@ -53,7 +40,7 @@ void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>:
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
 void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::createPipeline(
-    VkRenderPass renderPass) {
+    VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos) {
     PipelineConfigInfo pipelineConfigInfo{};
 
     VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(pipelineConfigInfo);
@@ -62,13 +49,8 @@ void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>:
 
     pipelineConfigInfo.renderPass = renderPass;
     pipelineConfigInfo.pipelineLayout = pipelineLayout_;
-    if (geometry_shader_path_.empty()) {
-        pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, vertex_shader_path_,
-                                                                      fragment_shader_path_, pipelineConfigInfo);
-    } else {
-        pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(
-            device_, vertex_shader_path_, fragment_shader_path_, geometry_shader_path_, pipelineConfigInfo);
-    }
+    pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(
+        device_, shaderInfos, pipelineConfigInfo);
 }
 
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList,

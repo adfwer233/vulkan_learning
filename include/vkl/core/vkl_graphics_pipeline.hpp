@@ -5,26 +5,19 @@
 
 #include "vkl/templates/vkl_concept.hpp"
 
+#include "vkl/core/vkl_shader_module.hpp"
+
 template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeline {
   private:
-    VkShaderModule vertShaderModule_{};
-    VkShaderModule fragShaderModule_{};
-    VkShaderModule geomShaderModule_{};
+    std::vector<VkShaderModule> shaderModules;
 
-    void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
-                                const PipelineConfigInfo &configInfo);
-
-    void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
-                                const std::string &geomFilepath, const PipelineConfigInfo &configInfo);
+    void createGraphicsPipeline(const PipelineConfigInfo &configInfo, std::vector<VklShaderModuleInfo> infos);
 
   public:
     VkPipeline graphicsPipeline_{};
 
-    VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
+    VklGraphicsPipeline(VklDevice &device, std::vector<VklShaderModuleInfo> shaderInfos,
                         const PipelineConfigInfo &configInfo);
-
-    VklGraphicsPipeline(VklDevice &device, const std::string &vertFilepath, const std::string &fragFilepath,
-                        const std::string &geomFilepath, const PipelineConfigInfo &configInfo);
 
     ~VklGraphicsPipeline();
 
