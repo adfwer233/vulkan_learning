@@ -11,21 +11,21 @@ void RenderModeUI::renderImgui() {
 
     ImGui::SeparatorText("Rendering Mode");
 
-    ImGui::RadioButton("Raw", &uiManager_.renderMode, 0);
+    ImGui::RadioButton("Raw", (int*)&uiManager_.renderMode, RenderMode::Raw);
     ImGui::SameLine();
-    ImGui::RadioButton("Wire Frame", &uiManager_.renderMode, 1);
+    ImGui::RadioButton("Wire Frame", (int*)&uiManager_.renderMode, RenderMode::WireFrame);
     ImGui::SameLine();
-    ImGui::RadioButton("With Texture", &uiManager_.renderMode, 2);
+    ImGui::RadioButton("With Texture", (int*)&uiManager_.renderMode, RenderMode::WithTexture);
     ImGui::SameLine();
-    ImGui::RadioButton("Path Tracing", &uiManager_.renderMode, 3);
+    ImGui::RadioButton("Path Tracing", (int*)&uiManager_.renderMode, RenderMode::PathTracing);
 
     ImGui::SeparatorText("Shading Mode");
 
-    ImGui::RadioButton("Point Light Shading", &uiManager_.shadingMode, 0);
+    ImGui::RadioButton("Point Light Shading", (int*)&uiManager_.shadingMode, ShadingMode::PointLightShading);
     ImGui::SameLine();
-    ImGui::RadioButton("Solid Shading", &uiManager_.shadingMode, 1);
+    ImGui::RadioButton("Solid Shading", (int*)&uiManager_.shadingMode, ShadingMode::SolidShading);
     ImGui::SameLine();
-    ImGui::RadioButton("Pure Color", &uiManager_.shadingMode, 2);
+    ImGui::RadioButton("Pure Color", (int*)&uiManager_.shadingMode, ShadingMode::PureColor);
 
     ImGui::SeparatorText("Options");
     ImGui::Checkbox("Show Normal", &uiManager_.showNormal);

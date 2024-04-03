@@ -8,6 +8,10 @@ SceneRenderUI::SceneRenderUI(VklScene &scene, UIManager &uiManager) : scene_(sce
 void SceneRenderUI::renderImgui() {
     ImGui::Begin("Render Result");
     {
+        ImGui::Button("3D Scene");
+        ImGui::SameLine();
+        ImGui::Button("UV Visualization");
+
         ImGui::BeginChild("RenderResult");
         ImVec2 wsize(1024, 1024);
         if (resTex.empty()) {
@@ -17,7 +21,7 @@ void SceneRenderUI::renderImgui() {
                     ImGui_ImplVulkan_AddTexture(uiManager_.offscreenSampler, (*uiManager_.offscreenImageViews)[i],
                                                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
-        if (uiManager_.renderMode == 3) {
+        if (uiManager_.renderMode == RenderMode::PathTracing) {
             if (uiManager_.pathTracingResTex == VK_NULL_HANDLE) {
                 uiManager_.pathTracingResTex = ImGui_ImplVulkan_AddTexture(
                     uiManager_.renderResultTexture->getTextureSampler(),

@@ -18,6 +18,19 @@
 
 #include "ui_manager_register.hpp"
 
+enum RenderMode {
+    Raw,
+    WireFrame,
+    WithTexture,
+    PathTracing
+};
+
+enum ShadingMode {
+    PointLightShading,
+    SolidShading,
+    PureColor
+};
+
 class UIManager {
   private:
     VklDevice &device_;
@@ -37,12 +50,12 @@ class UIManager {
     /**
      * renderModel, used in render mode ui
      */
-    int renderMode = 0;
+    RenderMode renderMode = RenderMode::Raw;
 
     /**
      * shading mode, point light or solid
      */
-    int shadingMode = 0;
+    ShadingMode shadingMode = ShadingMode::PointLightShading;
 
     /**
      * whether show the normal vector

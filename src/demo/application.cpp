@@ -181,7 +181,7 @@ void Application::run() {
 
         uiManager.renderImgui();
 
-        if (uiManager.renderMode == 3) {
+        if (uiManager.renderMode == PathTracing) {
 
             auto commandBuffer = renderer_.beginFrame();
 
@@ -232,7 +232,7 @@ void Application::run() {
             ubo.pointLight = scene.pointLight;
             ubo.cameraPos = scene.camera.position;
 
-            if (uiManager.shadingMode == 1) {
+            if (uiManager.shadingMode == SolidShading) {
                 ubo.pointLight.position = glm::vec4(ubo.cameraPos, 1.0f);
             }
 
@@ -249,15 +249,15 @@ void Application::run() {
                                                        &model->descriptorSets[frameIndex],
                                                        *model};
 
-                    if (uiManager.renderMode == 0) {
-                        if (uiManager.shadingMode == 0 or uiManager.shadingMode == 1) {
+                    if (uiManager.renderMode == Raw) {
+                        if (uiManager.shadingMode == PointLightShading or uiManager.shadingMode == SolidShading) {
                             rawRenderSystem.renderObject(modelFrameInfo);
-                        } else if (uiManager.shadingMode == 2) {
+                        } else if (uiManager.shadingMode == PureColor) {
                             colorRenderSystem.renderObject(modelFrameInfo);
                         }
-                    } else if (uiManager.renderMode == 1) {
+                    } else if (uiManager.renderMode == WireFrame) {
                         wireFrameRenderSystem.renderObject(modelFrameInfo);
-                    } else if (uiManager.renderMode == 2) {
+                    } else if (uiManager.renderMode == WithTexture) {
                         if (model->textures_.empty())
                             rawRenderSystem.renderObject(modelFrameInfo);
                         else
