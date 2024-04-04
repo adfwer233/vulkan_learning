@@ -73,7 +73,7 @@ void Application::run() {
          {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(
-        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        device_, uvRender_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
         {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
@@ -153,6 +153,8 @@ void Application::run() {
     uiManager.renderResultTexture = renderRes;
     uiManager.offscreenImageViews = offscreenRenderer_.getImageView();
     uiManager.offscreenSampler = offscreenRenderer_.imageSampler;
+    uiManager.uvImageViews = uvRender_.getImageView();
+    uiManager.uvSampler = uvRender_.imageSampler;
 
     controller->set_scene(scene);
     controller->setUIManager(uiManager);
@@ -230,6 +232,10 @@ void Application::run() {
 
             auto offscreenCommandBuffer = offscreenRenderer_.beginFrame();
             offscreenRenderer_.beginSwapChainRenderPass(offscreenCommandBuffer);
+
+            auto uvCommandBuffer = uvRender_.beginFrame();
+            uvRender_.beginSwapChainRenderPass(uvCommandBuffer);
+
             GlobalUbo ubo{};
 
             ubo.view = scene.camera.get_view_transformation();
@@ -262,6 +268,7 @@ void Application::run() {
                             colorRenderSystem.renderObject(modelFrameInfo);
                         }
                     } else if (uiManager.renderMode == WireFrame) {
+                        modelFrameInfo.commandBuffer = uvCommandBuffer;
                         wireFrameRenderSystem.renderObject(modelFrameInfo);
                     } else if (uiManager.renderMode == WithTexture) {
                         if (model->textures_.empty())
@@ -300,6 +307,9 @@ void Application::run() {
                 lineRenderSystem.renderObject(boxFrameInfo);
             }
 
+            uvRender_.endSwapChainRenderPass(uvCommandBuffer);
+            uvRender_.endFrame();
+
             offscreenRenderer_.endSwapChainRenderPass(offscreenCommandBuffer);
             offscreenRenderer_.endFrame();
 
@@ -313,7 +323,7 @@ void Application::run() {
                 throw std::runtime_error("failed to record command buffer!");
             }
 
-            std::vector<VkCommandBuffer> commandBuffers{commandBuffer, offscreenCommandBuffer};
+            std::vector<VkCommandBuffer> commandBuffers{commandBuffer, offscreenCommandBuffer, uvCommandBuffer};
 
             auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex);
 

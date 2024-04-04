@@ -18,6 +18,7 @@ class Application {
     VklDevice device_;
     VklRenderer renderer_{window_, device_};
     VklOffscreenRenderer offscreenRenderer_{device_, 1024, 1024};
+    VklOffscreenRenderer uvRender_{device_, 1024, 1024};
 
   public:
     Application()
