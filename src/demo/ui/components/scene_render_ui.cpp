@@ -11,10 +11,6 @@ void SceneRenderUI::renderImgui() {
 
     ImGui::Begin("Render Result");
     {
-        ImGui::Button("3D Scene");
-        ImGui::SameLine();
-        ImGui::Button("UV Visualization");
-
         ImGui::BeginChild("RenderResult");
         ImVec2 wsize = ImGui::GetContentRegionMax();
 

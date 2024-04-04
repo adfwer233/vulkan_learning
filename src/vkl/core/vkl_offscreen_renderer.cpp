@@ -21,9 +21,12 @@ void VklOffscreenRenderer::createImages() {
     imageViews_.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
 
     for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
-        device_.createImage(1024, 1024, VkFormat::VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+        device_.createImage(4096, 4096, VkFormat::VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->images_[i], this->memory_[i]);
+
+        device_.transitionImageLayout(this->images_[i], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
         imageViews_[i] = device_.createImageView(this->images_[i], VkFormat::VK_FORMAT_R8G8B8A8_SRGB);
     }
 }
@@ -32,7 +35,7 @@ void VklOffscreenRenderer::createDepthResources() {
     VkFormat depthFormat =
         device_.findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
                                     VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-    VkExtent2D extent(1024, 1024);
+    VkExtent2D extent(4096, 4096);
 
     depthImages_.resize(images_.size());
     depthImageMemories_.resize(images_.size());
@@ -145,7 +148,7 @@ void VklOffscreenRenderer::createFrameBuffer() {
     for (size_t i = 0; i < images_.size(); i++) {
         std::array<VkImageView, 2> attachments = {imageViews_[i], depthImageViews_[i]};
 
-        VkExtent2D extent(1024, 1024);
+        VkExtent2D extent(4096, 4096);
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = renderPass_;
@@ -208,7 +211,7 @@ void VklOffscreenRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffe
     renderPassInfo.renderPass = renderPass_;
     renderPassInfo.framebuffer = framebuffers_[currentFrameIndex];
 
-    VkExtent2D extent(1024, 1024);
+    VkExtent2D extent(4096, 4096);
 
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = extent;

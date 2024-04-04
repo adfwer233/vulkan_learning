@@ -3,6 +3,7 @@
 #include "vkl/scene/vkl_scene.hpp"
 
 #include "components/geometry_processing_ui.hpp"
+#include "components/uv_render_ui.hpp"
 #include "components/material_ui.hpp"
 #include "components/picking_ui.hpp"
 #include "components/render_mode_ui.hpp"
@@ -79,6 +80,12 @@ class UIManager {
      */
     std::vector<VkImageView> *offscreenImageViews;
     VkSampler offscreenSampler;
+
+    /**
+     * uv rendering target resources
+     */
+    std::vector<VkImageView> *uvImageViews;
+    VkSampler uvSampler;
 
     GeometryVariableManager geometryVariableManager;
 
