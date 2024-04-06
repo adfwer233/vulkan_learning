@@ -55,6 +55,7 @@ add_subdirectory(src/demo)
 add_subdirectory(src/particle)
 add_subdirectory(src/geometry_processing)
 add_subdirectory(src/bezier_curve)
+add_subdirectory(src/geometry)
 add_subdirectory(test)
 
 find_package(OpenMP)
@@ -67,4 +68,4 @@ build_doxygen()
 include(clang-format)
 
 add_custom_target(BUILD_ALL)
-add_dependencies(BUILD_ALL vkl demo particle test)
+add_dependencies(BUILD_ALL vkl demo particle geometry test)
