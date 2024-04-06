@@ -9,7 +9,7 @@ set(SRC_FILE
 
 add_library(${PROJECT_NAME} ${SRC_FILE})
 
-target_link_libraries(${PROJECT_NAME} glm autodiff vkl)
+target_link_libraries(${PROJECT_NAME} glm autodiff vkl boost)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
