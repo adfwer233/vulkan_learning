@@ -6,6 +6,10 @@ template<uint32_t dim>
 struct autodiff_vec {
     std::array<autodiff::var, dim> data;
 
+    using value_type = autodiff::var;
+
+    size_t size() { return dim; }
+
     template <std::floating_point ...Values>
     explicit autodiff_vec(Values... values) {
         static_assert(dim == sizeof...(values) || sizeof...(values) == 0);
@@ -22,6 +26,10 @@ struct autodiff_vec {
     autodiff_vec<dim> operator - (const autodiff_vec<dim> &a);
     autodiff_vec<dim> operator * (const autodiff_vec<dim> &a);
     autodiff_vec<dim> operator / (const autodiff_vec<dim> &a);
+
+    autodiff::var operator [] (int idx) {
+        return data[idx];
+    }
 };
 
 struct autodiff_vec2: public autodiff_vec<2> {
@@ -30,7 +38,8 @@ struct autodiff_vec2: public autodiff_vec<2> {
 };
 
 struct autodiff_vec3: public autodiff_vec<3> {
-
+    template <std::floating_point ...Values>
+    explicit autodiff_vec3(Values... values): autodiff_vec<3>(values...) {}
 };
 
 struct autodiff_vec4: public autodiff_vec<4> {
