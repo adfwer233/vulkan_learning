@@ -8,7 +8,7 @@ struct autodiff_vec {
 
     using value_type = autodiff::var;
 
-    size_t size() { return dim; }
+    size_t size() const { return dim; }
 
     template <std::floating_point ...Values>
     explicit autodiff_vec(Values... values) {
@@ -27,7 +27,11 @@ struct autodiff_vec {
     autodiff_vec<dim> operator * (const autodiff_vec<dim> &a);
     autodiff_vec<dim> operator / (const autodiff_vec<dim> &a);
 
-    autodiff::var operator [] (int idx) {
+    autodiff::var& operator[] (size_t idx) {
+        return data[idx];
+    }
+
+    autodiff::var operator[] (size_t idx) const {
         return data[idx];
     }
 };
