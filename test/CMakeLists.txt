@@ -3,11 +3,12 @@ project(test VERSION 1.0 DESCRIPTION "Test Project" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_FILE
-    templates/vkl_type_list_test.cpp
+        templates/vkl_type_list_test.cpp
+        autodiff/autodiff_test.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
 
-target_link_libraries(${PROJECT_NAME} glm glfw vkl GTest::gtest_main)
+target_link_libraries(${PROJECT_NAME} glm glfw vkl autodiff GTest::gtest_main)
 
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
