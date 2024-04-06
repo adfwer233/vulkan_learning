@@ -18,6 +18,7 @@ include(fetch-jsoncpp)
 include(fetch-libigl)
 include(fetch-googletest)
 include(fetch-tinyobjloader)
+include(fetch-autodiff)
 
 igl_include(copyleft core)
 
