@@ -6,6 +6,7 @@
 #include "../ui_manager.hpp"
 #include "imgui.h"
 
+#include "geometry/surface/tensor_product_bezier.hpp"
 #include "nlohmann/json.hpp"
 #include "vkl/io/assimp_loader.hpp"
 #include "vkl/io/tiny_obj_loader.hpp"
@@ -89,6 +90,19 @@ void SceneManagerUI::renderImgui() {
             scene_.objects[scaleInfo.object_index]->modelScaling = {scaleInfo.scale, scaleInfo.scale, scaleInfo.scale};
         }
         uiManager_.resetPathTracingCompute();
+    }
+
+    if (ImGui::Button("Load Bezier Surface")) {
+        std::vector<std::vector<glm::vec3>> control_points {
+            {{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
+            {{0.0, 0.5, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
+            {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
+        };
+
+        TensorProductBezierSurface surface(control_points);
+
+        auto builder = surface.getMeshModelBuilder();
+        scene_.addObject(builder);
     }
 
     ImGui::SeparatorText("Scene Information");

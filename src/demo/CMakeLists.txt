@@ -24,7 +24,7 @@ add_definitions(-DSHADER_DIR="${CMAKE_SOURCE_DIR}/src/vkl/shader")
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${VK_SDK_INCLUDE})
 
-target_link_libraries(${PROJECT_NAME} glm glfw nlohmann_json vkl ray_tracer geometry_processing igl_copyleft::core)
+target_link_libraries(${PROJECT_NAME} glm glfw nlohmann_json vkl ray_tracer geometry geometry_processing igl_copyleft::core)
 
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD

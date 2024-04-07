@@ -56,6 +56,8 @@ class VklScene {
 
     template <VklModelLoader Loader> void addObject(VklObject::ImportBuilder<Loader> builder);
 
+    void addObject(VklModel::BuilderFromImmediateData builder);
+
     [[nodiscard]] int getSceneTriangleNum() const {
         int triangle_num = 0;
         for (const auto &object_item : objects) {

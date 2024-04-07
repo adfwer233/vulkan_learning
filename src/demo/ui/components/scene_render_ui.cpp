@@ -14,6 +14,9 @@ void SceneRenderUI::renderImgui() {
         ImGui::BeginChild("RenderResult");
         ImVec2 wsize = ImGui::GetContentRegionMax();
 
+        if (uiManager_.renderMode == RenderMode::PathTracing) {
+            wsize = {1024, 1024};
+        }
         scene_.camera.ratio = wsize.x / wsize.y;
 
         // ImGuiIO& io = ImGui::GetIO();

@@ -18,6 +18,7 @@ set(SRC_FILE core/vkl_window.cpp
         core/vkl_image.cpp
         core/vkl_offscreen_renderer.cpp
         io/tiny_obj_loader.cpp
+        scene/vkl_scene.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})

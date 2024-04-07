@@ -73,7 +73,7 @@ void Application::run() {
          {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(
-        device_, uvRender_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
         {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
@@ -268,7 +268,7 @@ void Application::run() {
                             colorRenderSystem.renderObject(modelFrameInfo);
                         }
                     } else if (uiManager.renderMode == WireFrame) {
-                        modelFrameInfo.commandBuffer = uvCommandBuffer;
+                        // modelFrameInfo.commandBuffer = uvCommandBuffer;
                         wireFrameRenderSystem.renderObject(modelFrameInfo);
                     } else if (uiManager.renderMode == WithTexture) {
                         if (model->textures_.empty())

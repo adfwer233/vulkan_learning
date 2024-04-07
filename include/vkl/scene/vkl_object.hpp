@@ -22,6 +22,8 @@ class VklObject {
         std::string modelPath;
     };
 
+    VklObject(VklDevice &device, VklModel::BuilderFromImmediateData builder);
+
     template <VklModelLoader Loader> explicit VklObject(VklDevice &device, ImportBuilder<Loader> builder);
 
     ~VklObject();

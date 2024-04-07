@@ -46,11 +46,7 @@ public:
      */
     struct IsRenderableGeometry{};
     using render_type = VklModel;
-    render_type* getMeshModel(VklDevice &device) {
-        if (mesh_model_ptr) {
-            return mesh_model_ptr.get();
-        }
-
+    render_type::BuilderFromImmediateData getMeshModelBuilder() {
         render_type::BuilderFromImmediateData builder;
 
         constexpr int n = 50;
@@ -71,10 +67,10 @@ public:
 
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                auto idx1 = i * m + j;
-                auto idx2 = i * m + j + 1;
-                auto idx3 = (i + 1) * m + j;
-                auto idx4 = (i + 1) * m + j + 1;
+                auto idx1 = i * (n + 1) + j;
+                auto idx2 = i * (n + 1) + j + 1;
+                auto idx3 = (i + 1) * (n + 1) + j;
+                auto idx4 = (i + 1) * (n + 1) + j + 1;
 
                 decltype(builder.indices)::value_type primitive_idx1, primitive_idx2;
                 primitive_idx1.i = idx1;
@@ -90,9 +86,7 @@ public:
             }
         }
 
-        mesh_model_ptr = std::make_unique<render_type>(device, builder);
-
-        return mesh_model_ptr.get();
+        return builder;
     }
 
     virtual GeometrySurfaceType type() {
