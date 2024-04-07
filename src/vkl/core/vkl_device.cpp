@@ -285,6 +285,7 @@ void VklDevice::createLogicalDevice() {
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     deviceFeatures.fillModeNonSolid = VK_TRUE;
     deviceFeatures.geometryShader = VK_TRUE;
+    deviceFeatures.wideLines = VK_TRUE;
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

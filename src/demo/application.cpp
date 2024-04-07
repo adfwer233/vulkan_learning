@@ -82,6 +82,11 @@ void Application::run() {
         {{std::format("{}/line_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
+    LineRenderSystem<VklCurveModel3D::vertex_type> curveMeshRenderSystem(
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        {{std::format("{}/curve_mesh_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+
     SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
@@ -248,6 +253,7 @@ void Application::run() {
                 ubo.pointLight.position = glm::vec4(ubo.cameraPos, 1.0f);
             }
 
+            // render meshes
             for (auto &object_item : scene.objects) {
                 for (auto model : object_item->models) {
                     ubo.model = object_item->getModelTransformation();
@@ -285,6 +291,62 @@ void Application::run() {
                         list.data[0] = normalRenderSystemPushConstantData;
                         normalRenderSystem.renderObject(modelFrameInfo, list);
                     }
+                }
+            }
+
+            // render surfaces
+            for (auto &surf: scene.surfaces) {
+                auto meshModel = surf->getMeshModel(device_);
+
+                meshModel->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                meshModel->uniformBuffers[frameIndex]->flush();
+
+                FrameInfo<VklModel> modelFrameInfo{frameIndex,
+                                                   currentFrame,
+                                                   offscreenCommandBuffer,
+                                                   scene.camera,
+                                                   &meshModel->descriptorSets[frameIndex],
+                                                   *meshModel};
+
+                if (uiManager.renderMode == Raw) {
+                    if (uiManager.shadingMode == PointLightShading or uiManager.shadingMode == SolidShading) {
+                        rawRenderSystem.renderObject(modelFrameInfo);
+                    } else if (uiManager.shadingMode == PureColor) {
+                        colorRenderSystem.renderObject(modelFrameInfo);
+                    }
+                } else if (uiManager.renderMode == WireFrame) {
+                    // modelFrameInfo.commandBuffer = uvCommandBuffer;
+                    wireFrameRenderSystem.renderObject(modelFrameInfo);
+                } else if (uiManager.renderMode == WithTexture) {
+                    if (meshModel->textures_.empty())
+                        rawRenderSystem.renderObject(modelFrameInfo);
+                    else
+                        renderSystem.renderObject(modelFrameInfo);
+                }
+
+                if (uiManager.showNormal) {
+                    NormalRenderSystemPushConstantData normalRenderSystemPushConstantData{};
+                    normalRenderSystemPushConstantData.normalStrength = uiManager.normalStrength;
+                    normalRenderSystemPushConstantData.normalColor = uiManager.normalColor;
+                    NormalRenderSystemPushConstantDataList list;
+                    list.data[0] = normalRenderSystemPushConstantData;
+                    normalRenderSystem.renderObject(modelFrameInfo, list);
+                }
+
+                auto boundary_meshes = surf->getBoundaryMeshModels(device_);
+
+                for (auto boundary: boundary_meshes) {
+                    boundary->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                    boundary->uniformBuffers[frameIndex]->flush();
+
+                    FrameInfo<TensorProductBezierSurface::boundary_render_type> boundaryModelFrameInfo{frameIndex,
+                                                       currentFrame,
+                                                       offscreenCommandBuffer,
+                                                       scene.camera,
+                                                       &boundary->descriptorSets[frameIndex],
+                                                       *boundary};
+                    vkCmdSetLineWidth(offscreenCommandBuffer, 15.0f);
+                    curveMeshRenderSystem.renderObject(boundaryModelFrameInfo);
                 }
             }
 

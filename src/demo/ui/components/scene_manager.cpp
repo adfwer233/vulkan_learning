@@ -99,10 +99,7 @@ void SceneManagerUI::renderImgui() {
             {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
         };
 
-        TensorProductBezierSurface surface(control_points);
-
-        auto builder = surface.getMeshModelBuilder();
-        scene_.addObject(builder);
+        scene_.addTensorProductBezierSurface(std::move(control_points));
     }
 
     ImGui::SeparatorText("Scene Information");

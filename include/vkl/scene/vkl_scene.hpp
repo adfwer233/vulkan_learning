@@ -5,6 +5,7 @@
 
 #include "vkl/bvh/vkl_bvh_gpu.hpp"
 #include "vkl_object.hpp"
+#include "geometry/surface/tensor_product_bezier.hpp"
 
 #include "vkl/io/model_loader_concept.hpp"
 
@@ -51,10 +52,25 @@ class VklScene {
     std::vector<std::unique_ptr<VklObject>> objects;
     std::vector<VklBVHGPUModel::Material> materials;
 
+    std::vector<std::unique_ptr<TensorProductBezierSurface>> surfaces;
+
     Camera camera;
     PointLight pointLight;
 
     template <VklModelLoader Loader> void addObject(VklObject::ImportBuilder<Loader> builder);
+
+    void addTensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_points) {
+        surfaces.push_back(std::move(std::make_unique<TensorProductBezierSurface>(std::move(control_points))));
+        auto &surf = surfaces.back();
+
+        auto meshModel = surf->getMeshModel(device_);
+
+        meshModel->allocDescriptorSets(*setLayout_, *descriptorPool_);
+
+        for (auto boundary: surf->getBoundaryMeshModels(device_)) {
+            boundary->allocDescriptorSets(*setLayout_, *descriptorPool_);
+        }
+    }
 
     void addObject(VklModel::BuilderFromImmediateData builder);
 
