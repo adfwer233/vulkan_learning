@@ -1,0 +1,27 @@
+#include "bernstein.hpp"
+
+
+template<typename T>
+static T BernsteinBasisFunction::evaluate(double param, const std::vector<T> &coefficients) {
+    auto n = coefficients.size();
+
+    using namespace boost::math::interpolators;
+
+    std::vector<std::array<double, T::length()>> control_pts(coefficients.size());
+
+    for (int i = 0; i < n; i++) {
+        if constexpr (T::length() == 3)
+            control_pts[i] = {coefficients[i].x, coefficients[i].y, coefficients[i].z};
+        else
+            control_pts[i] = {coefficients[i].x, coefficients[i].y};
+    }
+
+    auto bp = bezier_polynomial(std::move(control_pts));
+
+    auto res = bp(param);
+
+    if constexpr (T::length() == 3)
+        return {res[0], res[1], res[2]};
+    else
+        return {res[0], res[1]};
+}

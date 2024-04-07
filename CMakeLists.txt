@@ -61,6 +61,7 @@ add_subdirectory(src/particle)
 add_subdirectory(src/geometry_processing)
 add_subdirectory(src/bezier_curve)
 add_subdirectory(src/geometry)
+add_subdirectory(src/simulation)
 add_subdirectory(test)
 
 find_package(OpenMP)
