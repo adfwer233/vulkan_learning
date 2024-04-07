@@ -29,7 +29,7 @@ class BernsteinBasisFunction {
         return {res[0], res[1], res[2]};
     }
 
-    static autodiff_vec3 evaluate_autodiff(double param, std::vector<autodiff_vec3> &coefficients) {
+    static autodiff_vec3 evaluate_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients) {
         using namespace boost::math::interpolators;
         auto bp = bezier_polynomial(std::move(coefficients));
         auto res = bp(param);

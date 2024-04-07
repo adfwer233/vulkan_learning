@@ -24,7 +24,10 @@ TEST(BernsteinBasisFunctionTest, AutodiffEvaluate) {
             autodiff_vec3{2.0, 1.0, 0.0}
         };
 
-        auto res = BernsteinBasisFunction::evaluate_autodiff(i * 0.1, control_pts);
+        autodiff::var param = i * 0.1;
+        auto res = BernsteinBasisFunction::evaluate_autodiff(param, control_pts);
+        auto [prime_x] = autodiff::derivatives(res[0], autodiff::wrt(param));
+        std::cout << prime_x << std::endl;
         std::cout <<  autodiff::reverse::detail::expr_value(res[0]) << ' ' << res[1] << ' ' << res[2] << std::endl;
     }
 }
