@@ -4,7 +4,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_FILE gauss_curvature.cpp
         single_source_exact_geodesic_distance.cpp
-        normal_vector.cpp)
+        normal_vector.cpp
+        laplacian_boundary_z_axis_valued.cpp)
 
 add_library(${PROJECT_NAME} ${SRC_FILE})
 

@@ -345,7 +345,6 @@ void Application::run() {
                                                        scene.camera,
                                                        &boundary->descriptorSets[frameIndex],
                                                        *boundary};
-                    vkCmdSetLineWidth(offscreenCommandBuffer, 15.0f);
                     curveMeshRenderSystem.renderObject(boundaryModelFrameInfo);
                 }
             }

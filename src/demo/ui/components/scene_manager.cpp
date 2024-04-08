@@ -102,6 +102,19 @@ void SceneManagerUI::renderImgui() {
         scene_.addTensorProductBezierSurface(std::move(control_points));
     }
 
+    if (ImGui::Button("Load Bezier Surface As Mesh")) {
+        std::vector<std::vector<glm::vec3>> control_points {
+                {{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
+                {{0.0, 0.5, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
+                {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
+        };
+
+        TensorProductBezierSurface surface(std::move(control_points));
+
+        auto builder = surface.getMeshModelBuilder();
+        scene_.addObject(builder);
+    }
+
     ImGui::SeparatorText("Scene Information");
 
     ImGui::Combo("Scene List", &this->current_scene_index, scene_name_items.data(), scene_name_items.size());

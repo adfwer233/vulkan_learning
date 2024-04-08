@@ -18,6 +18,22 @@
             ]
         },
         {
+            "scene_name": "camelhead",
+            "object_paths": [
+                "models/common_model/camelhead.off"
+            ],
+            "light_model": {
+                "object_index": 0,
+                "model_index": 0
+            },
+            "model_scale": [
+                {
+                    "object_index": 0,
+                    "scale": 1.0
+                }
+            ]
+        },
+        {
             "scene_name": "bumpy",
             "object_paths": [
                 "models/common_model/bumpy.off"
