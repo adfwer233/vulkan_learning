@@ -10,7 +10,7 @@ TEST(TensorProductTest, Evaluate) {
             {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
     };
 
-    TensorProductBezierSurface surface(control_points);
+    TensorProductBezierSurface surface(std::move(control_points));
 
     for (int i = 0; i < 10; i++) {
         auto res = surface.evaluate(glm::vec2 {0.5f, i * 0.1f});
