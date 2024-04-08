@@ -11,6 +11,8 @@
 #include "vkl/io/assimp_loader.hpp"
 #include "vkl/io/tiny_obj_loader.hpp"
 
+#include "simulation/walk_on_sphere/walk_on_sphere.hpp"
+
 using json = nlohmann::json;
 
 using namespace SceneManagerUINamespace;
@@ -112,6 +114,21 @@ void SceneManagerUI::renderImgui() {
         TensorProductBezierSurface surface(std::move(control_points));
 
         auto builder = surface.getMeshModelBuilder();
+        scene_.addObject(builder);
+    }
+
+    if (ImGui::Button("Load Bezier Surface Wos Parameter Space Evaluated")) {
+        std::vector<std::vector<glm::vec3>> control_points {
+            {{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
+            {{0.0, 0.5, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
+            {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
+        };
+
+        TensorProductBezierSurface surface(std::move(control_points));
+
+        ParameterSpaceWalkOnSphere wosSolver(&surface);
+
+        auto builder = wosSolver.getMeshModelBuilderWos();
         scene_.addObject(builder);
     }
 
