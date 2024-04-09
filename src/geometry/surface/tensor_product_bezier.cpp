@@ -68,9 +68,59 @@ glm::mat2 TensorProductBezierSurface::evaluate_metric_tensor(glm::vec2 param) {
     return result;
 }
 
+autodiff_mat2 TensorProductBezierSurface::evaluate_metric_tensor_autodiff(autodiff_vec2 &param) {
+    // validation
+
+    if (control_points_.empty())
+        throw std::runtime_error("empty control points set");
+
+    auto m = control_points_.size();
+    auto n = control_points_.front().size();
+
+    // compute r_u
+
+    std::vector<autodiff_vec3> u_control_points;
+    for (auto i = 0; i < m; i++) {
+        std::vector<autodiff_vec3> inner_control_points;
+        for (int j = 0; j < n; j++)
+            inner_control_points[j] = control_points_[i][j];
+        u_control_points.emplace_back(BernsteinBasisFunction::evaluate_autodiff(param.y(), inner_control_points));
+    }
+
+    // derivative of r with respect to u
+    auto ru = BernsteinBasisFunction::evaluate_derivative_autodiff(param.x(), u_control_points);
+
+    // compute r_v
+
+    std::vector<autodiff_vec3> v_control_points;
+    for (auto i = 0; i < n; i++) {
+        std::vector<autodiff_vec3> inner_control_points(m);
+        for (int j = 0; j < m; j++)
+            inner_control_points[j] = control_points_[j][i];
+        v_control_points.emplace_back(BernsteinBasisFunction::evaluate_autodiff(param.x(), inner_control_points));
+    }
+
+    auto rv = BernsteinBasisFunction::evaluate_derivative_autodiff(param.x(), v_control_points);
+
+    // build up the metric tensor
+
+    autodiff_mat2 result;
+
+    result(0, 0) = GeometryAutodiff::dot(ru, ru);
+    result(0, 1) = result(1, 0) = GeometryAutodiff::dot(ru, rv);
+    result(1, 1) = GeometryAutodiff::dot(rv, rv);
+
+    return std::move(result);
+}
+
 double TensorProductBezierSurface::evaluate_det_metric_tensor(glm::vec2 param) {
     auto metric_tensor = evaluate_metric_tensor(param);
     return metric_tensor[0][0] * metric_tensor[1][1] - metric_tensor[0][1] * metric_tensor[1][0];
+}
+
+autodiff::var TensorProductBezierSurface::evaluate_det_metric_tensor(autodiff_vec2 &param) {
+    auto metric_tensor = evaluate_metric_tensor_autodiff(param);
+    return metric_tensor(0, 0) * metric_tensor(1, 1) - metric_tensor(0, 1) * metric_tensor(1, 0);
 }
 
 glm::mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor(glm::vec2 param) {
@@ -86,3 +136,19 @@ glm::mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor(glm::vec2 p
 
     return result;
 }
+
+autodiff_mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor_autodiff(autodiff_vec2 param) {
+
+    auto metric_tensor = evaluate_metric_tensor_autodiff(param);
+    autodiff::var det = metric_tensor(0, 0) * metric_tensor(1, 1) - metric_tensor(0, 1) * metric_tensor(1, 0);
+
+    autodiff_mat2 result;
+
+    result(0, 0) = metric_tensor(1, 1) / det;
+    result(0, 1) = -metric_tensor(1, 0) / det;
+    result(1, 0) = metric_tensor(0, 1) / det;
+    result(1, 1) = metric_tensor(0, 0) / det;
+
+    return result;
+}
+

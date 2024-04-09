@@ -23,6 +23,13 @@ class BernsteinBasisFunction {
         auto res = bp(param);
         return res;
     }
+
+    static autodiff_vec3 evaluate_derivative_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients) {
+        using namespace boost::math::interpolators;
+        auto bp = bezier_polynomial(std::move(coefficients));
+        auto res = bp.prime(param);
+        return res;
+    }
 };
 
 #include "bernstein.hpp.impl"

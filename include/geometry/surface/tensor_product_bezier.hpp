@@ -71,11 +71,25 @@ public:
     glm::mat2 evaluate_metric_tensor(glm::vec2 param);
 
     /**
+     * evaluate the metric tensor at given position, autodiff version
+     * @param param
+     * @return
+     */
+    autodiff_mat2 evaluate_metric_tensor_autodiff(autodiff_vec2 &param);
+
+    /**
      * evaluate the determinant of the  metric tensor at given position
      * @param param
      * @return
      */
     double evaluate_det_metric_tensor(glm::vec2 param);
+
+    /**
+     * evaluate the determinant of the metric tensor at given position, autodiff version
+     * @param param
+     * @return
+     */
+    autodiff::var evaluate_det_metric_tensor(autodiff_vec2 &param);
 
     /**
      * evaluate the inverse metric tensor g^{ij}
@@ -85,11 +99,11 @@ public:
     glm::mat2 evaluate_inverse_metric_tensor(glm::vec2 param);
 
     /**
-     * evaluate the metric tensor at given position
+     * evaluate the inverse metric tensor g^{ij}, autodiff version
      * @param param
      * @return
      */
-    autodiff_mat2 evaluate_metric_tensor_autodiff(autodiff_vec2 &param);
+    autodiff_mat2 evaluate_inverse_metric_tensor_autodiff(autodiff_vec2 param);
 
     /**
      * implementing the RenderableGeometry concept
