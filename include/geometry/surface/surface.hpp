@@ -5,6 +5,6 @@ enum GeometrySurfaceType {
 };
 
 class GeometrySurface {
-public:
+  public:
     virtual GeometrySurfaceType type() = 0;
 };

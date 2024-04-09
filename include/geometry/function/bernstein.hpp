@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
-#include <vector>
 #include <glm/glm.hpp>
+#include <vector>
 
 #include <geometry/autodiff/autodiff.hpp>
 
@@ -10,11 +10,9 @@
 
 class BernsteinBasisFunction {
   public:
+    template <typename T> static T evaluate(double param, const std::vector<T> &coefficients);
 
-    template<typename T>
-    static T evaluate(double param, const std::vector<T> &coefficients);
-
-    template<typename VecType>
+    template <typename VecType>
     static VecType evaluate_derivative(double param, const std::vector<VecType> &coefficients);
 
     static autodiff_vec3 evaluate_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients) {

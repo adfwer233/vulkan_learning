@@ -1,8 +1,6 @@
 #include "bernstein.hpp"
 
-
-template<typename T>
-static T BernsteinBasisFunction::evaluate(double param, const std::vector<T> &coefficients) {
+template <typename T> static T BernsteinBasisFunction::evaluate(double param, const std::vector<T> &coefficients) {
     auto n = coefficients.size();
 
     using namespace boost::math::interpolators;
@@ -26,7 +24,7 @@ static T BernsteinBasisFunction::evaluate(double param, const std::vector<T> &co
         return {res[0], res[1]};
 }
 
-template<typename VecType>
+template <typename VecType>
 VecType BernsteinBasisFunction::evaluate_derivative(double param, const std::vector<VecType> &coefficients) {
     auto n = coefficients.size();
     using namespace boost::math::interpolators;

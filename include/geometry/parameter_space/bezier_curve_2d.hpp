@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
-#include "glm/glm.hpp"
 #include "geometry/function/bernstein.hpp"
+#include "glm/glm.hpp"
 #include "vkl/utils/vkl_curve_model.hpp"
+#include <vector>
 
 class BezierCurve2D {
   private:
@@ -38,7 +38,7 @@ class BezierCurve2D {
      * @param device
      * @return
      */
-    parameter_space_render_type* get_parameter_space_mesh_model(VklDevice &device) {
+    parameter_space_render_type *get_parameter_space_mesh_model(VklDevice &device) {
         if (parameter_space_mesh_model) {
             return parameter_space_mesh_model.get();
         }
@@ -59,5 +59,4 @@ class BezierCurve2D {
         parameter_space_mesh_model = std::make_unique<parameter_space_render_type>(device, builder);
         return parameter_space_mesh_model.get();
     }
-
 };

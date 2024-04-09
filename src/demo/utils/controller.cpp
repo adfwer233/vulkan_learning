@@ -7,8 +7,7 @@
 #include <format>
 #include <iostream>
 
-
-KeyboardCameraController* KeyboardCameraController::instance_ = nullptr;
+KeyboardCameraController *KeyboardCameraController::instance_ = nullptr;
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {
     camera = &t_camera;
@@ -49,10 +48,9 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
     }
 
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
-        controller->uiManager_->pickObject(controller->mouse_x_pos - controller->scope_min.x,
-                                           controller->mouse_y_pos - controller->scope_min.y,
-                                           controller->scope_max.x - controller->scope_min.x,
-                                           controller->scope_max.y - controller->scope_min.y);
+        controller->uiManager_->pickObject(
+            controller->mouse_x_pos - controller->scope_min.x, controller->mouse_y_pos - controller->scope_min.y,
+            controller->scope_max.x - controller->scope_min.x, controller->scope_max.y - controller->scope_min.y);
     }
 
     if (button == GLFW_MOUSE_BUTTON_MIDDLE and state == GLFW_RELEASE) {
@@ -74,7 +72,8 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
     controller->mouse_x_pos = static_cast<float>(xposIn);
     controller->mouse_y_pos = static_cast<float>(yposIn);
 
-    if (xposIn > controller->scope_min.x and xposIn < controller->scope_max.x and yposIn > controller->scope_min.y and yposIn < controller->scope_max.y)
+    if (xposIn > controller->scope_min.x and xposIn < controller->scope_max.x and yposIn > controller->scope_min.y and
+        yposIn < controller->scope_max.y)
         controller->in_region = true;
     else
         controller->in_region = false;

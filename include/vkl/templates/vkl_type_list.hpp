@@ -46,26 +46,23 @@ template <TL In, template <typename> typename P, TL Out> struct Filter : Out {};
 
 template <template <typename> class P, TL Out, typename H, typename... Ts>
 struct Filter<TypeList<H, Ts...>, P, Out>
-    : std::conditional_t<P<H>::value,
-                         Filter<TypeList<Ts...>, P, typename Out::template append<H>>,
+    : std::conditional_t<P<H>::value, Filter<TypeList<Ts...>, P, typename Out::template append<H>>,
                          Filter<TypeList<Ts...>, P, Out>> {};
 
-template <TL In, template<typename> typename P>
-using Filter_t = typename Filter<In, P, TypeList<>>::type;
+template <TL In, template <typename> typename P> using Filter_t = typename Filter<In, P, TypeList<>>::type;
 
 // Fold
 
-template <typename T>
-struct Return { using type = T; };
+template <typename T> struct Return {
+    using type = T;
+};
 
-template<TL In, typename Init, template<typename, typename> typename Op>
-struct Fold: Return<Init> {};
+template <TL In, typename Init, template <typename, typename> typename Op> struct Fold : Return<Init> {};
 
-template<typename ACC, template<typename, typename> class Op, typename H, typename ...Ts>
-struct Fold<TypeList<H, Ts...>, ACC, Op>: Fold<TypeList<Ts...>,typename Op<ACC, H>::type, Op> {};
+template <typename ACC, template <typename, typename> class Op, typename H, typename... Ts>
+struct Fold<TypeList<H, Ts...>, ACC, Op> : Fold<TypeList<Ts...>, typename Op<ACC, H>::type, Op> {};
 
-template<TL In, typename Init, template<typename, typename> class Op>
-using Fold_t = Fold<In, Init, Op>::type;
+template <TL In, typename Init, template <typename, typename> class Op> using Fold_t = Fold<In, Init, Op>::type;
 
 template <typename List, typename T> struct Append;
 

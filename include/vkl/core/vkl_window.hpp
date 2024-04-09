@@ -37,8 +37,12 @@ class VklWindow {
 
     static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
 
-    bool wasWindowResized() { return framebufferResized; }
-    void resetWindowResizedFlag() { framebufferResized = false; }
+    bool wasWindowResized() {
+        return framebufferResized;
+    }
+    void resetWindowResizedFlag() {
+        framebufferResized = false;
+    }
 
     bool framebufferResized = false;
 };

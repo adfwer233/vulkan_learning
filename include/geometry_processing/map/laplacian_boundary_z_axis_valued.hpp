@@ -7,12 +7,12 @@
  * solve laplacian function, the boundary is mesh boundary, boundary value is defined by z-axis position
  */
 class LaplacianBoundaryZAxisValued {
-private:
+  private:
     Eigen::MatrixXd V;
     Eigen::MatrixXi F;
     Eigen::MatrixXi E;
 
-public:
+  public:
     explicit LaplacianBoundaryZAxisValued(VklModel &model);
 
     Eigen::VectorXd perform();

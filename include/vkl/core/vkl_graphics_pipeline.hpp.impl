@@ -12,14 +12,15 @@ VklGraphicsPipeline<VertexType>::VklGraphicsPipeline(VklDevice &device, std::vec
 }
 
 template <VklVertexType VertexType> VklGraphicsPipeline<VertexType>::~VklGraphicsPipeline() {
-    for (auto module: shaderModules)
+    for (auto module : shaderModules)
         vkDestroyShaderModule(device_.device(), module, nullptr);
 
     vkDestroyPipeline(device_.device(), graphicsPipeline_, nullptr);
 }
 
-template<VklVertexType VertexType>
-void VklGraphicsPipeline<VertexType>::createGraphicsPipeline(const PipelineConfigInfo &configInfo, std::vector<VklShaderModuleInfo> infos) {
+template <VklVertexType VertexType>
+void VklGraphicsPipeline<VertexType>::createGraphicsPipeline(const PipelineConfigInfo &configInfo,
+                                                             std::vector<VklShaderModuleInfo> infos) {
     shaderModules.resize(infos.size());
 
     for (auto i = 0; i < infos.size(); i++) {

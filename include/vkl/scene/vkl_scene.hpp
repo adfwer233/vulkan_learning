@@ -3,9 +3,9 @@
 #include <map>
 #include <vector>
 
+#include "geometry/surface/tensor_product_bezier.hpp"
 #include "vkl/bvh/vkl_bvh_gpu.hpp"
 #include "vkl_object.hpp"
-#include "geometry/surface/tensor_product_bezier.hpp"
 
 #include "vkl/io/model_loader_concept.hpp"
 
@@ -67,7 +67,7 @@ class VklScene {
 
         meshModel->allocDescriptorSets(*setLayout_, *descriptorPool_);
 
-        for (auto boundary: surf->getBoundaryMeshModels(device_)) {
+        for (auto boundary : surf->getBoundaryMeshModels(device_)) {
             boundary->allocDescriptorSets(*setLayout_, *descriptorPool_);
         }
     }

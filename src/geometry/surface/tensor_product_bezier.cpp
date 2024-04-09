@@ -9,7 +9,7 @@ glm::vec3 TensorProductBezierSurface::evaluate(glm::vec2 param) {
     auto m = control_points_.size();
     auto n = control_points_[0].size();
 
-    for (auto &item: control_points_)
+    for (auto &item : control_points_)
         if (item.size() != n)
             throw std::runtime_error("control points data invalid");
 
@@ -151,4 +151,3 @@ autodiff_mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor_autodif
 
     return result;
 }
-

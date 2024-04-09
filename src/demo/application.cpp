@@ -63,9 +63,9 @@ void Application::run() {
 
     /** render system */
     SimpleRenderSystem<VklModel::vertex_type> renderSystem(
-            device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-            {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-             {std::format("{}/simple_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+        device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/simple_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
@@ -75,7 +75,7 @@ void Application::run() {
     SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-        {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+         {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
@@ -295,7 +295,7 @@ void Application::run() {
             }
 
             // render surfaces
-            for (auto &surf: scene.surfaces) {
+            for (auto &surf : scene.surfaces) {
                 auto meshModel = surf->getMeshModel(device_);
 
                 meshModel->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
@@ -335,16 +335,17 @@ void Application::run() {
 
                 auto boundary_meshes = surf->getBoundaryMeshModels(device_);
 
-                for (auto boundary: boundary_meshes) {
+                for (auto boundary : boundary_meshes) {
                     boundary->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                     boundary->uniformBuffers[frameIndex]->flush();
 
-                    FrameInfo<TensorProductBezierSurface::boundary_render_type> boundaryModelFrameInfo{frameIndex,
-                                                       currentFrame,
-                                                       offscreenCommandBuffer,
-                                                       scene.camera,
-                                                       &boundary->descriptorSets[frameIndex],
-                                                       *boundary};
+                    FrameInfo<TensorProductBezierSurface::boundary_render_type> boundaryModelFrameInfo{
+                        frameIndex,
+                        currentFrame,
+                        offscreenCommandBuffer,
+                        scene.camera,
+                        &boundary->descriptorSets[frameIndex],
+                        *boundary};
                     curveMeshRenderSystem.renderObject(boundaryModelFrameInfo);
                 }
             }

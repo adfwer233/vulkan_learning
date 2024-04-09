@@ -1,5 +1,3 @@
 #pragma once
 
-class ParameterSpaceCurve {
-
-};
+class ParameterSpaceCurve {};

@@ -1,8 +1,9 @@
 #include "geometry_processing/map/laplacian_boundary_z_axis_valued.hpp"
 
-
 #include <iostream>
 
+#include "Eigen/Eigen"
+#include <Eigen/Sparse>
 #include <igl/boundary_facets.h>
 #include <igl/colon.h>
 #include <igl/cotmatrix.h>
@@ -12,8 +13,6 @@
 #include <igl/setdiff.h>
 #include <igl/slice.h>
 #include <igl/unique.h>
-#include <Eigen/Sparse>
-#include "Eigen/Eigen"
 
 LaplacianBoundaryZAxisValued::LaplacianBoundaryZAxisValued(VklModel &model) {
     int n = model.vertices_.size();
@@ -41,40 +40,39 @@ Eigen::VectorXd LaplacianBoundaryZAxisValued::perform() {
     using namespace std;
 
     // Find boundary vertices
-    VectorXi b,IA,IC;
-    igl::unique(E,b,IA,IC);
+    VectorXi b, IA, IC;
+    igl::unique(E, b, IA, IC);
     // List of all vertex indices
-    VectorXi all,in;
-    igl::colon<int>(0,V.rows()-1,all);
+    VectorXi all, in;
+    igl::colon<int>(0, V.rows() - 1, all);
     // List of interior indices
-    igl::setdiff(all,b,in,IA);
+    igl::setdiff(all, b, in, IA);
 
     // Construct and slice up Laplacian
-    SparseMatrix<double> L,L_in_in,L_in_b;
-    igl::cotmatrix(V,F,L);
-    igl::slice(L,in,in,L_in_in);
-    igl::slice(L,in,b,L_in_b);
+    SparseMatrix<double> L, L_in_in, L_in_b;
+    igl::cotmatrix(V, F, L);
+    igl::slice(L, in, in, L_in_in);
+    igl::slice(L, in, b, L_in_b);
 
     // Dirichlet boundary conditions from z-coordinate
     VectorXd Z = V.col(2);
     VectorXd bc = Z(b);
 
     // Solve PDE
-    SimplicialLLT<SparseMatrix<double > > solver(-L_in_in);
+    SimplicialLLT<SparseMatrix<double>> solver(-L_in_in);
     // slice into solution
-    Z(in) = solver.solve(L_in_b*bc);
+    Z(in) = solver.solve(L_in_b * bc);
 
     // Alternative, short hand
     igl::min_quad_with_fixed_data<double> mqwf;
     // Linear term is 0
-    VectorXd B = VectorXd::Zero(V.rows(),1);
+    VectorXd B = VectorXd::Zero(V.rows(), 1);
     // Empty constraints
     VectorXd Beq;
     SparseMatrix<double> Aeq;
     // Our cotmatrix is _negative_ definite, so flip sign
-    igl::min_quad_with_fixed_precompute((-L).eval(),b,Aeq,true,mqwf);
-    igl::min_quad_with_fixed_solve(mqwf,B,bc,Beq,Z);
+    igl::min_quad_with_fixed_precompute((-L).eval(), b, Aeq, true, mqwf);
+    igl::min_quad_with_fixed_solve(mqwf, B, bc, Beq, Z);
 
     return Z;
 }
-

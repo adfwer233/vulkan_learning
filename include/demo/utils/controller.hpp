@@ -31,11 +31,10 @@ class KeyboardCameraController {
 
     bool in_region;
 
-
     static KeyboardCameraController *instance_;
 
   public:
-    static KeyboardCameraController* instance() {
+    static KeyboardCameraController *instance() {
         if (instance_ == nullptr)
             instance_ = new KeyboardCameraController();
         return instance_;

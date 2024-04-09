@@ -4,8 +4,7 @@
 
 class ParameterSpaceWalkOnSphere {
   private:
-
-    TensorProductBezierSurface* targetSurface;
+    TensorProductBezierSurface *targetSurface;
 
     double sdf_evaluate(glm::vec2 param);
 
@@ -18,5 +17,6 @@ class ParameterSpaceWalkOnSphere {
 
     TensorProductBezierSurface::render_type::BuilderFromImmediateData getMeshModelBuilderWos();
 
-    explicit ParameterSpaceWalkOnSphere(TensorProductBezierSurface *surface): targetSurface(surface) {}
+    explicit ParameterSpaceWalkOnSphere(TensorProductBezierSurface *surface) : targetSurface(surface) {
+    }
 };

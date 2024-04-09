@@ -25,7 +25,8 @@ void VklOffscreenRenderer::createImages() {
                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->images_[i], this->memory_[i]);
 
-        device_.transitionImageLayout(this->images_[i], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        device_.transitionImageLayout(this->images_[i], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         imageViews_[i] = device_.createImageView(this->images_[i], VkFormat::VK_FORMAT_R8G8B8A8_SRGB);
     }

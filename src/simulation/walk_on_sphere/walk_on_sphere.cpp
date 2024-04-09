@@ -43,10 +43,14 @@ double ParameterSpaceWalkOnSphere::boundary_evaluation(glm::vec2 param) {
         }
     }
 
-    if (idx == 0) param.x = 0;
-    if (idx == 1) param.y = 0;
-    if (idx == 2) param.x = 1;
-    if (idx == 3) param.y = 1;
+    if (idx == 0)
+        param.x = 0;
+    if (idx == 1)
+        param.y = 0;
+    if (idx == 2)
+        param.x = 1;
+    if (idx == 3)
+        param.y = 1;
 
     auto pos = targetSurface->evaluate(param);
 
@@ -66,7 +70,7 @@ TensorProductBezierSurface::render_type::BuilderFromImmediateData ParameterSpace
 
     builder.vertices.resize((m + 1) * (n + 1));
 
-//#pragma omp parallel for num_threads(8)
+    // #pragma omp parallel for num_threads(8)
     for (int i = 0; i <= m; i++) {
         for (int j = 0; j <= n; j++) {
             glm::vec2 param{delta_u * i, delta_v * j};
@@ -84,7 +88,7 @@ TensorProductBezierSurface::render_type::BuilderFromImmediateData ParameterSpace
         }
     }
 
-    for (auto &vertex: builder.vertices) {
+    for (auto &vertex : builder.vertices) {
         vertex.color = (vertex.color - glm::vec3{float(minValue), 0.0f, 0.0f}) / float(maxValue - minValue);
     }
 

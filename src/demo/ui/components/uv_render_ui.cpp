@@ -19,9 +19,8 @@ void UVRenderUI::renderImgui() {
         if (resTex.empty()) {
             resTex.resize(uiManager_.uvImageViews->size());
             for (uint32_t i = 0; i < uiManager_.uvImageViews->size(); i++)
-                resTex[i] =
-                    ImGui_ImplVulkan_AddTexture(uiManager_.uvSampler, (*uiManager_.uvImageViews)[i],
-                                                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                resTex[i] = ImGui_ImplVulkan_AddTexture(uiManager_.uvSampler, (*uiManager_.uvImageViews)[i],
+                                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
         }
         if (uiManager_.renderMode != RenderMode::PathTracing) {
             ImGui::Image(resTex[uiManager_.frameIndex], wsize);
@@ -33,5 +32,4 @@ void UVRenderUI::renderImgui() {
 }
 
 UVRenderUI::~UVRenderUI() {
-
 }

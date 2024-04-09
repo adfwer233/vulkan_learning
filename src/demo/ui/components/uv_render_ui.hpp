@@ -6,13 +6,13 @@
 class UIManager;
 
 class UVRenderUI {
-private:
+  private:
     VklScene &scene_;
     UIManager &uiManager_;
 
     std::vector<VkDescriptorSet> resTex;
 
-public:
+  public:
     explicit UVRenderUI(VklScene &scene, UIManager &uiManager);
 
     ~UVRenderUI();

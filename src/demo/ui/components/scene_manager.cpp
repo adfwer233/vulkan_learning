@@ -95,21 +95,17 @@ void SceneManagerUI::renderImgui() {
     }
 
     if (ImGui::Button("Load Bezier Surface")) {
-        std::vector<std::vector<glm::vec3>> control_points {
-            {{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
-            {{0.0, 0.5, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
-            {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
-        };
+        std::vector<std::vector<glm::vec3>> control_points{{{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
+                                                           {{0.0, 0.5, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
+                                                           {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}};
 
         scene_.addTensorProductBezierSurface(std::move(control_points));
     }
 
     if (ImGui::Button("Load Bezier Surface As Mesh")) {
-        std::vector<std::vector<glm::vec3>> control_points {
-                {{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
-                {{0.0, 5.0, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
-                {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
-        };
+        std::vector<std::vector<glm::vec3>> control_points{{{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
+                                                           {{0.0, 5.0, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
+                                                           {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}};
 
         TensorProductBezierSurface surface(std::move(control_points));
 
@@ -118,11 +114,9 @@ void SceneManagerUI::renderImgui() {
     }
 
     if (ImGui::Button("Load Bezier Surface Wos Parameter Space Evaluated")) {
-        std::vector<std::vector<glm::vec3>> control_points {
-            {{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
-            {{0.0, 5.0, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
-            {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}
-        };
+        std::vector<std::vector<glm::vec3>> control_points{{{-1.0, 0.0, -1.0}, {-1.0, 1.0, 0.0}, {-1.0, 0.0, 1.0}},
+                                                           {{0.0, 5.0, -1.0}, {0.0, 1.5, 0.0}, {0.0, 0.5, 1.0}},
+                                                           {{1.0, 0.0, -1.0}, {1.0, 1.0, 0.0}, {1.0, 0.0, 1.0}}};
 
         TensorProductBezierSurface surface(std::move(control_points));
 

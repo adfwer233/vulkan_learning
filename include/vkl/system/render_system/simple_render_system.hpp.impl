@@ -5,7 +5,8 @@
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
 SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(
-    VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, std::vector<VklShaderModuleInfo> shaderInfos)
+    VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
+    std::vector<VklShaderModuleInfo> shaderInfos)
     : device_(device) {
     createPipelineLayout(globalSetLayout);
     createPipeline(renderPass, shaderInfos);
@@ -49,8 +50,7 @@ void SimpleRenderSystem<VertexType, PushConstantInfoList, PipelineModifierType>:
 
     pipelineConfigInfo.renderPass = renderPass;
     pipelineConfigInfo.pipelineLayout = pipelineLayout_;
-    pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(
-        device_, shaderInfos, pipelineConfigInfo);
+    pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, shaderInfos, pipelineConfigInfo);
 }
 
 template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList,

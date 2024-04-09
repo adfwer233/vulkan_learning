@@ -78,13 +78,13 @@ VkCommandBuffer VklRenderer::beginFrame() {
 }
 
 void VklRenderer::endFrame() {
-       // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
-       //     window_.wasWindowResized()) {
-       //     window_.resetWindowResizedFlag();
-       //     recreateSwapChain();
-       // } else if (result != VK_SUCCESS) {
-       //     throw std::runtime_error("failed to present swap chain image!");
-       // }
+    // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+    //     window_.wasWindowResized()) {
+    //     window_.resetWindowResizedFlag();
+    //     recreateSwapChain();
+    // } else if (result != VK_SUCCESS) {
+    //     throw std::runtime_error("failed to present swap chain image!");
+    // }
 
     isFrameStarted = false;
     currentFrameIndex = (currentFrameIndex + 1) % VklSwapChain::MAX_FRAMES_IN_FLIGHT;

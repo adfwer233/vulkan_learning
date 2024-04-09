@@ -11,5 +11,6 @@ struct VklShaderModuleInfo {
     std::string shaderPath_;
     VkShaderStageFlagBits shaderStage_;
 
-    VklShaderModuleInfo(const std::string &path, VkShaderStageFlagBits stage): shaderPath_(path), shaderStage_(stage) {}
+    VklShaderModuleInfo(const std::string &path, VkShaderStageFlagBits stage) : shaderPath_(path), shaderStage_(stage) {
+    }
 };

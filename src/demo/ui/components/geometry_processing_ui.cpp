@@ -4,8 +4,8 @@
 
 #include "../ui_manager.hpp"
 
-#include "geometry_processing/map/laplacian_boundary_z_axis_valued.hpp"
 #include "geometry_processing/map/gauss_curvature.hpp"
+#include "geometry_processing/map/laplacian_boundary_z_axis_valued.hpp"
 #include "geometry_processing/map/normal_vector.hpp"
 #include "geometry_processing/map/single_source_exact_geodesic_distance.hpp"
 #include "geometry_processing/variable_manager.hpp"

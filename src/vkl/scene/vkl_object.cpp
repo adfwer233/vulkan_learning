@@ -41,7 +41,7 @@ void VklObject::allocDescriptorSets(VklDescriptorPool &pool) {
     }
 }
 
-VklObject::VklObject(VklDevice &device, VklModel::BuilderFromImmediateData builder): device_(device) {
+VklObject::VklObject(VklDevice &device, VklModel::BuilderFromImmediateData builder) : device_(device) {
     this->models.push_back(new VklModel(device, builder));
     modelScaling = glm::vec3(1.0f, 1.0f, 1.0f);
     modelTranslation = glm::vec3(0, 0, 0);

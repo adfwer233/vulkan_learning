@@ -65,10 +65,10 @@ void Application::run() {
 
     float deltaTime = 0, lastFrame = 0;
 
-    ParticleRenderSystem renderSystem(device_, renderer_.getSwapChainRenderPass(),
-                                      globalSetLayout->getDescriptorSetLayout(),
-                                      {{std::format("{}/particle.vert.spv", PARTICLE_SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-                                       {std::format("{}/particle.frag.spv", PARTICLE_SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+    ParticleRenderSystem renderSystem(
+        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        {{std::format("{}/particle.vert.spv", PARTICLE_SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/particle.frag.spv", PARTICLE_SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     ParticleSimulationSystem computeSystem(device_, model, particle_number);
 

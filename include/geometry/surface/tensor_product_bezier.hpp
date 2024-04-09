@@ -13,8 +13,8 @@
 /**
  * @brief Tensor Product Bezier Surface with automatic differentiation
  */
-class TensorProductBezierSurface: GeometrySurface {
-private:
+class TensorProductBezierSurface : GeometrySurface {
+  private:
     /**
      * control points of the tensor product bezier surface
      */
@@ -24,31 +24,19 @@ private:
      * boundary curves of the geometry surface
      */
     std::vector<std::unique_ptr<BezierCurve2D>> boundary_curves;
-public:
 
-    explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts): control_points_(control_pts) {
-        std::vector<glm::vec2> default_boundary1 {
-            {0.0, 0.0},
-            {1.0, 0.0}
-        };
+  public:
+    explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts) : control_points_(control_pts) {
+        std::vector<glm::vec2> default_boundary1{{0.0, 0.0}, {1.0, 0.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary1))));
 
-        std::vector<glm::vec2> default_boundary2 {
-            {1.0, 0.0},
-            {1.0, 1.0}
-        };
+        std::vector<glm::vec2> default_boundary2{{1.0, 0.0}, {1.0, 1.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary2))));
 
-        std::vector<glm::vec2> default_boundary3 {
-            {1.0, 1.0},
-            {0.0, 1.0}
-        };
+        std::vector<glm::vec2> default_boundary3{{1.0, 1.0}, {0.0, 1.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary3))));
 
-        std::vector<glm::vec2> default_boundary4 {
-            {0.0, 1.0},
-            {0.0, 0.0}
-        };
+        std::vector<glm::vec2> default_boundary4{{0.0, 1.0}, {0.0, 0.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary4))));
     }
 
@@ -108,32 +96,32 @@ public:
     /**
      * implementing the RenderableGeometry concept
      */
-    struct IsRenderableGeometry{};
+    struct IsRenderableGeometry {};
     using render_type = VklModel;
     using boundary_render_type = BezierCurve2D::render_type;
 
-    render_type* getMeshModel(VklDevice& device) {
+    render_type *getMeshModel(VklDevice &device) {
         if (mesh_model_ptr) {
             return mesh_model_ptr.get();
         }
 
         auto builder = getMeshModelBuilder();
-        mesh_model_ptr = std::make_unique<render_type> (device, builder);
+        mesh_model_ptr = std::make_unique<render_type>(device, builder);
         return mesh_model_ptr.get();
     }
 
     decltype(auto) getBoundaryMeshModels(VklDevice &device) {
-        std::vector<boundary_render_type*> result;
+        std::vector<boundary_render_type *> result;
         if (not boundary_curves_ptr.empty()) {
-            for (auto &ptr: boundary_curves_ptr) {
+            for (auto &ptr : boundary_curves_ptr) {
                 result.push_back(ptr.get());
             }
         } else {
-            for (auto &boundary: boundary_curves) {
+            for (auto &boundary : boundary_curves) {
                 auto parameter_space_mesh_model_ptr = boundary->get_parameter_space_mesh_model(device);
                 boundary_render_type ::BuilderFromImmediateData builder;
 
-                for(auto &param_vert: parameter_space_mesh_model_ptr->vertices_) {
+                for (auto &param_vert : parameter_space_mesh_model_ptr->vertices_) {
                     boundary_render_type ::vertex_type vertex;
                     auto position = evaluate(param_vert.position);
 
@@ -198,7 +186,6 @@ public:
     };
 
   private:
-
     std::unique_ptr<render_type> mesh_model_ptr;
     std::vector<std::unique_ptr<boundary_render_type>> boundary_curves_ptr;
 };
