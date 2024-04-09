@@ -14,6 +14,9 @@ class BernsteinBasisFunction {
     template<typename T>
     static T evaluate(double param, const std::vector<T> &coefficients);
 
+    template<typename VecType>
+    static VecType evaluate_derivative(double param, const std::vector<VecType> &coefficients);
+
     static autodiff_vec3 evaluate_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients) {
         using namespace boost::math::interpolators;
         auto bp = bezier_polynomial(std::move(coefficients));

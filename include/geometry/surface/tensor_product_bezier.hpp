@@ -26,7 +26,7 @@ private:
     std::vector<std::unique_ptr<BezierCurve2D>> boundary_curves;
 public:
 
-    TensorProductBezierSurface(decltype(control_points_) &&control_pts): control_points_(control_pts) {
+    explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts): control_points_(control_pts) {
         std::vector<glm::vec2> default_boundary1 {
             {0.0, 0.0},
             {1.0, 0.0}
@@ -64,6 +64,25 @@ public:
      * @param param autodiff vec2, parameter
      */
     autodiff_vec3 evaluate_autodiff(autodiff_vec2 &param);
+
+    /**
+     * evaluate the metric tensor at given position
+     */
+    glm::mat2 evaluate_metric_tensor(glm::vec2 param);
+
+    /**
+     * evaluate the determinant of the  metric tensor at given position
+     * @param param
+     * @return
+     */
+    double evaluate_det_metric_tensor(glm::vec2 param);
+
+    /**
+     * evaluate the inverse metric tensor g^{ij}
+     * @param param
+     * @return
+     */
+    glm::mat2 evaluate_inverse_metric_tensor(glm::vec2 param);
 
     /**
      * evaluate the metric tensor at given position

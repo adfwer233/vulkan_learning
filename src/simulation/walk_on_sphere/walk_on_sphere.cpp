@@ -8,7 +8,7 @@ using Random = effolkronium::random_static;
 
 double ParameterSpaceWalkOnSphere::evaluate(glm::vec2 param) {
     double res = 0;
-    const int iter = 32;
+    const int iter = 1024;
     for (int i = 0; i < iter; i++)
         res += evaluate_internal(param);
     return res / iter;
