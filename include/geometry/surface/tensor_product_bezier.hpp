@@ -58,6 +58,8 @@ class TensorProductBezierSurface : GeometrySurface {
      */
     glm::mat2 evaluate_metric_tensor(glm::vec2 param);
 
+    glm::vec3 evaluate_ru(glm::vec2 param);
+
     /**
      * evaluate the metric tensor at given position, autodiff version
      * @param param
@@ -77,7 +79,7 @@ class TensorProductBezierSurface : GeometrySurface {
      * @param param
      * @return
      */
-    autodiff::var evaluate_det_metric_tensor(autodiff_vec2 &param);
+    autodiff::var evaluate_det_metric_tensor_autodiff(autodiff_vec2 &param);
 
     /**
      * evaluate the inverse metric tensor g^{ij}
@@ -91,7 +93,7 @@ class TensorProductBezierSurface : GeometrySurface {
      * @param param
      * @return
      */
-    autodiff_mat2 evaluate_inverse_metric_tensor_autodiff(autodiff_vec2 param);
+    autodiff_mat2 evaluate_inverse_metric_tensor_autodiff(autodiff_vec2 &param);
 
     /**
      * implementing the RenderableGeometry concept

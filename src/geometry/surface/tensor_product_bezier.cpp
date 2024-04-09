@@ -24,6 +24,26 @@ glm::vec3 TensorProductBezierSurface::evaluate(glm::vec2 param) {
     return BernsteinBasisFunction::evaluate(param.x, outer_control_points);
 }
 
+glm::vec3 TensorProductBezierSurface::evaluate_ru(glm::vec2 param) {
+    if (control_points_.empty())
+        throw std::runtime_error("empty control points set");
+
+    auto m = control_points_.size();
+    auto n = control_points_[0].size();
+
+    // compute r_u
+
+    std::vector<glm::vec3> outer_control_points;
+    for (auto i = 0; i < m; i++) {
+        std::vector<glm::vec3> inner_control_points;
+        std::ranges::copy(control_points_[i], std::back_inserter(inner_control_points));
+
+        outer_control_points.emplace_back(BernsteinBasisFunction::evaluate(param.y, inner_control_points));
+    }
+
+    return BernsteinBasisFunction::evaluate_derivative(param.x, outer_control_points);
+}
+
 glm::mat2 TensorProductBezierSurface::evaluate_metric_tensor(glm::vec2 param) {
     // validation
 
@@ -31,14 +51,14 @@ glm::mat2 TensorProductBezierSurface::evaluate_metric_tensor(glm::vec2 param) {
         throw std::runtime_error("empty control points set");
 
     auto m = control_points_.size();
-    auto n = control_points_.front().size();
+    auto n = control_points_[0].size();
 
     // compute r_u
 
     std::vector<glm::vec3> u_control_points;
     for (auto i = 0; i < m; i++) {
         std::vector<glm::vec3> inner_control_points;
-        std::ranges::copy(control_points_[i], std::back_inserter(u_control_points));
+        std::ranges::copy(control_points_[i], std::back_inserter(inner_control_points));
         u_control_points.emplace_back(BernsteinBasisFunction::evaluate(param.y, inner_control_points));
     }
 
@@ -81,7 +101,7 @@ autodiff_mat2 TensorProductBezierSurface::evaluate_metric_tensor_autodiff(autodi
 
     std::vector<autodiff_vec3> u_control_points;
     for (auto i = 0; i < m; i++) {
-        std::vector<autodiff_vec3> inner_control_points;
+        std::vector<autodiff_vec3> inner_control_points(n);
         for (int j = 0; j < n; j++)
             inner_control_points[j] = control_points_[i][j];
         u_control_points.emplace_back(BernsteinBasisFunction::evaluate_autodiff(param.y(), inner_control_points));
@@ -118,7 +138,7 @@ double TensorProductBezierSurface::evaluate_det_metric_tensor(glm::vec2 param) {
     return metric_tensor[0][0] * metric_tensor[1][1] - metric_tensor[0][1] * metric_tensor[1][0];
 }
 
-autodiff::var TensorProductBezierSurface::evaluate_det_metric_tensor(autodiff_vec2 &param) {
+autodiff::var TensorProductBezierSurface::evaluate_det_metric_tensor_autodiff(autodiff_vec2 &param) {
     auto metric_tensor = evaluate_metric_tensor_autodiff(param);
     return metric_tensor(0, 0) * metric_tensor(1, 1) - metric_tensor(0, 1) * metric_tensor(1, 0);
 }
@@ -137,7 +157,7 @@ glm::mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor(glm::vec2 p
     return result;
 }
 
-autodiff_mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor_autodiff(autodiff_vec2 param) {
+autodiff_mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor_autodiff(autodiff_vec2 &param) {
 
     auto metric_tensor = evaluate_metric_tensor_autodiff(param);
     autodiff::var det = metric_tensor(0, 0) * metric_tensor(1, 1) - metric_tensor(0, 1) * metric_tensor(1, 0);

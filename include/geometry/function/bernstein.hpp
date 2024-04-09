@@ -15,19 +15,9 @@ class BernsteinBasisFunction {
     template <typename VecType>
     static VecType evaluate_derivative(double param, const std::vector<VecType> &coefficients);
 
-    static autodiff_vec3 evaluate_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients) {
-        using namespace boost::math::interpolators;
-        auto bp = bezier_polynomial(std::move(coefficients));
-        auto res = bp(param);
-        return res;
-    }
+    static autodiff_vec3 evaluate_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients);
 
-    static autodiff_vec3 evaluate_derivative_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients) {
-        using namespace boost::math::interpolators;
-        auto bp = bezier_polynomial(std::move(coefficients));
-        auto res = bp.prime(param);
-        return res;
-    }
+    static autodiff_vec3 evaluate_derivative_autodiff(autodiff::var param, std::vector<autodiff_vec3> &coefficients);
 };
 
 #include "bernstein.hpp.impl"

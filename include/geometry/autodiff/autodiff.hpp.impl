@@ -30,9 +30,9 @@ template <uint32_t dim> autodiff_vec<dim> autodiff_vec<dim>::operator/(const aut
 
 namespace GeometryAutodiff {
 template <uint32_t dim> autodiff::var dot(const autodiff_vec<dim> &vec1, const autodiff_vec<dim> &vec2) {
-    autodiff::var result;
+    autodiff::var result = 0;
     for (auto i = 0; i < dim; i++) {
-        result = vec1.data[i] * vec2.data[i];
+        result += vec1.data[i] * vec2.data[i];
     }
     return result;
 }

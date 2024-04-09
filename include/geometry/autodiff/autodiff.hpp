@@ -91,12 +91,13 @@ struct autodiff_vec3 : public autodiff_vec<3> {
 struct autodiff_vec4 : public autodiff_vec<4> {};
 
 template <uint32_t m, uint32_t n> struct autodiff_mat {
+
     std::array<std::array<autodiff::var, n>, m> data;
 
-    autodiff::var operator()(size_t idx1, size_t idx2) {
+    autodiff::var &operator()(size_t idx1, size_t idx2) {
         return data[idx1][idx2];
     }
-    autodiff::var &operator()(size_t idx1, size_t idx2) const {
+    autodiff::var operator()(size_t idx1, size_t idx2) const {
         return data[idx1][idx2];
     }
 };
