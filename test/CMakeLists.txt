@@ -8,6 +8,7 @@ set(SRC_FILE
         autodiff/geometry_autodiff_test.cpp
         geometry/function/bernstein_test.cpp
         geometry/surface/tensor_product_bezier_test.cpp
+        templates/meta_programming_test.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
