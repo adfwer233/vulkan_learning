@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_FILE
         walk_on_sphere/walk_on_sphere.cpp
+        walk_on_sphere/walk_on_sphere_anisotropic.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})

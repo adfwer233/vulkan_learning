@@ -1,36 +1,71 @@
-#include "simulation/walk_on_sphere/walk_on_sphere.hpp"
+#include "simulation/walk_on_sphere/walk_on_sphere_anisotropic.hpp"
 
 #include "effolkronium/random.hpp"
 
-#include <numbers>
+#include "numbers"
 
 using Random = effolkronium::random_static;
 
-double ParameterSpaceWalkOnSphere::evaluate(glm::vec2 param) {
+double AnisotropicWalkOnSphere::evaluate(glm::vec2 param) {
     double res = 0;
-    const int iter = 3;
-    for (int i = 0; i < iter; i++)
+    const int iter = 5;
+    for (int i = 0; i < iter; i++) {
         res += evaluate_internal(param);
+        std::cout << std::endl;
+    }
     return res / iter;
 }
 
-double ParameterSpaceWalkOnSphere::sdf_evaluate(glm::vec2 param) {
+double AnisotropicWalkOnSphere::sdf_evaluate(glm::vec2 param) {
     return std::min(param.x, std::min(param.y, std::min(1 - param.x, 1 - param.y)));
 }
 
-double ParameterSpaceWalkOnSphere::evaluate_internal(glm::vec2 param) {
+double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
     double sdf = sdf_evaluate(param);
 
     if (sdf < 1e-4)
         return boundary_evaluation(param);
 
-    auto theta = Random::get(0.0, 2 * std::numbers::pi);
+    auto current_param = param;
 
-    glm::vec2 r = {sdf * std::cos(theta), sdf * std::sin(theta)};
+    int count = 0;
+
+    while(glm::length(current_param - param) < sdf - 1e-4) {
+        count += 1;
+        auto diffusion = targetSurface->evaluate_laplacian_diffusion_coefficients(param);
+        auto drift = targetSurface->evaluate_laplacian_drift_coefficients(param);
+
+        glm::mat2 sigma;
+
+        sigma[0][0] = diffusion[0][0];
+        sigma[0][1] = 0;
+        sigma[1][0] = diffusion[0][1];
+        sigma[1][1] = std::sqrt(diffusion[0][0] * diffusion[1][1] - diffusion[0][1] * diffusion[1][0]);
+        sigma /= std::sqrt(diffusion[0][0] / 2);
+
+        float time_step = 0.01;
+        auto b1 = Random::get<std::normal_distribution<>>(0.0, std::sqrt(time_step));
+        auto b2 = Random::get<std::normal_distribution<>>(0.0, std::sqrt(time_step));
+
+        glm::vec2 dB(b1, b2);
+        glm::vec2 dt(time_step);
+
+        auto delta =  sigma * dB + drift * dt;
+
+        current_param = current_param + delta;
+
+        if (count > 100) break;
+    }
+
+    std::cout << count << ' ';
+    auto dir = glm::normalize(current_param - param);
+
+    glm::vec2 r = dir * float(sdf);
+
     return evaluate_internal(param + r);
 }
 
-double ParameterSpaceWalkOnSphere::boundary_evaluation(glm::vec2 param) {
+double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
     std::vector<double> dist = {param.x, param.y, 1 - param.x, 1 - param.y};
 
     size_t idx = 0;
@@ -56,22 +91,24 @@ double ParameterSpaceWalkOnSphere::boundary_evaluation(glm::vec2 param) {
 
     return pos.z;
 }
-TensorProductBezierSurface::render_type::BuilderFromImmediateData ParameterSpaceWalkOnSphere::getMeshModelBuilderWos() {
+
+TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWalkOnSphere::getMeshModelBuilderWos() {
     TensorProductBezierSurface::render_type::BuilderFromImmediateData builder;
 
-    constexpr int n = 50;
-    constexpr int m = 50;
+    constexpr int n = 10;
+    constexpr int m = 10;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;
 
-    double minValue = 1000;
-    double maxValue = -1000;
+    float minValue = 1000;
+    float maxValue = -1000;
 
     builder.vertices.resize((m + 1) * (n + 1));
 
     // #pragma omp parallel for num_threads(8)
     for (int i = 0; i <= m; i++) {
+        std::cout << "test " << i << std::endl;
         for (int j = 0; j <= n; j++) {
             glm::vec2 param{delta_u * i, delta_v * j};
             auto position = targetSurface->evaluate(param);
@@ -79,20 +116,16 @@ TensorProductBezierSurface::render_type::BuilderFromImmediateData ParameterSpace
             vertex.position = position;
 
             double res = evaluate(param);
-            auto drift = targetSurface->evaluate_laplacian_drift_coefficients(param);
-            auto det = targetSurface->evaluate_det_metric_tensor(param);
-            auto metric = targetSurface->evaluate_metric_tensor(param);
-            res = metric[1][1];
-
-            vertex.normal = {drift.x, 0.0, drift.y};
-
-            minValue = std::min(res, minValue);
-            maxValue = std::max(res, maxValue);
 
             vertex.color = {res, 0.0, 0.0};
 
             builder.vertices[i * (n + 1) + j] = vertex;
         }
+    }
+
+    for (auto &vertex: builder.vertices) {
+        minValue = std::min(minValue, vertex.color.x);
+        maxValue = std::max(maxValue, vertex.color.x);
     }
 
     for (auto &vertex : builder.vertices) {

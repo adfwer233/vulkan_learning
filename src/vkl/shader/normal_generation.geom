@@ -27,11 +27,11 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 } ubo;
 
 void main(void) {
-    float normalLength = pushConstants.normalStrength;
+    float normalLength = 1.0;
 
     for (int i = 0; i < gl_in.length(); i++) {
         vec3 pos = gl_in[i].gl_Position.xyz;
-        vec3 normal = normalize(inNormal[i]);
+        vec3 normal = inNormal[i];
 
         gl_Position = ubo.proj * ubo.view * ubo.model * vec4(pos, 1.0);
         outColor = pushConstants.normalColor;

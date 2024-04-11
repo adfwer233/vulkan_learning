@@ -75,7 +75,7 @@ glm::mat2 TensorProductBezierSurface::evaluate_metric_tensor(glm::vec2 param) {
         v_control_points.emplace_back(BernsteinBasisFunction::evaluate(param.x, inner_control_points));
     }
 
-    auto rv = BernsteinBasisFunction::evaluate_derivative(param.x, v_control_points);
+    auto rv = BernsteinBasisFunction::evaluate_derivative(param.y, v_control_points);
 
     // build up the metric tensor
 
@@ -120,7 +120,7 @@ autodiff_mat2 TensorProductBezierSurface::evaluate_metric_tensor_autodiff(autodi
         v_control_points.emplace_back(BernsteinBasisFunction::evaluate_autodiff(param.x(), inner_control_points));
     }
 
-    auto rv = BernsteinBasisFunction::evaluate_derivative_autodiff(param.x(), v_control_points);
+    auto rv = BernsteinBasisFunction::evaluate_derivative_autodiff(param.y(), v_control_points);
 
     // build up the metric tensor
 
@@ -171,3 +171,32 @@ autodiff_mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor_autodif
 
     return result;
 }
+
+glm::mat2 TensorProductBezierSurface::evaluate_laplacian_diffusion_coefficients(glm::vec2 param) {
+    return evaluate_inverse_metric_tensor(param);
+}
+
+glm::vec2 TensorProductBezierSurface::evaluate_laplacian_drift_coefficients(glm::vec2 param) {
+    autodiff_vec2 param_autodiff(param.x, param.y);
+
+    auto metric_inverse = evaluate_inverse_metric_tensor_autodiff(param_autodiff);
+    auto det = evaluate_det_metric_tensor_autodiff(param_autodiff);
+
+    autodiff::var det_sqrt = autodiff::reverse::detail::sqrt(det);
+
+    autodiff::var a11 = det_sqrt * metric_inverse(0, 0);
+    autodiff::var a12 = det_sqrt * metric_inverse(0, 1);
+    autodiff::var a21 = det_sqrt * metric_inverse(1, 0);
+    autodiff::var a22 = det_sqrt * metric_inverse(1, 1);
+
+    auto [b1_0] = autodiff::reverse::detail::derivativesx(a11, autodiff::wrt(param_autodiff.x()));
+    auto [b1_1] = autodiff::reverse::detail::derivativesx(a12, autodiff::wrt(param_autodiff.y()));
+    auto [b2_0] = autodiff::reverse::detail::derivativesx(a21, autodiff::wrt(param_autodiff.x()));
+    auto [b2_1] = autodiff::reverse::detail::derivativesx(a22, autodiff::wrt(param_autodiff.y()));
+
+    autodiff::var b1 = ((b1_0 + b1_1) / det_sqrt);
+    autodiff::var b2 = ((b2_0 + b2_1) / det_sqrt);
+
+    return {b1, b2};
+}
+

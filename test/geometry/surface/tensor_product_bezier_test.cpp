@@ -50,6 +50,7 @@ TEST(TensorProductTest, MetricTensorAutodiff) {
     for (int i = 0; i < 10; i++) {
         autodiff_vec2 param(i * 0.1f, i * 0.1f);
         // auto res = surface.evaluate(glm::vec2 {0.5f, i * 0.1f});
+        auto metric_tensor = surface.evaluate_metric_tensor_autodiff(param);
         auto metric_inverse = surface.evaluate_inverse_metric_tensor_autodiff(param);
         auto det = surface.evaluate_det_metric_tensor_autodiff(param);
 
@@ -60,14 +61,20 @@ TEST(TensorProductTest, MetricTensorAutodiff) {
         autodiff::var a21 = det_sqrt * metric_inverse(1, 0);
         autodiff::var a22 = det_sqrt * metric_inverse(1, 1);
 
-        auto [b1_0] = autodiff::derivatives(a11, autodiff::wrt(param.x()));
-        auto [b1_1] = autodiff::derivatives(a12, autodiff::wrt(param.y()));
-        auto [b2_0] = autodiff::derivatives(a21, autodiff::wrt(param.x()));
-        auto [b2_1] = autodiff::derivatives(a22, autodiff::wrt(param.y()));
+        auto [b1_0] = autodiff::reverse::detail::derivativesx(a11, autodiff::wrt(param.x()));
+        auto [b1_1] = autodiff::reverse::detail::derivativesx(a12, autodiff::wrt(param.y()));
+        auto [b2_0] = autodiff::reverse::detail::derivativesx(a21, autodiff::wrt(param.x()));
+        auto [b2_1] = autodiff::reverse::detail::derivativesx(a22, autodiff::wrt(param.y()));
 
-        auto b1 = b1_0 + b1_1;
-        auto b2 = b2_0 + b2_1;
+        autodiff::var b1 = ((b1_0 + b1_1) / det_sqrt) / autodiff::reverse::detail::sqrt(metric_tensor(0, 0));
+        autodiff::var b2 = ((b2_0 + b2_1) / det_sqrt - metric_tensor(1, 0)) / autodiff::reverse::detail::sqrt(metric_tensor(1, 1));
 
+        auto [b1_y] = autodiff::derivatives(b1, autodiff::wrt(param.y()));
+        auto [b2_x] = autodiff::derivatives(b2, autodiff::wrt(param.x()));
+
+        std::cout << "curl b " << b1_y << ' ' << b2_x << std::endl;
+
+        // std::cout << std::format("{} {} {} {} \n", b1_0, b1_1, b2_0, b2_1);
         std::cout << std::format("{} {} {} {} \n", double(metric_inverse(0, 0)),
                                  double((metric_inverse(0, 1))), double(metric_inverse(1, 0)),
                                  double(metric_inverse(1, 1)));

@@ -96,6 +96,20 @@ class TensorProductBezierSurface : GeometrySurface {
     autodiff_mat2 evaluate_inverse_metric_tensor_autodiff(autodiff_vec2 &param);
 
     /**
+     * evaluate the diffusion coefficients of the laplacian beltrami operator at given position
+     * @param param
+     * @return
+     */
+    glm::mat2 evaluate_laplacian_diffusion_coefficients(glm::vec2 param);
+
+    /**
+     * evaluate the drift coefficient of the laplacian beltrami operator at given position
+     * @param param
+     * @return
+     */
+    glm::vec2 evaluate_laplacian_drift_coefficients(glm::vec2 param);
+
+    /**
      * implementing the RenderableGeometry concept
      */
     struct IsRenderableGeometry {};
