@@ -8,7 +8,7 @@ using Random = effolkronium::random_static;
 
 double AnisotropicWalkOnSphere::evaluate(glm::vec2 param) {
     double res = 0;
-    const int iter = 5;
+    const int iter = 20;
     for (int i = 0; i < iter; i++) {
         res += evaluate_internal(param);
         std::cout << std::endl;
@@ -30,6 +30,9 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
     int count = 0;
 
+    // Girsanov factor
+    float exp_factor = 0.0;
+
     while(glm::length(current_param - param) < sdf - 1e-4) {
         count += 1;
         auto diffusion = targetSurface->evaluate_laplacian_diffusion_coefficients(param);
@@ -43,6 +46,15 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         sigma[1][1] = std::sqrt(diffusion[0][0] * diffusion[1][1] - diffusion[0][1] * diffusion[1][0]);
         sigma /= std::sqrt(diffusion[0][0] / 2);
 
+        glm::mat2 sigma_inverse(0.0f);
+        sigma_inverse[0][0] = sigma[1][1];
+        sigma_inverse[1][1] = sigma[0][0];
+        sigma_inverse[0][1] = -sigma[1][0];
+        sigma_inverse[1][0] = -sigma[0][1];
+
+        float sigma_det = glm::determinant(sigma);
+        sigma_inverse = sigma_inverse / sigma_det;
+
         float time_step = 0.01;
         auto b1 = Random::get<std::normal_distribution<>>(0.0, std::sqrt(time_step));
         auto b2 = Random::get<std::normal_distribution<>>(0.0, std::sqrt(time_step));
@@ -50,7 +62,11 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         glm::vec2 dB(b1, b2);
         glm::vec2 dt(time_step);
 
-        auto delta =  sigma * dB + drift * dt;
+        glm::vec2 u = sigma_inverse * drift;
+        exp_factor -= glm::dot(u, dB);
+        exp_factor -= 0.5f * glm::dot(u, u) * time_step;
+
+        auto delta =  sigma * dB;
 
         current_param = current_param + delta;
 
@@ -62,7 +78,7 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
     glm::vec2 r = dir * float(sdf);
 
-    return evaluate_internal(param + r);
+    return evaluate_internal(param + r) * std::exp(exp_factor);
 }
 
 double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
@@ -95,8 +111,8 @@ double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
 TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWalkOnSphere::getMeshModelBuilderWos() {
     TensorProductBezierSurface::render_type::BuilderFromImmediateData builder;
 
-    constexpr int n = 10;
-    constexpr int m = 10;
+    constexpr int n = 20;
+    constexpr int m = 20;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;
@@ -117,6 +133,7 @@ TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWal
 
             double res = evaluate(param);
 
+            glm::clamp(res, -1.0, 1.0);
             vertex.color = {res, 0.0, 0.0};
 
             builder.vertices[i * (n + 1) + j] = vertex;
@@ -129,7 +146,7 @@ TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWal
     }
 
     for (auto &vertex : builder.vertices) {
-        vertex.color = (vertex.color - glm::vec3{float(minValue), 0.0f, 0.0f}) / float(maxValue - minValue);
+        vertex.color = (vertex.color - glm::vec3{float(-1), 0.0f, 0.0f}) / float(2);
     }
 
     for (int i = 0; i < m; i++) {

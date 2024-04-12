@@ -66,8 +66,8 @@ TEST(TensorProductTest, MetricTensorAutodiff) {
         auto [b2_0] = autodiff::reverse::detail::derivativesx(a21, autodiff::wrt(param.x()));
         auto [b2_1] = autodiff::reverse::detail::derivativesx(a22, autodiff::wrt(param.y()));
 
-        autodiff::var b1 = ((b1_0 + b1_1) / det_sqrt) / autodiff::reverse::detail::sqrt(metric_tensor(0, 0));
-        autodiff::var b2 = ((b2_0 + b2_1) / det_sqrt - metric_tensor(1, 0)) / autodiff::reverse::detail::sqrt(metric_tensor(1, 1));
+        autodiff::var b1 = (b1_0 + b1_1) / det_sqrt;
+        autodiff::var b2 = (b2_0 + b2_1) / det_sqrt;
 
         auto [b1_y] = autodiff::derivatives(b1, autodiff::wrt(param.y()));
         auto [b2_x] = autodiff::derivatives(b2, autodiff::wrt(param.x()));
