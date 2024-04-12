@@ -150,8 +150,8 @@ glm::mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor(glm::vec2 p
     glm::mat2 result;
 
     result[0][0] = metric_tensor[1][1] / det;
-    result[0][1] = -metric_tensor[1][0] / det;
-    result[1][0] = metric_tensor[0][1] / det;
+    result[0][1] = -metric_tensor[0][1] / det;
+    result[1][0] = -metric_tensor[1][0] / det;
     result[1][1] = metric_tensor[0][0] / det;
 
     return result;
@@ -165,8 +165,8 @@ autodiff_mat2 TensorProductBezierSurface::evaluate_inverse_metric_tensor_autodif
     autodiff_mat2 result;
 
     result(0, 0) = metric_tensor(1, 1) / det;
-    result(0, 1) = -metric_tensor(1, 0) / det;
-    result(1, 0) = metric_tensor(0, 1) / det;
+    result(0, 1) = -metric_tensor(0, 1) / det;
+    result(1, 0) = -metric_tensor(1, 0) / det;
     result(1, 1) = metric_tensor(0, 0) / det;
 
     return result;

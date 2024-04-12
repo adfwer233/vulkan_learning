@@ -45,6 +45,9 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
         auto [diffusion, drift] = (*cache)[idx1][idx2];
 
+        // glm::mat2 diffusion(0.25f);
+        // glm::vec2 drift(0.0f);
+
         glm::mat2 sigma;
 
         sigma[0][0] = diffusion[0][0];
@@ -56,12 +59,20 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         glm::mat2 sigma_inverse(0.0f);
         sigma_inverse[0][0] = sigma[1][1];
         sigma_inverse[1][1] = sigma[0][0];
-        sigma_inverse[0][1] = -sigma[1][0];
-        sigma_inverse[1][0] = -sigma[0][1];
+        sigma_inverse[0][1] = -sigma[0][1];
+        sigma_inverse[1][0] = -sigma[1][0];
 
         float sigma_det = glm::determinant(sigma);
         sigma_inverse = sigma_inverse / sigma_det;
 
+        auto dbg = sigma_inverse * sigma;
+        // auto metric = targetSurface->evaluate_metric_tensor(param);
+
+        // auto dbg2 = metric * diffusion;
+        auto dbg3 = sigma * glm::transpose(sigma) * 0.5f;
+        auto tmp = glm::transpose(sigma);
+        auto dbg4 = dbg3 / diffusion;
+        auto dbg5 = tmp * sigma;
         float time_step = 0.01;
         auto b1 = Random::get<std::normal_distribution<>>(0.0, 1.0);
         auto b2 = Random::get<std::normal_distribution<>>(0.0, 1.0);
@@ -78,6 +89,7 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         glm::vec2 dt(time_step);
 
         glm::vec2 u = sigma_inverse * drift;
+        glm::vec2 u2 = drift * sigma_inverse;
 
         float dZ = 0.0;
         dZ -= glm::dot(u, dB_prime);
@@ -85,7 +97,7 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
         exp_factor += dZ;
 
-        auto delta =  sigma * dB;
+        auto delta =  dB * sigma;
 
         current_param = current_param + delta;
 
@@ -93,7 +105,7 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
     }
 
     if (count > 1000)
-        std::cout << "failed" << std::endl;
+        std::cout << "failed " << count << std::endl;
 
     auto dir = glm::normalize(current_param - param);
 
@@ -132,8 +144,8 @@ double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
 TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWalkOnSphere::getMeshModelBuilderWos() {
     TensorProductBezierSurface::render_type::BuilderFromImmediateData builder;
 
-    constexpr int n = 50;
-    constexpr int m = 50;
+    constexpr int n = 20;
+    constexpr int m = 20;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;
