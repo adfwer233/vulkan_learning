@@ -8,10 +8,9 @@ using Random = effolkronium::random_static;
 
 double AnisotropicWalkOnSphere::evaluate(glm::vec2 param) {
     double res = 0;
-    const int iter = 20;
+    const int iter = 4096;
     for (int i = 0; i < iter; i++) {
         res += evaluate_internal(param);
-        std::cout << std::endl;
     }
     return res / iter;
 }
@@ -35,8 +34,16 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
     while(glm::length(current_param - param) < sdf - 1e-4) {
         count += 1;
-        auto diffusion = targetSurface->evaluate_laplacian_diffusion_coefficients(param);
-        auto drift = targetSurface->evaluate_laplacian_drift_coefficients(param);
+        // auto diffusion = targetSurface->evaluate_laplacian_diffusion_coefficients(param);
+        // auto drift = targetSurface->evaluate_laplacian_drift_coefficients(param);
+
+        int idx1 = current_param.x / 0.01 + 1;
+        int idx2 = current_param.y / 0.01 + 1;
+
+        idx1 %= 100;
+        idx2 %= 100;
+
+        auto [diffusion, drift] = (*cache)[idx1][idx2];
 
         glm::mat2 sigma;
 
@@ -56,29 +63,43 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         sigma_inverse = sigma_inverse / sigma_det;
 
         float time_step = 0.01;
-        auto b1 = Random::get<std::normal_distribution<>>(0.0, std::sqrt(time_step));
-        auto b2 = Random::get<std::normal_distribution<>>(0.0, std::sqrt(time_step));
+        auto b1 = Random::get<std::normal_distribution<>>(0.0, 1.0);
+        auto b2 = Random::get<std::normal_distribution<>>(0.0, 1.0);
 
         glm::vec2 dB(b1, b2);
+        dB = dB * std::sqrt(time_step);
+
+        auto b1_prime = Random::get<std::normal_distribution<>>(0.0, 1.0);
+        auto b2_prime = Random::get<std::normal_distribution<>>(0.0, 1.0);
+
+        glm::vec2 dB_prime(b1_prime, b2_prime);
+        dB_prime = dB_prime * std::sqrt(time_step);
+
         glm::vec2 dt(time_step);
 
         glm::vec2 u = sigma_inverse * drift;
-        exp_factor -= glm::dot(u, dB);
-        exp_factor -= 0.5f * glm::dot(u, u) * time_step;
+
+        float dZ = 0.0;
+        dZ -= glm::dot(u, dB_prime);
+        dZ -= 0.5f * glm::dot(u, u) * time_step;
+
+        exp_factor += dZ;
 
         auto delta =  sigma * dB;
 
         current_param = current_param + delta;
 
-        if (count > 100) break;
+        if (count > 1000) break;
     }
 
-    std::cout << count << ' ';
+    if (count > 1000)
+        std::cout << "failed" << std::endl;
+
     auto dir = glm::normalize(current_param - param);
 
     glm::vec2 r = dir * float(sdf);
 
-    return evaluate_internal(param + r) * std::exp(exp_factor);
+    return evaluate_internal(param + r) * exp(exp_factor);
 }
 
 double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
@@ -111,14 +132,26 @@ double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
 TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWalkOnSphere::getMeshModelBuilderWos() {
     TensorProductBezierSurface::render_type::BuilderFromImmediateData builder;
 
-    constexpr int n = 20;
-    constexpr int m = 20;
+    constexpr int n = 50;
+    constexpr int m = 50;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;
 
     float minValue = 1000;
     float maxValue = -1000;
+
+    cache = std::make_unique<cache_data_type>();
+
+    for (int i = 0; i < 100; i++) {
+        std::cout << "pre compute " << i << std::endl;
+        for (int j = 0; j < 100; j++) {
+            glm::vec2 param{i * 0.01, j * 0.01};
+            auto diffusion = targetSurface->evaluate_laplacian_diffusion_coefficients(param);
+            auto drift = targetSurface->evaluate_laplacian_drift_coefficients(param);
+            (*cache)[i][j] = std::make_tuple(diffusion, drift);
+        }
+    }
 
     builder.vertices.resize((m + 1) * (n + 1));
 

@@ -2,9 +2,14 @@
 
 #include "geometry/surface/tensor_product_bezier.hpp"
 
+#include "meta_programming/multi_dim_array.hpp"
+
 class AnisotropicWalkOnSphere {
 private:
     TensorProductBezierSurface *targetSurface;
+
+    using cache_data_type = MetaProgramming::MultiDimensionalArray<std::tuple<glm::mat2, glm::vec2>, 100, 100>::type;
+    std::unique_ptr<cache_data_type> cache;
 
     double sdf_evaluate(glm::vec2 param);
 
