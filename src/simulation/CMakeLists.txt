@@ -7,7 +7,15 @@ set(SRC_FILE
         walk_on_sphere/walk_on_sphere_anisotropic.cpp
 )
 
-add_library(${PROJECT_NAME} ${SRC_FILE})
+set(CUDA_SOURCE_FILE
+        walk_on_sphere/gpu_kernel/cuda/wos_anisotropic.cu
+)
+
+if(CUDA_ENABLE)
+    add_library(${PROJECT_NAME} ${SRC_FILE} ${CUDA_SOURCE_FILE})
+else ()
+    add_library(${PROJECT_NAME} ${SRC_FILE})
+endif ()
 
 find_package(OpenMP)
 target_link_libraries(${PROJECT_NAME} glm autodiff geometry OpenMP::OpenMP_CXX Boost::math)
