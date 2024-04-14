@@ -29,13 +29,8 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
     int count = 0;
 
-    // Girsanov factor
-    float exp_factor = 0.0;
-
     while(glm::length(current_param - param) < sdf - 1e-4) {
         count += 1;
-        // auto diffusion = targetSurface->evaluate_laplacian_diffusion_coefficients(param);
-        // auto drift = targetSurface->evaluate_laplacian_drift_coefficients(param);
 
         int idx1 = current_param.x / 0.01 + 1;
         int idx2 = current_param.y / 0.01 + 1;
@@ -45,9 +40,6 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
         auto [diffusion, drift] = (*cache)[idx1][idx2];
 
-        // glm::mat2 diffusion(0.25f);
-        // glm::vec2 drift(0.0f);
-
         glm::mat2 sigma;
 
         sigma[0][0] = diffusion[0][0];
@@ -56,23 +48,6 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         sigma[1][1] = std::sqrt(diffusion[0][0] * diffusion[1][1] - diffusion[0][1] * diffusion[1][0]);
         sigma /= std::sqrt(diffusion[0][0] / 2);
 
-        glm::mat2 sigma_inverse(0.0f);
-        sigma_inverse[0][0] = sigma[1][1];
-        sigma_inverse[1][1] = sigma[0][0];
-        sigma_inverse[0][1] = -sigma[0][1];
-        sigma_inverse[1][0] = -sigma[1][0];
-
-        float sigma_det = glm::determinant(sigma);
-        sigma_inverse = sigma_inverse / sigma_det;
-
-        auto dbg = sigma_inverse * sigma;
-        // auto metric = targetSurface->evaluate_metric_tensor(param);
-
-        // auto dbg2 = metric * diffusion;
-        auto dbg3 = sigma * glm::transpose(sigma) * 0.5f;
-        auto tmp = glm::transpose(sigma);
-        auto dbg4 = dbg3 / diffusion;
-        auto dbg5 = tmp * sigma;
         float time_step = 0.01;
         auto b1 = Random::get<std::normal_distribution<>>(0.0, 1.0);
         auto b2 = Random::get<std::normal_distribution<>>(0.0, 1.0);
@@ -80,24 +55,7 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         glm::vec2 dB(b1, b2);
         dB = dB * std::sqrt(time_step);
 
-        auto b1_prime = Random::get<std::normal_distribution<>>(0.0, 1.0);
-        auto b2_prime = Random::get<std::normal_distribution<>>(0.0, 1.0);
-
-        glm::vec2 dB_prime(b1_prime, b2_prime);
-        dB_prime = dB_prime * std::sqrt(time_step);
-
-        glm::vec2 dt(time_step);
-
-        glm::vec2 u = sigma_inverse * drift;
-        glm::vec2 u2 = drift * sigma_inverse;
-
-        float dZ = 0.0;
-        dZ -= glm::dot(u, dB_prime);
-        dZ -= 0.5f * glm::dot(u, u) * time_step;
-
-        exp_factor += dZ;
-
-        auto delta =  dB * sigma;
+        auto delta =  drift * time_step + dB * sigma;
 
         current_param = current_param + delta;
 
@@ -111,7 +69,7 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
     glm::vec2 r = dir * float(sdf);
 
-    return evaluate_internal(param + r) * exp(exp_factor);
+    return evaluate_internal(param + r);
 }
 
 double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
