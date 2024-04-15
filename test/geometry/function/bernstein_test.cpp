@@ -3,7 +3,7 @@
 
 TEST(BernsteinBasisFunctionTest, Evaluate) {
     for (int i = 0; i < 10; i++) {
-        std::vector<glm::vec3> control_pts {
+        std::vector<std::array<float, 3>> control_pts {
             {0.0, 0.0, 0.0},
             {1.0, 0.0, 0.0},
             {1.0, 1.0, 0.0},
@@ -11,7 +11,6 @@ TEST(BernsteinBasisFunctionTest, Evaluate) {
         };
 
         auto res = BernsteinBasisFunction::evaluate(i * 0.1, control_pts);
-        std::cout << res.x << ' ' << res.y << ' ' << res.z << std::endl;
     }
 }
 
