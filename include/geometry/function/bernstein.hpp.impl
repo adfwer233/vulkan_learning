@@ -1,50 +1,72 @@
 #include "bernstein.hpp"
 
-template <typename T> T BernsteinBasisFunction::evaluate(double param, const std::vector<T> &coefficients) {
-    auto n = coefficients.size();
-
+template <size_t len> std::array<float, len> BernsteinBasisFunction::evaluate(double param, std::vector<std::array<float, len>> &coefficients) {
     using namespace boost::math::interpolators;
 
-    std::vector<std::array<double, T::length()>> control_pts(coefficients.size());
-
-    for (int i = 0; i < n; i++) {
-        if constexpr (T::length() == 3)
-            control_pts[i] = {coefficients[i].x, coefficients[i].y, coefficients[i].z};
-        else
-            control_pts[i] = {coefficients[i].x, coefficients[i].y};
-    }
-
-    auto bp = bezier_polynomial(std::move(control_pts));
+    auto bp = BernsteinPolynomial(coefficients);
 
     auto res = bp(param);
     auto tmp = bp.prime(param);
 
-    if constexpr (T::length() == 3)
-        return {res[0], res[1], res[2]};
-    else
-        return {res[0], res[1]};
+    return res;
 }
 
-template <typename T>
-T BernsteinBasisFunction::evaluate_derivative(double param, const std::vector<T> &coefficients) {
+template <size_t len> std::array<float, len> BernsteinBasisFunction::evaluate_derivative(double param, std::vector<std::array<float, len>> &coefficients) {
     auto n = coefficients.size();
     using namespace boost::math::interpolators;
 
-    std::vector<std::array<double, T::length()>> control_pts(coefficients.size());
-
-    for (int i = 0; i < n; i++) {
-        if constexpr (T::length() == 3)
-            control_pts[i] = {coefficients[i].x, coefficients[i].y, coefficients[i].z};
-        else
-            control_pts[i] = {coefficients[i].x, coefficients[i].y};
-    }
-
-    auto bp = bezier_polynomial(std::move(control_pts));
+    auto bp = BernsteinPolynomial(coefficients);
     auto tmp = bp(param);
     auto res = bp.prime(param);
 
-    if constexpr (T::length() == 3)
-        return {res[0], res[1], res[2]};
-    else
-        return {res[0], res[1]};
+    return res;
+}
+
+template<std::ranges::random_access_range RandomAccessContainer>
+void BernsteinPolynomial<RandomAccessContainer>::decasteljau_recursion(RandomAccessContainer &points,
+                                                                                      SizeType n, Real t) const {
+    if (n <= 1) {
+        return;
+    }
+    for (SizeType i = 0; i < n - 1; ++i) {
+        for (SizeType j = 0; j < points[0].size(); ++j) {
+            points[i][j] = (1-t)*points[i][j] + t*points[i+1][j];
+        }
+    }
+    decasteljau_recursion(points, n - 1, t);
+}
+
+
+template<std::ranges::random_access_range RandomAccessContainer>
+BernsteinPolynomial<RandomAccessContainer>::BernsteinPolynomial(
+        RandomAccessContainer &controlPoints): controlPoints_(controlPoints) {
+    storage.resize(controlPoints.size() - 1);
+}
+
+template<std::ranges::random_access_range RandomAccessContainer>
+BernsteinPolynomial<RandomAccessContainer>::PointType BernsteinPolynomial<RandomAccessContainer>::prime(Real t) {
+    auto & scratch_space = storage;
+    for (SizeType i = 0; i < controlPoints_.size() - 1; ++i) {
+        for (SizeType j = 0; j < controlPoints_[0].size(); ++j) {
+            scratch_space[i][j] = controlPoints_[i+1][j] - controlPoints_[i][j];
+        }
+    }
+    decasteljau_recursion(scratch_space, controlPoints_.size() - 1, t);
+    for (SizeType j = 0; j < controlPoints_[0].size(); ++j) {
+        scratch_space[0][j] *= (controlPoints_.size()-1);
+    }
+    return scratch_space[0];
+}
+
+template<std::ranges::random_access_range RandomAccessContainer>
+BernsteinPolynomial<RandomAccessContainer>::PointType BernsteinPolynomial<RandomAccessContainer>::operator()(Real t) {
+    auto & scratch_space = storage;
+    for (SizeType i = 0; i < controlPoints_.size() - 1; ++i) {
+        for (SizeType j = 0; j < controlPoints_[0].size(); ++j) {
+            scratch_space[i][j] = (1 - t) * controlPoints_[i][j] + t * controlPoints_[i+1][j];
+        }
+    }
+
+    decasteljau_recursion(scratch_space, scratch_space.size(), t);
+    return scratch_space[0];
 }

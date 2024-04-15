@@ -8,7 +8,7 @@ using Random = effolkronium::random_static;
 
 double AnisotropicWalkOnSphere::evaluate(glm::vec2 param) {
     double res = 0;
-    const int iter = 4096;
+    const int iter = 128;
     for (int i = 0; i < iter; i++) {
         res += evaluate_internal(param);
     }

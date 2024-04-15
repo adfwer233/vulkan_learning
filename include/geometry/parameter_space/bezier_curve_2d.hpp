@@ -7,9 +7,10 @@
 
 class BezierCurve2D {
   private:
-    std::vector<glm::vec2> control_points_;
+    std::vector<std::array<float, 2>> control_points_;
 
   public:
+    using point_type = std::array<float, 2>;
     using parameter_space_render_type = VklCurveModel2D;
     using render_type = VklCurveModel3D;
 
@@ -30,7 +31,7 @@ class BezierCurve2D {
      */
     glm::vec2 evaluate(double param) {
         auto res = BernsteinBasisFunction::evaluate(param, control_points_);
-        return res;
+        return {res[0], res[1]};
     }
 
     /**

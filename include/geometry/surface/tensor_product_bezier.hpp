@@ -18,7 +18,7 @@ class TensorProductBezierSurface : GeometrySurface {
     /**
      * control points of the tensor product bezier surface
      */
-    std::vector<std::vector<glm::vec3>> control_points_;
+    std::vector<std::vector<std::array<float, 3>>> control_points_;
 
     /**
      * boundary curves of the geometry surface
@@ -27,19 +27,39 @@ class TensorProductBezierSurface : GeometrySurface {
 
   public:
     explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts) : control_points_(control_pts) {
-        std::vector<glm::vec2> default_boundary1{{0.0, 0.0}, {1.0, 0.0}};
+        std::vector<BezierCurve2D::point_type> default_boundary1{BezierCurve2D::point_type{0.0, 0.0}, BezierCurve2D::point_type{1.0, 0.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary1))));
 
-        std::vector<glm::vec2> default_boundary2{{1.0, 0.0}, {1.0, 1.0}};
+        std::vector<BezierCurve2D::point_type> default_boundary2{BezierCurve2D::point_type{1.0, 0.0}, BezierCurve2D::point_type{1.0, 1.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary2))));
 
-        std::vector<glm::vec2> default_boundary3{{1.0, 1.0}, {0.0, 1.0}};
+        std::vector<BezierCurve2D::point_type> default_boundary3{BezierCurve2D::point_type{1.0, 1.0}, BezierCurve2D::point_type{0.0, 1.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary3))));
 
-        std::vector<glm::vec2> default_boundary4{{0.0, 1.0}, {0.0, 0.0}};
+        std::vector<BezierCurve2D::point_type> default_boundary4{BezierCurve2D::point_type{0.0, 1.0}, BezierCurve2D::point_type{0.0, 0.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary4))));
     }
 
+    explicit TensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_pts) {
+        for (const auto& item_i: control_pts) {
+            auto &target = control_points_.emplace_back();
+            for (auto item_j: item_i) {
+                target.emplace_back(std::array<float, 3>{item_j.x, item_j.y, item_j.z});
+            }
+        }
+
+        std::vector<BezierCurve2D::point_type> default_boundary1{BezierCurve2D::point_type{0.0, 0.0}, BezierCurve2D::point_type{1.0, 0.0}};
+        boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary1))));
+
+        std::vector<BezierCurve2D::point_type> default_boundary2{BezierCurve2D::point_type{1.0, 0.0}, BezierCurve2D::point_type{1.0, 1.0}};
+        boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary2))));
+
+        std::vector<BezierCurve2D::point_type> default_boundary3{BezierCurve2D::point_type{1.0, 1.0}, BezierCurve2D::point_type{0.0, 1.0}};
+        boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary3))));
+
+        std::vector<BezierCurve2D::point_type> default_boundary4{BezierCurve2D::point_type{0.0, 1.0}, BezierCurve2D::point_type{0.0, 0.0}};
+        boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary4))));
+    }
     /**
      * evaluate the position with given parameter.
      * @param param vec2 in the parameter space.

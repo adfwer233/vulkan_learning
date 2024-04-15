@@ -60,7 +60,14 @@ class VklScene {
     template <VklModelLoader Loader> void addObject(VklObject::ImportBuilder<Loader> builder);
 
     void addTensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_points) {
-        surfaces.push_back(std::move(std::make_unique<TensorProductBezierSurface>(std::move(control_points))));
+        std::vector<std::vector<std::array<float, 3>>> control_points_array;
+        for (auto item_i: control_points) {
+            auto &target = control_points_array.emplace_back();
+            for (auto item_j: item_i) {
+                target.emplace_back(std::array<float, 3>{item_j.x, item_j.y, item_j.z});
+            }
+        }
+        surfaces.push_back(std::move(std::make_unique<TensorProductBezierSurface>(std::move(control_points_array))));
         auto &surf = surfaces.back();
 
         auto meshModel = surf->getMeshModel(device_);
