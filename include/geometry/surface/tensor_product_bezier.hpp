@@ -42,6 +42,8 @@ class TensorProductBezierSurface : GeometrySurface {
         std::vector<BezierCurve2D::point_type> default_boundary4{BezierCurve2D::point_type{0.0, 1.0},
                                                                  BezierCurve2D::point_type{0.0, 0.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary4))));
+
+        laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
     }
 
     explicit TensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_pts) {
@@ -67,6 +69,8 @@ class TensorProductBezierSurface : GeometrySurface {
         std::vector<BezierCurve2D::point_type> default_boundary4{BezierCurve2D::point_type{0.0, 1.0},
                                                                  BezierCurve2D::point_type{0.0, 0.0}};
         boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary4))));
+
+        laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
     }
     /**
      * evaluate the position with given parameter.
@@ -136,6 +140,50 @@ class TensorProductBezierSurface : GeometrySurface {
      * @return
      */
     glm::vec2 evaluate_laplacian_drift_coefficients(glm::vec2 param);
+
+    struct LaplacianEvaluator {
+        autodiff_vec2 param_autodiff;
+        autodiff_vec2 drift_term;
+
+        autodiff_mat2 metric;
+        autodiff::var det, det_sqrt, a11, a12, a21, a22;
+
+        explicit LaplacianEvaluator(TensorProductBezierSurface &surface) {
+            param_autodiff.x() = 0;
+            param_autodiff.y() = 0;
+
+            metric = surface.evaluate_metric_tensor_autodiff(param_autodiff);
+            det = metric(0, 0) * metric(1, 1) - metric(0, 1) * metric(1, 0);
+
+            det_sqrt = autodiff::reverse::detail::sqrt(det);
+
+            a11 = metric(1, 1) / det_sqrt;
+            a12 = -metric(0, 1) / det_sqrt;
+            a21 = -metric(1, 0) / det_sqrt;
+            a22 = metric(0, 0) / det_sqrt;
+        }
+
+        glm::vec2 evaluate(glm::vec2 param) {
+            param_autodiff.x().update(param.x);
+            param_autodiff.y().update(param.y);
+            a11.update();
+            a12.update();
+            a21.update();
+            a22.update();
+            det_sqrt.update();
+
+            auto [b1_0] = autodiff::reverse::detail::derivativesx(a11, autodiff::wrt(param_autodiff.x()));
+            auto [b1_1] = autodiff::reverse::detail::derivativesx(a12, autodiff::wrt(param_autodiff.y()));
+            auto [b2_0] = autodiff::reverse::detail::derivativesx(a21, autodiff::wrt(param_autodiff.x()));
+            auto [b2_1] = autodiff::reverse::detail::derivativesx(a22, autodiff::wrt(param_autodiff.y()));
+
+            drift_term.x() = (b1_0 + b1_1) / det_sqrt;
+            drift_term.y() = (b2_0 + b2_1) / det_sqrt;
+            return {drift_term.x(), drift_term.y()};
+        }
+    };
+
+    std::unique_ptr<LaplacianEvaluator> laplacianEvaluator;
 
     /**
      * implementing the RenderableGeometry concept
