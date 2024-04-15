@@ -106,7 +106,8 @@ autodiff_mat2 TensorProductBezierSurface::evaluate_metric_tensor_autodiff(autodi
     for (auto i = 0; i < m; i++) {
         std::vector<autodiff_vec3> inner_control_points(n);
         for (int j = 0; j < n; j++)
-            inner_control_points[j] = autodiff_vec3 {control_points_[i][j][0], control_points_[i][j][1], control_points_[i][j][2]};
+            inner_control_points[j] =
+                autodiff_vec3{control_points_[i][j][0], control_points_[i][j][1], control_points_[i][j][2]};
         u_control_points.emplace_back(BernsteinBasisFunction::evaluate_autodiff(param.y(), inner_control_points));
     }
 
@@ -119,7 +120,8 @@ autodiff_mat2 TensorProductBezierSurface::evaluate_metric_tensor_autodiff(autodi
     for (auto i = 0; i < n; i++) {
         std::vector<autodiff_vec3> inner_control_points(m);
         for (int j = 0; j < m; j++)
-            inner_control_points[j] = autodiff_vec3 {control_points_[j][i][0], control_points_[j][i][1], control_points_[j][i][2]};
+            inner_control_points[j] =
+                autodiff_vec3{control_points_[j][i][0], control_points_[j][i][1], control_points_[j][i][2]};
         v_control_points.emplace_back(BernsteinBasisFunction::evaluate_autodiff(param.x(), inner_control_points));
     }
 
@@ -202,4 +204,3 @@ glm::vec2 TensorProductBezierSurface::evaluate_laplacian_drift_coefficients(glm:
 
     return {b1, b2};
 }
-

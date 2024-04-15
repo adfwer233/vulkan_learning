@@ -29,7 +29,7 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
 
     int count = 0;
 
-    while(glm::length(current_param - param) < sdf - 1e-4) {
+    while (glm::length(current_param - param) < sdf - 1e-4) {
         count += 1;
 
         int idx1 = current_param.x / 0.01 + 1;
@@ -55,11 +55,12 @@ double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
         glm::vec2 dB(b1, b2);
         dB = dB * std::sqrt(time_step);
 
-        auto delta =  drift * time_step + dB * sigma;
+        auto delta = drift * time_step + dB * sigma;
 
         current_param = current_param + delta;
 
-        if (count > 1000) break;
+        if (count > 1000)
+            break;
     }
 
     if (count > 1000)
@@ -143,7 +144,7 @@ TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWal
         }
     }
 
-    for (auto &vertex: builder.vertices) {
+    for (auto &vertex : builder.vertices) {
         minValue = std::min(minValue, vertex.color.x);
         maxValue = std::max(maxValue, vertex.color.x);
     }
