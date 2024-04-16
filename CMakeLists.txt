@@ -31,10 +31,12 @@ include(fetch-googletest)
 include(fetch-tinyobjloader)
 include(fetch-autodiff)
 include(fetch-random)
+include(fetch-rootfinder)
 
 igl_include(copyleft core)
 
 INCLUDE_DIRECTORIES(${stb_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${root_finder_SOURCE_DIR}/root_finder/include)
 INCLUDE_DIRECTORIES(${tinyobjloader_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${random_SOURCE_DIR}/include)
 INCLUDE_DIRECTORIES(${imgui_fetch_SOURCE_DIR})

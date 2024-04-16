@@ -20,12 +20,12 @@ class TensorProductBezierSurface : GeometrySurface {
      */
     std::vector<std::vector<std::array<float, 3>>> control_points_;
 
+  public:
     /**
      * boundary curves of the geometry surface
      */
     std::vector<std::unique_ptr<BezierCurve2D>> boundary_curves;
 
-  public:
     explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts) : control_points_(control_pts) {
         initializeBoundary();
         laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
