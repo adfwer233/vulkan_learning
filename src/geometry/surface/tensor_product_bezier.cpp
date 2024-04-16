@@ -206,3 +206,36 @@ glm::vec2 TensorProductBezierSurface::evaluate_laplacian_drift_coefficients(glm:
 
     return res;
 }
+
+void TensorProductBezierSurface::initializeBoundary() {
+    // the boundary of parameter space
+
+    std::vector<BezierCurve2D::point_type> default_boundary1{BezierCurve2D::point_type{0.0, 0.0},
+                                                             BezierCurve2D::point_type{1.0, 0.0}};
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary1))));
+
+    std::vector<BezierCurve2D::point_type> default_boundary2{BezierCurve2D::point_type{1.0, 0.0},
+                                                             BezierCurve2D::point_type{1.0, 1.0}};
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary2))));
+
+    std::vector<BezierCurve2D::point_type> default_boundary3{BezierCurve2D::point_type{1.0, 1.0},
+                                                             BezierCurve2D::point_type{0.0, 1.0}};
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary3))));
+
+    std::vector<BezierCurve2D::point_type> default_boundary4{BezierCurve2D::point_type{0.0, 1.0},
+                                                             BezierCurve2D::point_type{0.0, 0.0}};
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(default_boundary4))));
+
+    // custom boundary
+
+    std::vector<BezierCurve2D::point_type> circle1_boundary_1{{0.3, 0.5}, {0.3, 0.7}, {0.5, 0.7}};
+    std::vector<BezierCurve2D::point_type> circle1_boundary_2{{0.5, 0.7}, {0.7, 0.7}, {0.7, 0.5}};
+    std::vector<BezierCurve2D::point_type> circle1_boundary_3{{0.7, 0.5}, {0.7, 0.3}, {0.5, 0.3}};
+    std::vector<BezierCurve2D::point_type> circle1_boundary_4{{0.5, 0.3}, {0.3, 0.3}, {0.3, 0.5}};
+
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_1))));
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_2))));
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_3))));
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_4))));
+
+}

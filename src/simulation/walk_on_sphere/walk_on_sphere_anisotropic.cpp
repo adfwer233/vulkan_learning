@@ -4,11 +4,13 @@
 
 #include "numbers"
 
+#include "meta_programming/multi_min_max.hpp"
+
 using Random = effolkronium::random_static;
 
 double AnisotropicWalkOnSphere::evaluate(glm::vec2 param) {
     double res = 0;
-    const int iter = 128;
+    const int iter = 1024;
     for (int i = 0; i < iter; i++) {
         res += evaluate_internal(param);
     }
@@ -16,7 +18,7 @@ double AnisotropicWalkOnSphere::evaluate(glm::vec2 param) {
 }
 
 double AnisotropicWalkOnSphere::sdf_evaluate(glm::vec2 param) {
-    return std::min(param.x, std::min(param.y, std::min(1 - param.x, 1 - param.y)));
+    return MetaProgramming::min(param.x, param.y, 1 - param.x, 1 - param.y);
 }
 
 double AnisotropicWalkOnSphere::evaluate_internal(glm::vec2 param) {
