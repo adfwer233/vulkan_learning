@@ -21,11 +21,11 @@ struct Generator {
         }
 
         void unhandled_exception() noexcept {
-            Exception = std::current_exception();
+            exception_ = std::current_exception();
         }
 
         const Ty* current_value_;
-        std::exception_ptr Exception;
+        std::exception_ptr exception_;
     };
 
     struct iterator {
@@ -35,15 +35,15 @@ struct Generator {
         using reference         = const Ty&;
         using pointer           = const Ty*;
 
-        std::coroutine_handle<promise_type> Coro = nullptr;
+        std::coroutine_handle<promise_type> coro_ = nullptr;
 
         iterator() = default;
-        explicit iterator(std::coroutine_handle<promise_type> Coro_) noexcept : Coro(Coro_) {}
+        explicit iterator(std::coroutine_handle<promise_type> coro) noexcept : coro_(coro) {}
 
         iterator& operator++() {
-            Coro.resume();
-            if (Coro.done()) {
-                Coro = nullptr;
+            coro_.resume();
+            if (coro_.done()) {
+                coro_ = nullptr;
             }
             return *this;
         }
@@ -52,20 +52,20 @@ struct Generator {
             (*this)++;
         }
 
-        bool operator==(const iterator& Right) const noexcept {
-            return Coro == Right.Coro;
+        bool operator==(const iterator& right) const noexcept {
+            return coro_ == right.coro_;
         }
 
-        bool operator!=(const iterator& Right) const noexcept {
-            return !(*this == Right);
+        bool operator!=(const iterator& right) const noexcept {
+            return !(*this == right);
         }
 
         reference operator*() const noexcept {
-            return *Coro.promise().current_value_;
+            return *coro_.promise().current_value_;
         }
 
         pointer operator->() const noexcept {
-            return Coro.promise().current_value_;
+            return coro_.promise().current_value_;
         }
     };
 
@@ -90,8 +90,8 @@ struct Generator {
 
     Generator(Generator&& rhs) noexcept: coro_handle_(std::exchange(rhs.coro_handle_, nullptr)) {}
 
-    Generator& operator=(Generator&& Right) noexcept {
-        coro_handle_ = _STD exchange(Right.coro_handle_, nullptr);
+    Generator& operator=(Generator&& right) noexcept {
+        coro_handle_ = std::exchange(right.coro_handle_, nullptr);
         return *this;
     }
 

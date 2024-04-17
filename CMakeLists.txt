@@ -79,6 +79,10 @@ add_subdirectory(test)
 find_package(OpenMP)
 target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui OpenMP::OpenMP_CXX)
 
+if(MSVC)
+    add_compile_options("/source-charset:utf-8")
+endif()
+
 message(STATUS "Build documentation open")
 include(build-doxygen)
 build_doxygen()
