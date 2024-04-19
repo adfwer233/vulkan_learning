@@ -8,6 +8,7 @@
 #include "components/scene_manager.hpp"
 #include "components/scene_ui.hpp"
 #include "components/uv_render_ui.hpp"
+#include "components/scene_info.hpp"
 #include "ray_tracer/ray_picker.hpp"
 
 #include "components/picking_ui.hpp"

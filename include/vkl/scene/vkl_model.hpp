@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 
+
 #include "glm/glm.hpp"
 
 #include "vkl/core/vkl_buffer.hpp"
@@ -15,6 +16,7 @@
 #include "vkl/templates/vkl_concept.hpp"
 
 #include "geometry/mesh/mesh_model_template.hpp"
+#include "geometry/renderable_geometry.hpp"
 
 struct VklVertex2D: public Vertex2D {
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
@@ -83,12 +85,6 @@ class VklModelTemplate {
 
     typedef IndexType index_type;
 
-    struct BuilderFromFile {
-        std::vector<VertexType> vertices{};
-        std::vector<IndexType> indices{};
-        void build(const std::string &filepath);
-    };
-
     struct BuilderFromImmediateData {
         std::vector<VertexType> vertices{};
         std::vector<IndexType> indices{};
@@ -155,6 +151,8 @@ class VklModelTemplate {
     VklModelTemplate &operator=(const VklModelTemplate &) = delete;
 
     std::unique_ptr<MeshModelTemplate<VertexType, IndexType>> geometry;
+    
+    std::unique_ptr<GeometryBase> underlayingGeometry;
 
     [[nodiscard]] int get_triangle_num() const;
 
@@ -168,8 +166,6 @@ class VklModelTemplate {
 
     void draw(VkCommandBuffer commandBuffer);
 
-    void addUniformBuffer();
-    void addTexture();
     void addTextureFromImage(VkImage image);
 
     int materialIndex = 0;

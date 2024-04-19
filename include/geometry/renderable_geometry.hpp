@@ -1,4 +1,8 @@
+#pragma once
+
 #include <concepts>
+
+class GeometryBase {};
 
 template <typename T>
 concept RenderableGeometry = requires(T t) {

@@ -1,5 +1,7 @@
 #pragma once
 
+//#include "../renderable_geometry.hpp"
+
 enum GeometrySurfaceType {
     TensorProductBezier
 };
