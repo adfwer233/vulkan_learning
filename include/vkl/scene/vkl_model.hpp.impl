@@ -9,7 +9,7 @@
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &device,
                                                                    VklModelTemplate::BuilderFromImmediateData builder)
-    : device_(device), vertices_(builder.vertices), indices_(builder.indices) {
+    : device_(device) {
 
     if constexpr (std::same_as<BoxType, VklBox2D>) {
         auto min_pos = glm::vec2(999999.0);
@@ -49,6 +49,10 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
     for (const auto &path : builder.texturePaths) {
         createTextureImage(path);
     }
+
+    geometry = std::make_unique<MeshModelTemplate<VertexType, IndexType>>();
+    geometry->vertices = std::move(builder.vertices);
+    geometry->indices = std::move(builder.indices);
 }
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
@@ -85,7 +89,7 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::createVertexBuffers(const
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::createIndexBuffers(const std::vector<IndexType> &indices) {
-    indexCount_ = static_cast<uint32_t>(indices.size()) * IndexType::vertexCount();
+    indexCount_ = static_cast<uint32_t>(indices.size()) * IndexType::vertexCount;
     hasIndexBuffer = indexCount_ > 0;
 
     if (not hasIndexBuffer)
@@ -205,7 +209,7 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::allocDescriptorSets(VklDe
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 int VklModelTemplate<VertexType, IndexType, BoxType>::get_triangle_num() const {
     int result = 0;
-    result += this->indices_.size();
+    result += this->geometry->indices.size();
     return result;
 }
 
@@ -229,15 +233,15 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::createDescriptorSetLayout
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::updateVertexBuffer() {
-    vertexCount_ = static_cast<uint32_t>(vertices_.size());
-    uint32_t vertexSize = sizeof(std::remove_reference<decltype(vertices_)>::type::value_type);
+    vertexCount_ = static_cast<uint32_t>(geometry->vertices.size());
+    uint32_t vertexSize = sizeof(std::remove_reference<decltype(geometry->vertices)>::type::value_type);
     VkDeviceSize bufferSize = vertexSize * vertexCount_;
 
     VklBuffer stagingBuffer{device_, vertexSize, vertexCount_, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
 
     stagingBuffer.map();
-    stagingBuffer.writeToBuffer((void *)vertices_.data());
+    stagingBuffer.writeToBuffer((void *)geometry->vertices.data());
 
     for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
         auto vertexBuffer = vertexBuffer_[i].get();

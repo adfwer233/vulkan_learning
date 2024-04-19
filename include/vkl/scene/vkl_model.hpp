@@ -12,16 +12,11 @@
 #include "vkl/core/vkl_texture.hpp"
 #include "vkl/utils/vkl_box.hpp"
 
-#include "vkl/templates/vkl_index.hpp"
-
 #include "vkl/templates/vkl_concept.hpp"
 
-struct Vertex2D {
-    alignas(8) glm::vec2 position{};
-    glm::vec3 color{};
-    glm::vec3 normal{};
-    glm::vec2 uv{};
+#include "geometry/mesh/mesh_model_template.hpp"
 
+struct VklVertex2D: public Vertex2D {
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
         bindingDescriptions[0].binding = 0;
@@ -45,12 +40,7 @@ struct Vertex2D {
     }
 };
 
-struct Vertex3D {
-    glm::vec3 position{};
-    glm::vec3 color{};
-    glm::vec3 normal{};
-    glm::vec2 uv{};
-
+struct VklVertex3D: public Vertex3D {
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
         bindingDescriptions[0].binding = 0;
@@ -78,6 +68,11 @@ template <typename T>
 concept VklBoxType = requires(T t) {
     t.min_position;
     t.max_position;
+};
+
+template <typename T>
+concept VklIndexType = requires {
+    {T::vertexCount} -> std::convertible_to<size_t>;
 };
 
 template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex, VklBoxType BoxType = VklBox3D>
@@ -159,8 +154,7 @@ class VklModelTemplate {
     VklModelTemplate(const VklModelTemplate &) = delete;
     VklModelTemplate &operator=(const VklModelTemplate &) = delete;
 
-    std::vector<VertexType> vertices_{};
-    std::vector<IndexType> indices_{};
+    std::unique_ptr<MeshModelTemplate<VertexType, IndexType>> geometry;
 
     [[nodiscard]] int get_triangle_num() const;
 
@@ -190,6 +184,6 @@ class VklModelTemplate {
     friend class VklBVH;
 };
 
-using VklModel = VklModelTemplate<Vertex3D>;
+using VklModel = VklModelTemplate<VklVertex3D>;
 
 #include "vkl_model.hpp.impl"

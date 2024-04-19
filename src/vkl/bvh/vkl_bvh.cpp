@@ -16,14 +16,14 @@ std::vector<VklBVHGPUModel::BVHNode> VklBVH::createGPUBVHTree() {
         for (size_t j = 0; j < object->models.size(); j++) {
             auto model = object->models[j];
             auto trans = object->getModelTransformation();
-            for (size_t k = 0; k < model->indices_.size(); k++) {
-                auto tri_indices = model->indices_[k];
+            for (size_t k = 0; k < model->geometry->indices.size(); k++) {
+                auto tri_indices = model->geometry->indices[k];
                 BVHObject bvhObject;
                 bvhObject.object_index = objects.size();
                 bvhObject.triangle =
-                    VklBVHGPUModel::Triangle{trans * glm::vec4(model->vertices_[tri_indices.i].position, 1.0f),
-                                             trans * glm::vec4(model->vertices_[tri_indices.j].position, 1.0f),
-                                             trans * glm::vec4(model->vertices_[tri_indices.k].position, 1.0f),
+                    VklBVHGPUModel::Triangle{trans * glm::vec4(model->geometry->vertices[tri_indices.i].position, 1.0f),
+                                             trans * glm::vec4(model->geometry->vertices[tri_indices.j].position, 1.0f),
+                                             trans * glm::vec4(model->geometry->vertices[tri_indices.k].position, 1.0f),
                                              static_cast<uint32_t>(model->materialIndex)};
                 objects.push_back(bvhObject);
             }

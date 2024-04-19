@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vkl/scene/vkl_model.hpp"
-#include "vkl/templates/vkl_index.hpp"
 #include "vkl_box.hpp"
 
 using VklBoxModel2D = VklModelTemplate<Vertex2DRaw, LineIndex>;

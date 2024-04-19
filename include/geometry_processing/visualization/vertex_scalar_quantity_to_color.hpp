@@ -12,7 +12,7 @@ class VertexScalarQuantityToColor {
         auto maxValue = quantity->data.maxCoeff();
 
         for (int i = 0; i < n; i++) {
-            model.vertices_[i].color =
+            model.geometry->vertices[i].color =
                 lowColor + (highColor - lowColor) * float((quantity->data[i] - minValue) / (maxValue - minValue));
         }
 

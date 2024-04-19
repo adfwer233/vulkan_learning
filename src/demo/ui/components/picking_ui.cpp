@@ -15,11 +15,11 @@ void PickingUI::renderImgui() {
             std::tuple{uiManager_.picking_result->u, uiManager_.picking_result->v, uiManager_.picking_result->w};
 
         if (u < v and u < w) {
-            uiManager_.picking_result->vertex_index = model_picked->indices_[uiManager_.picking_result->face_index].i;
+            uiManager_.picking_result->vertex_index = model_picked->geometry->indices[uiManager_.picking_result->face_index].i;
         } else if (v < u and v < w) {
-            uiManager_.picking_result->vertex_index = model_picked->indices_[uiManager_.picking_result->face_index].j;
+            uiManager_.picking_result->vertex_index = model_picked->geometry->indices[uiManager_.picking_result->face_index].j;
         } else if (w < u and w < v) {
-            uiManager_.picking_result->vertex_index = model_picked->indices_[uiManager_.picking_result->face_index].k;
+            uiManager_.picking_result->vertex_index = model_picked->geometry->indices[uiManager_.picking_result->face_index].k;
         }
 
         ImGui::SeparatorText("Picking Information");

@@ -19,13 +19,13 @@ std::optional<RayPicker::RayPickingResult> RayPicker::trace() {
         for (size_t model_index = 0; model_index < object->models.size(); model_index++) {
             auto model = object->models[model_index];
 
-            for (size_t face_index = 0; face_index < model->indices_.size(); face_index++) {
-                auto &face = model->indices_[face_index];
+            for (size_t face_index = 0; face_index < model->geometry->indices.size(); face_index++) {
+                auto &face = model->geometry->indices[face_index];
 
                 auto [flag, t, u, v, w] = object_ray.ray_triangle_intersection(
-                    model_transformation * glm::vec4(model->vertices_[face.i].position, 1.0f),
-                    model_transformation * glm::vec4(model->vertices_[face.j].position, 1.0f),
-                    model_transformation * glm::vec4(model->vertices_[face.k].position, 1.0f));
+                    model_transformation * glm::vec4(model->geometry->vertices[face.i].position, 1.0f),
+                    model_transformation * glm::vec4(model->geometry->vertices[face.j].position, 1.0f),
+                    model_transformation * glm::vec4(model->geometry->vertices[face.k].position, 1.0f));
 
                 if (flag) {
                     param_result_map[t] = {object_index, model_index, face_index, 0, t, u, v, w};

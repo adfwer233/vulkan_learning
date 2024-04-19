@@ -183,7 +183,7 @@ class TensorProductBezierSurface : GeometrySurface {
                 auto parameter_space_mesh_model_ptr = boundary->get_parameter_space_mesh_model(device);
                 boundary_render_type ::BuilderFromImmediateData builder;
 
-                for (auto &param_vert : parameter_space_mesh_model_ptr->vertices_) {
+                for (auto &param_vert : parameter_space_mesh_model_ptr->geometry->vertices) {
                     boundary_render_type ::vertex_type vertex;
                     auto position = evaluate(param_vert.position);
 
