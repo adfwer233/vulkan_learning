@@ -3,7 +3,7 @@
 #include <memory>
 #include <optional>
 #include <string>
-
+#include <variant>
 
 #include "glm/glm.hpp"
 
@@ -151,8 +151,8 @@ class VklModelTemplate {
     VklModelTemplate &operator=(const VklModelTemplate &) = delete;
 
     std::unique_ptr<MeshModelTemplate<VertexType, IndexType>> geometry;
-    
-    std::unique_ptr<GeometryBase> underlayingGeometry;
+
+    META_GET_REGISTERED_TYPES(RenderableGeometryTag)::to<std::variant> underlayingGeometry;
 
     [[nodiscard]] int get_triangle_num() const;
 

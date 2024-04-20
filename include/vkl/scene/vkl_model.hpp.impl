@@ -53,6 +53,8 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
     geometry = std::make_unique<MeshModelTemplate<VertexType, IndexType>>();
     geometry->vertices = std::move(builder.vertices);
     geometry->indices = std::move(builder.indices);
+
+    underlayingGeometry = MeshGeometry{};
 }
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>

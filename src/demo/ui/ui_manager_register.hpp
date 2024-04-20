@@ -17,7 +17,7 @@ template <int N, typename... Types> using NthTypeOf = typename std::tuple_elemen
 
 class UIManager;
 
-template <typename... Ts> struct TypeList {
+template <typename... Ts> struct UITypeList {
     static const int size = sizeof...(Ts);
 
   private:
@@ -37,15 +37,15 @@ template <typename... Ts> struct TypeList {
     }
 
   public:
-    TypeList() = default;
+    UITypeList() = default;
 
-    ~TypeList() {
+    ~UITypeList() {
         constexpr int n = sizeof...(Ts);
         constexpr auto indexSeq = std::make_integer_sequence<int, n>{};
         destructorLoop(indexSeq);
     }
 
-    TypeList(VklScene &scene, UIManager &uiManager) {
+    UITypeList(VklScene &scene, UIManager &uiManager) {
         constexpr int n = sizeof...(Ts);
         constexpr auto indexSeq = std::make_integer_sequence<int, n>{};
         constructorLoop(indexSeq, scene, uiManager);
@@ -60,11 +60,11 @@ template <typename... Ts> struct TypeList {
 
 template <typename List, typename T> struct Append;
 
-template <typename... Ts, typename T> struct Append<TypeList<Ts...>, T> {
-    typedef TypeList<Ts..., T> type;
+template <typename... Ts, typename T> struct Append<UITypeList<Ts...>, T> {
+    typedef UITypeList<Ts..., T> type;
 };
 
-template <class Tag> TypeList<> GetTypes(Tag *, Rank<0>) {
+template <class Tag> UITypeList<> GetTypes(Tag *, Rank<0>) {
     return {};
 }
 

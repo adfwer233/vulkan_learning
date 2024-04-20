@@ -2,6 +2,13 @@
 
 #include <concepts>
 
+#include "meta_programming/type_register/type_register.hpp"
+
+using namespace MetaProgramming;
+
+struct MeshGeometry {};
+META_REGISTER_TYPE(RenderableGeometryTag, MeshGeometry);
+
 class GeometryBase {};
 
 template <typename T>
