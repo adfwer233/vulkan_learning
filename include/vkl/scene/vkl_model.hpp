@@ -19,6 +19,11 @@
 #include "geometry/renderable_geometry.hpp"
 
 struct VklVertex2D: public Vertex2D {
+    using geometry_type = Vertex2D;
+
+    VklVertex2D() = default;
+    VklVertex2D(Vertex2D vert): Vertex2D(vert) {};
+
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
         bindingDescriptions[0].binding = 0;
@@ -43,6 +48,11 @@ struct VklVertex2D: public Vertex2D {
 };
 
 struct VklVertex3D: public Vertex3D {
+    using geometry_type = Vertex3D;
+
+    VklVertex3D() = default;
+    VklVertex3D(Vertex3D vert): Vertex3D(vert) {};
+
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
         bindingDescriptions[0].binding = 0;
@@ -145,12 +155,14 @@ class VklModelTemplate {
   public:
     VklModelTemplate(VklDevice &device, BuilderFromImmediateData builder);
 
+    VklModelTemplate(VklDevice &device, MeshModelTemplate<typename VertexType::geometry_type, IndexType> geometry);
+
     ~VklModelTemplate();
 
     VklModelTemplate(const VklModelTemplate &) = delete;
     VklModelTemplate &operator=(const VklModelTemplate &) = delete;
 
-    std::unique_ptr<MeshModelTemplate<VertexType, IndexType>> geometry;
+    std::unique_ptr<MeshModelTemplate<typename VertexType::geometry_type, IndexType>> geometry;
 
     META_GET_REGISTERED_TYPES(RenderableGeometryTag)::to<std::variant> underlayingGeometry;
 

@@ -56,8 +56,8 @@ double ParameterSpaceWalkOnSphere::boundary_evaluation(glm::vec2 param) {
 
     return pos.z;
 }
-TensorProductBezierSurface::render_type::BuilderFromImmediateData ParameterSpaceWalkOnSphere::getMeshModelBuilderWos() {
-    TensorProductBezierSurface::render_type::BuilderFromImmediateData builder;
+TensorProductBezierSurface::render_type ParameterSpaceWalkOnSphere::getMeshModelBuilderWos() {
+    TensorProductBezierSurface::render_type builder;
 
     constexpr int n = 50;
     constexpr int m = 50;

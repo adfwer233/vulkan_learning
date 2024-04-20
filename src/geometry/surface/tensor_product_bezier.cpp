@@ -242,9 +242,8 @@ void TensorProductBezierSurface::initializeBoundary() {
 
 }
 
-VklModelTemplate<VklVertex3D, TriangleIndex, VklBox3D>::BuilderFromImmediateData
-TensorProductBezierSurface::getMeshModelBuilder()  {
-    render_type::BuilderFromImmediateData builder;
+MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshModelBuilder()  {
+    render_type builder;
 
     constexpr int n = 50;
     constexpr int m = 50;

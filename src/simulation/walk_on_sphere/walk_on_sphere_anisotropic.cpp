@@ -112,8 +112,8 @@ double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
     return pos.z;
 }
 
-TensorProductBezierSurface::render_type::BuilderFromImmediateData AnisotropicWalkOnSphere::getMeshModelBuilderWos() {
-    TensorProductBezierSurface::render_type::BuilderFromImmediateData builder;
+TensorProductBezierSurface::render_type AnisotropicWalkOnSphere::getMeshModelBuilderWos() {
+    TensorProductBezierSurface::render_type builder;
 
     constexpr int n = 20;
     constexpr int m = 20;

@@ -295,60 +295,60 @@ void Application::run() {
             }
 
             // render surfaces
-            for (auto &surf : scene.surfaces) {
-                auto meshModel = surf->getMeshModel(device_);
-
-                meshModel->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                meshModel->uniformBuffers[frameIndex]->flush();
-
-                FrameInfo<VklModel> modelFrameInfo{frameIndex,
-                                                   currentFrame,
-                                                   offscreenCommandBuffer,
-                                                   scene.camera,
-                                                   &meshModel->descriptorSets[frameIndex],
-                                                   *meshModel};
-
-                if (uiManager.renderMode == Raw) {
-                    if (uiManager.shadingMode == PointLightShading or uiManager.shadingMode == SolidShading) {
-                        rawRenderSystem.renderObject(modelFrameInfo);
-                    } else if (uiManager.shadingMode == PureColor) {
-                        colorRenderSystem.renderObject(modelFrameInfo);
-                    }
-                } else if (uiManager.renderMode == WireFrame) {
-                    // modelFrameInfo.commandBuffer = uvCommandBuffer;
-                    wireFrameRenderSystem.renderObject(modelFrameInfo);
-                } else if (uiManager.renderMode == WithTexture) {
-                    if (meshModel->textures_.empty())
-                        rawRenderSystem.renderObject(modelFrameInfo);
-                    else
-                        renderSystem.renderObject(modelFrameInfo);
-                }
-
-                if (uiManager.showNormal) {
-                    NormalRenderSystemPushConstantData normalRenderSystemPushConstantData{};
-                    normalRenderSystemPushConstantData.normalStrength = uiManager.normalStrength;
-                    normalRenderSystemPushConstantData.normalColor = uiManager.normalColor;
-                    NormalRenderSystemPushConstantDataList list;
-                    list.data[0] = normalRenderSystemPushConstantData;
-                    normalRenderSystem.renderObject(modelFrameInfo, list);
-                }
-
-                auto boundary_meshes = surf->getBoundaryMeshModels(device_);
-
-                for (auto boundary : boundary_meshes) {
-                    boundary->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                    boundary->uniformBuffers[frameIndex]->flush();
-
-                    FrameInfo<TensorProductBezierSurface::boundary_render_type> boundaryModelFrameInfo{
-                        frameIndex,
-                        currentFrame,
-                        offscreenCommandBuffer,
-                        scene.camera,
-                        &boundary->descriptorSets[frameIndex],
-                        *boundary};
-                    curveMeshRenderSystem.renderObject(boundaryModelFrameInfo);
-                }
-            }
+            // for (auto &surf : scene.surfaces) {
+            //     auto meshModel = surf->getMeshModel(device_);
+            //
+            //     meshModel->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+            //     meshModel->uniformBuffers[frameIndex]->flush();
+            //
+            //     FrameInfo<VklModel> modelFrameInfo{frameIndex,
+            //                                        currentFrame,
+            //                                        offscreenCommandBuffer,
+            //                                        scene.camera,
+            //                                        &meshModel->descriptorSets[frameIndex],
+            //                                        *meshModel};
+            //
+            //     if (uiManager.renderMode == Raw) {
+            //         if (uiManager.shadingMode == PointLightShading or uiManager.shadingMode == SolidShading) {
+            //             rawRenderSystem.renderObject(modelFrameInfo);
+            //         } else if (uiManager.shadingMode == PureColor) {
+            //             colorRenderSystem.renderObject(modelFrameInfo);
+            //         }
+            //     } else if (uiManager.renderMode == WireFrame) {
+            //         // modelFrameInfo.commandBuffer = uvCommandBuffer;
+            //         wireFrameRenderSystem.renderObject(modelFrameInfo);
+            //     } else if (uiManager.renderMode == WithTexture) {
+            //         if (meshModel->textures_.empty())
+            //             rawRenderSystem.renderObject(modelFrameInfo);
+            //         else
+            //             renderSystem.renderObject(modelFrameInfo);
+            //     }
+            //
+            //     if (uiManager.showNormal) {
+            //         NormalRenderSystemPushConstantData normalRenderSystemPushConstantData{};
+            //         normalRenderSystemPushConstantData.normalStrength = uiManager.normalStrength;
+            //         normalRenderSystemPushConstantData.normalColor = uiManager.normalColor;
+            //         NormalRenderSystemPushConstantDataList list;
+            //         list.data[0] = normalRenderSystemPushConstantData;
+            //         normalRenderSystem.renderObject(modelFrameInfo, list);
+            //     }
+            //
+            //     auto boundary_meshes = surf->getBoundaryMeshModels(device_);
+            //
+            //     for (auto boundary : boundary_meshes) {
+            //         boundary->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+            //         boundary->uniformBuffers[frameIndex]->flush();
+            //
+            //         FrameInfo<TensorProductBezierSurface::boundary_render_type> boundaryModelFrameInfo{
+            //             frameIndex,
+            //             currentFrame,
+            //             offscreenCommandBuffer,
+            //             scene.camera,
+            //             &boundary->descriptorSets[frameIndex],
+            //             *boundary};
+            //         curveMeshRenderSystem.renderObject(boundaryModelFrameInfo);
+            //     }
+            // }
 
             if (uiManager.picking_result.has_value()) {
                 auto &object_picked = scene.objects[uiManager.picking_result->object_index];

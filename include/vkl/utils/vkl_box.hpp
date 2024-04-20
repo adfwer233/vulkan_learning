@@ -7,6 +7,7 @@
 #include "glm/ext/matrix_transform.hpp"
 
 struct Vertex3DRaw {
+    using geometry_type = Vertex3DRaw;
     glm::vec3 position{};
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
@@ -28,6 +29,7 @@ struct Vertex3DRaw {
 };
 
 struct Vertex2DRaw {
+    using geometry_type = Vertex2DRaw;
     glm::vec2 position{};
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {

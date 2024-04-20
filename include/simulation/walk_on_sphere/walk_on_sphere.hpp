@@ -15,7 +15,7 @@ class ParameterSpaceWalkOnSphere {
   public:
     double evaluate(glm::vec2 param);
 
-    TensorProductBezierSurface::render_type::BuilderFromImmediateData getMeshModelBuilderWos();
+    TensorProductBezierSurface::render_type getMeshModelBuilderWos();
 
     explicit ParameterSpaceWalkOnSphere(TensorProductBezierSurface *surface) : targetSurface(surface) {
     }

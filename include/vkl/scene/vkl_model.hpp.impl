@@ -50,9 +50,66 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
         createTextureImage(path);
     }
 
-    geometry = std::make_unique<MeshModelTemplate<VertexType, IndexType>>();
-    geometry->vertices = std::move(builder.vertices);
-    geometry->indices = std::move(builder.indices);
+    geometry = std::make_unique<MeshModelTemplate<typename VertexType::geometry_type, IndexType>>();
+    for (auto vert: builder.vertices)
+        geometry->vertices.push_back(vert);
+    for (auto index: builder.indices)
+        geometry->indices.push_back(index);
+
+    underlayingGeometry = MeshGeometry{};
+}
+
+template<VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &device,
+                                                                   MeshModelTemplate<typename VertexType::geometry_type, IndexType> geometry):device_(device) {
+    if constexpr (std::same_as<BoxType, VklBox2D>) {
+        auto min_pos = glm::vec2(999999.0);
+        auto max_pos = glm::vec2(-999999.0);
+
+        for (size_t i = 0; i < geometry.vertices.size(); i++) {
+            min_pos.x = std::min(min_pos.x, geometry.vertices[i].position.x);
+            min_pos.y = std::min(min_pos.y, geometry.vertices[i].position.y);
+
+            max_pos.x = std::max(max_pos.x, geometry.vertices[i].position.x);
+            max_pos.y = std::max(max_pos.y, geometry.vertices[i].position.y);
+        }
+
+        box.min_position = min_pos;
+        box.max_position = max_pos;
+    } else if (std::same_as<BoxType, VklBox3D>) {
+        auto min_pos = glm::vec3(999999.0);
+        auto max_pos = glm::vec3(-999999.0);
+
+        for (size_t i = 0; i < geometry.vertices.size(); i++) {
+            min_pos.x = std::min(min_pos.x, geometry.vertices[i].position.x);
+            min_pos.y = std::min(min_pos.y, geometry.vertices[i].position.y);
+            min_pos.z = std::min(min_pos.z, geometry.vertices[i].position.z);
+
+            max_pos.x = std::max(max_pos.x, geometry.vertices[i].position.x);
+            max_pos.y = std::max(max_pos.y, geometry.vertices[i].position.y);
+            max_pos.z = std::max(max_pos.z, geometry.vertices[i].position.z);
+        }
+
+        box.min_position = min_pos;
+        box.max_position = max_pos;
+    }
+
+    BuilderFromImmediateData builder;
+    for (auto vertex: geometry.vertices) {
+        builder.vertices.push_back(vertex);
+    }
+    for (auto index: geometry.indices) {
+        builder.indices.push_back(index);
+    }
+
+    createVertexBuffers(builder.vertices);
+    createIndexBuffers(builder.indices);
+
+    for (const auto &path : builder.texturePaths) {
+        createTextureImage(path);
+    }
+
+    this->geometry = std::make_unique<MeshModelTemplate<VertexType::geometry_type, IndexType>>(geometry);
 
     underlayingGeometry = MeshGeometry{};
 }

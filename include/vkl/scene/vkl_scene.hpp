@@ -70,16 +70,15 @@ class VklScene {
         surfaces.push_back(std::move(std::make_unique<TensorProductBezierSurface>(std::move(control_points_array))));
         auto &surf = surfaces.back();
 
-        auto meshModel = surf->getMeshModel(device_);
+        auto meshModel = surf->getMeshModel();
 
-        meshModel->allocDescriptorSets(*setLayout_, *descriptorPool_);
-
-        for (auto boundary : surf->getBoundaryMeshModels(device_)) {
-            boundary->allocDescriptorSets(*setLayout_, *descriptorPool_);
-        }
+        addObject(*meshModel);
     }
 
     void addObject(VklModel::BuilderFromImmediateData builder);
+
+    template<typename VertexType, typename IndexType>
+    void addObject(MeshModelTemplate<VertexType, IndexType> geom);
 
     [[nodiscard]] int getSceneTriangleNum() const {
         int triangle_num = 0;

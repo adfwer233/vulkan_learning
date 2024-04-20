@@ -2,6 +2,7 @@
 
 template <typename T>
 concept VklVertexType = requires {
+    typename T::geometry_type;
     T::getBindingDescriptions();
     T::getAttributeDescriptions();
 };

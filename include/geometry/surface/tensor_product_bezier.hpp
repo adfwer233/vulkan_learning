@@ -3,11 +3,11 @@
 #include <vector>
 
 #include "glm/glm.hpp"
-#include "vkl/scene/vkl_model.hpp"
 
 #include "geometry/autodiff/autodiff.hpp"
 #include "surface.hpp"
 
+#include "geometry/mesh/mesh_model_template.hpp"
 #include "geometry/parameter_space/bezier_curve_2d.hpp"
 
 /**
@@ -159,22 +159,22 @@ class TensorProductBezierSurface : GeometrySurface {
      * implementing the RenderableGeometry concept
      */
     struct IsRenderableGeometry {};
-    using render_type = VklModel;
+    using render_type = MeshModelTemplate<Vertex3D, TriangleIndex>;
     using boundary_render_type = BezierCurve2D::render_type;
 
-    render_type *getMeshModel(VklDevice &device) {
+    render_type *getMeshModel() {
         if (mesh_model_ptr) {
             return mesh_model_ptr.get();
         }
 
         auto builder = getMeshModelBuilder();
-        mesh_model_ptr = std::make_unique<render_type>(device, builder);
+        mesh_model_ptr = std::make_unique<render_type>(builder);
         return mesh_model_ptr.get();
     }
 
     std::vector<boundary_render_type *> getBoundaryMeshModels(VklDevice &device);
 
-    render_type::BuilderFromImmediateData getMeshModelBuilder();
+    render_type getMeshModelBuilder();
 
     virtual GeometrySurfaceType type() {
         return GeometrySurfaceType::TensorProductBezier;
