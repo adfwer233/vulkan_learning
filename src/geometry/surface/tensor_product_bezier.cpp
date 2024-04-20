@@ -239,10 +239,9 @@ void TensorProductBezierSurface::initializeBoundary() {
     boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_2))));
     boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_3))));
     boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_4))));
-
 }
 
-MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshModelBuilder()  {
+MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshModelBuilder() {
     render_type builder;
 
     constexpr int n = 50;
@@ -285,7 +284,8 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
     return builder;
 }
 
-std::vector<TensorProductBezierSurface::boundary_render_type *> TensorProductBezierSurface::getBoundaryMeshModels(VklDevice &device)  {
+std::vector<TensorProductBezierSurface::boundary_render_type *> TensorProductBezierSurface::getBoundaryMeshModels(
+    VklDevice &device) {
     std::vector<boundary_render_type *> result;
     if (not boundary_curves_ptr.empty()) {
         for (auto &ptr : boundary_curves_ptr) {

@@ -77,8 +77,7 @@ class VklScene {
 
     void addObject(VklModel::BuilderFromImmediateData builder);
 
-    template<typename VertexType, typename IndexType>
-    void addObject(MeshModelTemplate<VertexType, IndexType> geom);
+    template <typename VertexType, typename IndexType> void addObject(MeshModelTemplate<VertexType, IndexType> geom);
 
     [[nodiscard]] int getSceneTriangleNum() const {
         int triangle_num = 0;

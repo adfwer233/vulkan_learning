@@ -1,21 +1,27 @@
 #pragma once
 
 #include <coroutine>
-#include <utility>
-#include <iterator>
 #include <exception>
 #include <iostream>
+#include <iterator>
+#include <utility>
 
-template<typename Ty>
-struct Generator {
+template <typename Ty> struct Generator {
     struct promise_type {
-        Generator get_return_object() {return Generator{*this}; }
-        auto initial_suspend() noexcept {return std::suspend_always{};}
-        auto final_suspend() noexcept {return std::suspend_always{};}
+        Generator get_return_object() {
+            return Generator{*this};
+        }
+        auto initial_suspend() noexcept {
+            return std::suspend_always{};
+        }
+        auto final_suspend() noexcept {
+            return std::suspend_always{};
+        }
 
-        void return_void() noexcept {}
+        void return_void() noexcept {
+        }
 
-        std::suspend_always yield_value(const Ty& value) noexcept {
+        std::suspend_always yield_value(const Ty &value) noexcept {
             current_value_ = std::addressof(value);
             return {};
         }
@@ -24,23 +30,24 @@ struct Generator {
             exception_ = std::current_exception();
         }
 
-        const Ty* current_value_;
+        const Ty *current_value_;
         std::exception_ptr exception_;
     };
 
     struct iterator {
         using iterator_category = std::input_iterator_tag;
-        using difference_type   = std::ptrdiff_t;
-        using value_type        = Ty;
-        using reference         = const Ty&;
-        using pointer           = const Ty*;
+        using difference_type = std::ptrdiff_t;
+        using value_type = Ty;
+        using reference = const Ty &;
+        using pointer = const Ty *;
 
         std::coroutine_handle<promise_type> coro_ = nullptr;
 
         iterator() = default;
-        explicit iterator(std::coroutine_handle<promise_type> coro) noexcept : coro_(coro) {}
+        explicit iterator(std::coroutine_handle<promise_type> coro) noexcept : coro_(coro) {
+        }
 
-        iterator& operator++() {
+        iterator &operator++() {
             coro_.resume();
             if (coro_.done()) {
                 coro_ = nullptr;
@@ -52,11 +59,11 @@ struct Generator {
             (*this)++;
         }
 
-        bool operator==(const iterator& right) const noexcept {
+        bool operator==(const iterator &right) const noexcept {
             return coro_ == right.coro_;
         }
 
-        bool operator!=(const iterator& right) const noexcept {
+        bool operator!=(const iterator &right) const noexcept {
             return !(*this == right);
         }
 
@@ -86,17 +93,25 @@ struct Generator {
 
     using handle = std::coroutine_handle<promise_type>;
 
-    explicit Generator(promise_type& prom) noexcept : coro_handle_(std::coroutine_handle<promise_type>::from_promise(prom)) {}
+    explicit Generator(promise_type &prom) noexcept
+        : coro_handle_(std::coroutine_handle<promise_type>::from_promise(prom)) {
+    }
 
-    Generator(Generator&& rhs) noexcept: coro_handle_(std::exchange(rhs.coro_handle_, nullptr)) {}
+    Generator(Generator &&rhs) noexcept : coro_handle_(std::exchange(rhs.coro_handle_, nullptr)) {
+    }
 
-    Generator& operator=(Generator&& right) noexcept {
+    Generator &operator=(Generator &&right) noexcept {
         coro_handle_ = std::exchange(right.coro_handle_, nullptr);
         return *this;
     }
 
-    ~Generator() {if(coro_handle_) coro_handle_.destroy();}
-private:
-    explicit Generator(handle h) : coro_handle_(h) {}
+    ~Generator() {
+        if (coro_handle_)
+            coro_handle_.destroy();
+    }
+
+  private:
+    explicit Generator(handle h) : coro_handle_(h) {
+    }
     handle coro_handle_ = nullptr;
 };

@@ -24,7 +24,7 @@ class VklObject {
 
     VklObject(VklDevice &device, VklModel::BuilderFromImmediateData builder);
 
-    template<typename VertexType, typename IndexType>
+    template <typename VertexType, typename IndexType>
     VklObject(VklDevice &device, MeshModelTemplate<VertexType, IndexType> geom);
 
     template <VklModelLoader Loader> explicit VklObject(VklDevice &device, ImportBuilder<Loader> builder);

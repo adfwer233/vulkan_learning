@@ -8,13 +8,13 @@
 
 #include "Eigen/Eigen"
 
-#define M_PI       3.14159265358979323846   // pi
+#define M_PI 3.14159265358979323846 // pi
 #include "root_finder/root_finder.hpp"
 
 #include <vector>
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 class BezierCurve2D {
   private:
@@ -82,7 +82,8 @@ class BezierCurve2D {
     }
 
     std::tuple<float, float> projection(glm::vec2 test_point) {
-        auto target_poly = (test_point.x - polynomial1) * polynomial1_deriv + (test_point.y - polynomial2) * polynomial2_deriv;
+        auto target_poly =
+            (test_point.x - polynomial1) * polynomial1_deriv + (test_point.y - polynomial2) * polynomial2_deriv;
         auto n = target_poly.degree();
 
         Eigen::VectorXd coeffs;
@@ -94,13 +95,13 @@ class BezierCurve2D {
 
         std::set<double> roots;
 
-        if (n == 1){
-            double sol = - coeffs[1] / coeffs[0];
+        if (n == 1) {
+            double sol = -coeffs[1] / coeffs[0];
             if (sol > 0 and sol < 1)
                 roots.insert(sol);
-        } else if (n == 3){
+        } else if (n == 3) {
             auto tmp_roots = RootFinderPriv::solveCub(coeffs[3], coeffs[2], coeffs[1], coeffs[0]);
-            for (auto r: tmp_roots) {
+            for (auto r : tmp_roots) {
                 if (r > 0 and r < 1)
                     roots.insert(r);
             }
@@ -122,7 +123,7 @@ class BezierCurve2D {
             dist = dist_to_end;
         }
 
-        for (auto r: roots) {
+        for (auto r : roots) {
             auto eval = evaluate(r);
             auto new_dist = glm::length(eval - test_point);
 

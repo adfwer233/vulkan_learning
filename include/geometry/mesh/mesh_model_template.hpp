@@ -5,8 +5,7 @@
 #include "../vertex/vertex2d.hpp"
 #include "../vertex/vertex3d.hpp"
 
-template<typename VertexType, typename IndicesType>
-class MeshModelTemplate {
+template <typename VertexType, typename IndicesType> class MeshModelTemplate {
   public:
     struct IsRenderableGeometry {};
 

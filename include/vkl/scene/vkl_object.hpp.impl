@@ -17,8 +17,8 @@ VklObject::VklObject(VklDevice &device, ImportBuilder<Loader> builder) : device_
     modelRotation = glm::quat(0.0f, 0.0f, 1.0f, 0.0f);
 }
 
-template<typename VertexType, typename IndexType>
-VklObject::VklObject(VklDevice &device, MeshModelTemplate<VertexType, IndexType> geom): device_(device) {
+template <typename VertexType, typename IndexType>
+VklObject::VklObject(VklDevice &device, MeshModelTemplate<VertexType, IndexType> geom) : device_(device) {
     this->models.push_back(new VklModel(device, geom));
     modelScaling = glm::vec3(1.0f, 1.0f, 1.0f);
     modelTranslation = glm::vec3(0, 0, 0);

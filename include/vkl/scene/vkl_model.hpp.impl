@@ -51,17 +51,18 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
     }
 
     geometry = std::make_unique<MeshModelTemplate<typename VertexType::geometry_type, IndexType>>();
-    for (auto vert: builder.vertices)
+    for (auto vert : builder.vertices)
         geometry->vertices.push_back(vert);
-    for (auto index: builder.indices)
+    for (auto index : builder.indices)
         geometry->indices.push_back(index);
 
     underlayingGeometry = MeshGeometry{};
 }
 
-template<VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
-VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &device,
-                                                                   MeshModelTemplate<typename VertexType::geometry_type, IndexType> geometry):device_(device) {
+template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(
+    VklDevice &device, MeshModelTemplate<typename VertexType::geometry_type, IndexType> geometry)
+    : device_(device) {
     if constexpr (std::same_as<BoxType, VklBox2D>) {
         auto min_pos = glm::vec2(999999.0);
         auto max_pos = glm::vec2(-999999.0);
@@ -95,10 +96,10 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
     }
 
     BuilderFromImmediateData builder;
-    for (auto vertex: geometry.vertices) {
+    for (auto vertex : geometry.vertices) {
         builder.vertices.push_back(vertex);
     }
-    for (auto index: geometry.indices) {
+    for (auto index : geometry.indices) {
         builder.indices.push_back(index);
     }
 

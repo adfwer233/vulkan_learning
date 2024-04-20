@@ -3,7 +3,6 @@
 #include "../ui_manager.hpp"
 
 SceneInfoUI::SceneInfoUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
-
 }
 
 void SceneInfoUI::renderImgui() {

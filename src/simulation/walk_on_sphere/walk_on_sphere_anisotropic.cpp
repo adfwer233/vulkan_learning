@@ -26,7 +26,8 @@ double AnisotropicWalkOnSphere::sdf_evaluate(glm::vec2 param) {
     //     auto [d, u] = boundary->projection(param);
     //     if (d < dist) dist = d;
     // }
-    dist = MetaProgramming::min(param.x, param.y, 1 - param.x, 1 - param.y, std::abs(glm::length(param - glm::vec2{0.5, 0.5}) - 0.2f));
+    dist = MetaProgramming::min(param.x, param.y, 1 - param.x, 1 - param.y,
+                                std::abs(glm::length(param - glm::vec2{0.5, 0.5}) - 0.2f));
 
     const auto t_end = std::chrono::high_resolution_clock::now();
     // std::cout << std::chrono::duration<double, std::milli>(t_end - t_start) << std::endl;
@@ -93,7 +94,7 @@ double AnisotropicWalkOnSphere::boundary_evaluation(glm::vec2 param) {
     float boundary_param = -1;
     size_t idx = 0;
 
-    for (size_t i = 0; auto &boundary: targetSurface->boundary_curves) {
+    for (size_t i = 0; auto &boundary : targetSurface->boundary_curves) {
         auto [d, u] = boundary->projection(param);
         if (d < dist) {
             dist = d;

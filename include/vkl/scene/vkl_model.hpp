@@ -18,11 +18,11 @@
 #include "geometry/mesh/mesh_model_template.hpp"
 #include "geometry/renderable_geometry.hpp"
 
-struct VklVertex2D: public Vertex2D {
+struct VklVertex2D : public Vertex2D {
     using geometry_type = Vertex2D;
 
     VklVertex2D() = default;
-    VklVertex2D(Vertex2D vert): Vertex2D(vert) {};
+    VklVertex2D(Vertex2D vert) : Vertex2D(vert){};
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
@@ -47,11 +47,11 @@ struct VklVertex2D: public Vertex2D {
     }
 };
 
-struct VklVertex3D: public Vertex3D {
+struct VklVertex3D : public Vertex3D {
     using geometry_type = Vertex3D;
 
     VklVertex3D() = default;
-    VklVertex3D(Vertex3D vert): Vertex3D(vert) {};
+    VklVertex3D(Vertex3D vert) : Vertex3D(vert){};
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
@@ -84,7 +84,7 @@ concept VklBoxType = requires(T t) {
 
 template <typename T>
 concept VklIndexType = requires {
-    {T::vertexCount} -> std::convertible_to<size_t>;
+    { T::vertexCount } -> std::convertible_to<size_t>;
 };
 
 template <VklVertexType VertexType, VklIndexType IndexType = TriangleIndex, VklBoxType BoxType = VklBox3D>
