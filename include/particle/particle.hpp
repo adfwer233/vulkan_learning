@@ -9,6 +9,7 @@
 #include "vkl/utils/vkl_box.hpp"
 
 struct Particle {
+    using geometry_type = Particle;
     glm::vec2 position{};
     glm::vec2 velocity{};
     glm::vec4 color{};
