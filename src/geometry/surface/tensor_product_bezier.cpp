@@ -284,31 +284,3 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
     return builder;
 }
 
-std::vector<TensorProductBezierSurface::boundary_render_type *> TensorProductBezierSurface::getBoundaryMeshModels(
-    VklDevice &device) {
-    std::vector<boundary_render_type *> result;
-    if (not boundary_curves_ptr.empty()) {
-        for (auto &ptr : boundary_curves_ptr) {
-            result.push_back(ptr.get());
-        }
-    } else {
-        for (auto &boundary : boundary_curves) {
-            auto parameter_space_mesh_model_ptr = boundary->get_parameter_space_mesh_model(device);
-            boundary_render_type::BuilderFromImmediateData builder;
-
-            for (auto &param_vert : parameter_space_mesh_model_ptr->geometry->vertices) {
-                boundary_render_type::vertex_type vertex;
-                auto position = evaluate(param_vert.position);
-
-                vertex.position = position;
-                vertex.color = {1.0, 0.0, 0.0};
-
-                builder.vertices.push_back(vertex);
-            }
-
-            boundary_curves_ptr.push_back(std::move(std::make_unique<boundary_render_type>(device, builder)));
-            result.push_back(boundary_curves_ptr.back().get());
-        }
-    }
-    return result;
-}

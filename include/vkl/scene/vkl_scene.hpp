@@ -67,12 +67,13 @@ class VklScene {
                 target.emplace_back(std::array<float, 3>{item_j.x, item_j.y, item_j.z});
             }
         }
-        surfaces.push_back(std::move(std::make_unique<TensorProductBezierSurface>(std::move(control_points_array))));
-        auto &surf = surfaces.back();
 
-        auto meshModel = surf->getMeshModel();
+        TensorProductBezierSurface surf(std::move(control_points_array));
+        auto meshModel = surf.getMeshModel();
 
         addObject(*meshModel);
+
+        objects.back()->models.back()->underlayingGeometry = std::move(surf);
     }
 
     void addObject(VklModel::BuilderFromImmediateData builder);

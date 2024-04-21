@@ -21,6 +21,8 @@ class TensorProductBezierSurface : GeometrySurface {
     std::vector<std::vector<std::array<float, 3>>> control_points_;
 
   public:
+    TensorProductBezierSurface() = default;
+
     /**
      * boundary curves of the geometry surface
      */
@@ -160,7 +162,6 @@ class TensorProductBezierSurface : GeometrySurface {
      */
     struct IsRenderableGeometry {};
     using render_type = MeshModelTemplate<Vertex3D, TriangleIndex>;
-    using boundary_render_type = BezierCurve2D::render_type;
 
     render_type *getMeshModel() {
         if (mesh_model_ptr) {
@@ -172,8 +173,6 @@ class TensorProductBezierSurface : GeometrySurface {
         return mesh_model_ptr.get();
     }
 
-    std::vector<boundary_render_type *> getBoundaryMeshModels(VklDevice &device);
-
     render_type getMeshModelBuilder();
 
     virtual GeometrySurfaceType type() {
@@ -182,7 +181,6 @@ class TensorProductBezierSurface : GeometrySurface {
 
   private:
     std::unique_ptr<render_type> mesh_model_ptr;
-    std::vector<std::unique_ptr<boundary_render_type>> boundary_curves_ptr;
 
     void initializeBoundary();
 };

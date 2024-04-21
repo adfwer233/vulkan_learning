@@ -5,6 +5,7 @@
 #include "vkl/scene/vkl_scene.hpp"
 #include "vkl/utils/vkl_box.hpp"
 #include "vkl/utils/vkl_box_model.hpp"
+#include "vkl/utils/vkl_curve_model.hpp"
 
 #include "demo/utils/controller.hpp"
 #include "vkl/system/render_system/line_render_system.hpp"

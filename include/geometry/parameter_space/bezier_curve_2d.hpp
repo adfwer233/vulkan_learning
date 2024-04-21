@@ -2,7 +2,6 @@
 
 #include "geometry/function/bernstein.hpp"
 #include "glm/glm.hpp"
-#include "vkl/utils/vkl_curve_model.hpp"
 
 #include "boost/math/tools/polynomial.hpp"
 
@@ -22,10 +21,6 @@ class BezierCurve2D {
 
   public:
     using point_type = std::array<float, 2>;
-    using parameter_space_render_type = VklCurveModel2D;
-    using render_type = VklCurveModel3D;
-
-    std::unique_ptr<parameter_space_render_type> parameter_space_mesh_model;
 
     boost::math::tools::polynomial<float> polynomial1, polynomial2, polynomial1_deriv, polynomial2_deriv;
 
@@ -138,11 +133,4 @@ class BezierCurve2D {
 
         return std::make_tuple(dist, param);
     }
-
-    /**
-     * evaluate the bezier curve in the parameter space and generate renderable curve mesh
-     * @param device
-     * @return
-     */
-    parameter_space_render_type *get_parameter_space_mesh_model(VklDevice &device);
 };
