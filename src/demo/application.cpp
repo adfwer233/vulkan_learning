@@ -1,7 +1,7 @@
 #include "application.hpp"
 #include "vkl/core/vkl_descriptor.hpp"
 #include "vkl/core/vkl_image.hpp"
-#include "vkl/scene/vkl_object.hpp"
+#include "vkl/scene/vkl_geometry_model.hpp"
 #include "vkl/scene/vkl_scene.hpp"
 #include "vkl/utils/vkl_box.hpp"
 #include "vkl/utils/vkl_box_model.hpp"
@@ -294,14 +294,24 @@ void Application::run() {
                     }
 
                     // visiting underlying geometry
-                    std::visit([](auto &&arg){
+                    std::visit([&](auto &&arg){
                         using T = std::decay_t<decltype(arg)>;
                         if constexpr (std::is_same_v<T, MeshGeometry>) {
 
                         } else if (std::is_same_v<T, TensorProductBezierSurface>) {
                             TensorProductBezierSurface &surf = arg;
-                            for (auto &boundary: surf.boundary_curves) {
-
+                            auto modelBuffer = VklGeometryModelBuffer<TensorProductBezierSurface>::instance();
+                            auto geometryModel = modelBuffer->getGeometryModel(device_, &surf);
+                            for (auto &boundary3d: geometryModel->boundary_3d) {
+                                boundary3d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                                boundary3d->uniformBuffers[frameIndex]->flush();
+                                FrameInfo<VklCurveModel3D > frameInfo{frameIndex,
+                                                                   currentFrame,
+                                                                   offscreenCommandBuffer,
+                                                                   scene.camera,
+                                                                   &boundary3d->descriptorSets[frameIndex],
+                                                                   *boundary3d};
+                                curveMeshRenderSystem.renderObject(frameInfo);
                             }
                         }
                     }, model->underlyingGeometry);
@@ -411,6 +421,7 @@ void Application::run() {
         }
     }
 
+
     vkDeviceWaitIdle(device_.device());
 
     ImGui_ImplVulkan_Shutdown();
@@ -419,4 +430,7 @@ void Application::run() {
 
     /** destroy imgui descriptor pool*/
     vkDestroyDescriptorPool(device_.device(), imguiPool, nullptr);
+
+    delete VklGeometryModelBuffer<TensorProductBezierSurface>::instance();
+    delete VklGeometryModelDescriptorManager<TensorProductBezierSurface>::instance(device_);
 }
