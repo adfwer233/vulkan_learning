@@ -88,6 +88,11 @@ void Application::run() {
         {{std::format("{}/curve_mesh_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
+    LineRenderSystem<VklCurveModel2D::vertex_type> paramCurveRenderSystem(
+            device_, uvRender_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+            {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+             {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+
     SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
@@ -312,6 +317,18 @@ void Application::run() {
                                                                    &boundary3d->descriptorSets[frameIndex],
                                                                    *boundary3d};
                                 curveMeshRenderSystem.renderObject(frameInfo);
+                            }
+
+                            for (auto &boundary2d: geometryModel->boundary_2d) {
+                                boundary2d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                                boundary2d->uniformBuffers[frameIndex]->flush();
+                                FrameInfo<VklCurveModel2D > frameInfo{frameIndex,
+                                                                      currentFrame,
+                                                                      uvCommandBuffer,
+                                                                      scene.camera,
+                                                                      &boundary2d->descriptorSets[frameIndex],
+                                                                      *boundary2d};
+                                paramCurveRenderSystem.renderObject(frameInfo);
                             }
                         }
                     }, model->underlyingGeometry);

@@ -113,6 +113,7 @@ private:
                 parameter_render_type::vertex_type vertex;
                 auto position = boundary->evaluate(param_delta * i);
                 vertex.position = position;
+                vertex.color = {1.0, 0.0, 0.0};
                 builder.vertices.push_back(vertex);
             }
             boundary_2d.push_back(std::move(std::make_unique<parameter_render_type>(device_, builder)));
