@@ -74,4 +74,8 @@ class BezierCurve2D {
     }
 
     std::tuple<float, float> projection(glm::vec2 test_point);
+
+    float winding_number(glm::vec2 test_point);
+
+    float winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end, float derivative_bound);
 };

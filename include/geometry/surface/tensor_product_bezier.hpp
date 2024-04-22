@@ -179,6 +179,8 @@ class TensorProductBezierSurface : GeometrySurface {
         return GeometrySurfaceType::TensorProductBezier;
     };
 
+    bool containment_test(glm::vec2 test_param);
+
   private:
     std::unique_ptr<render_type> mesh_model_ptr;
 

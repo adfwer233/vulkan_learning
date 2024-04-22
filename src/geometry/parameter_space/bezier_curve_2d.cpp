@@ -62,3 +62,44 @@ std::tuple<float, float> BezierCurve2D::projection(glm::vec2 test_point)  {
 
     return std::make_tuple(dist, param);
 }
+
+float BezierCurve2D::winding_number(glm::vec2 test_point) {
+    // computing derivative bound
+
+    std::vector<glm::vec2> control_point_vec2;
+    for (auto & control_point : control_points_) {
+        control_point_vec2.emplace_back(control_point[0], control_point[1]);
+    }
+
+    int n = control_points_.size() - 1;
+    float derivative_bound = -1.0f;
+    for (int i = 1; i <= n; i++) {
+        derivative_bound = std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
+    }
+
+    return winding_number_internal(test_point,control_point_vec2.front(), control_point_vec2.back(), 0.0f, 1.0f, derivative_bound);
+}
+
+float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end, float derivative_bound) {
+    std::cout << glm::length(start_pos - test_point) + glm::length(end_pos - test_point) << ' ' << derivative_bound  << std::endl;
+    auto d1 = glm::length(start_pos - test_point);
+    auto d2 = glm::length(end_pos - test_point);
+
+    if (d1 < 1e-3 or d2 < 1e-3) return 0;
+
+    if ( d1 + d2 > derivative_bound * (end - start) or (end - start) < 1e-3) {
+        auto v1 = glm::normalize(start_pos - test_point);
+        auto v2 = glm::normalize(end_pos - test_point);
+        auto outer = v1.x * v2.y - v1.y * v2.x;
+        auto inner = glm::dot(v1, v2);
+
+        if (outer < 1e-3) return outer;
+        return outer > 0 ? std::acos(inner) : -std::acos(inner);
+    }
+
+    auto mid_param = (start + end) / 2;
+    auto mid_pos = evaluate(mid_param);
+
+    return winding_number_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound)
+         + winding_number_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);
+}

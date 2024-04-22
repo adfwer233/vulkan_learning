@@ -255,6 +255,13 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
             glm::vec2 param{delta_u * i, delta_v * j};
             auto position = evaluate(param);
             decltype(builder.vertices)::value_type vertex;
+
+            if (containment_test(param)) {
+                vertex.color = {1.0f, 0.0f, 0.0f};
+            } else {
+                std::cout << "out " << param.x << ' ' << param.y << std::endl;
+            }
+
             vertex.position = position;
             builder.vertices.push_back(vertex);
         }
@@ -283,4 +290,14 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
 
     return builder;
 }
+bool TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
 
+    float winding_number = 0.0;
+
+    for (const auto & boundary_curve : boundary_curves) {
+        winding_number += boundary_curve->winding_number(test_param);
+    }
+
+    std::cout << "Test " << winding_number << std::endl;
+    return winding_number > 3.14;
+}
