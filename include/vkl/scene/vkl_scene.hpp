@@ -73,7 +73,7 @@ class VklScene {
 
         addObject(*meshModel);
 
-        objects.back()->models.back()->underlayingGeometry = std::move(surf);
+        objects.back()->models.back()->underlyingGeometry = std::move(surf);
     }
 
     void addObject(VklModel::BuilderFromImmediateData builder);

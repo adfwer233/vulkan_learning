@@ -292,6 +292,19 @@ void Application::run() {
                         list.data[0] = normalRenderSystemPushConstantData;
                         normalRenderSystem.renderObject(modelFrameInfo, list);
                     }
+
+                    // visiting underlying geometry
+                    std::visit([](auto &&arg){
+                        using T = std::decay_t<decltype(arg)>;
+                        if constexpr (std::is_same_v<T, MeshGeometry>) {
+
+                        } else if (std::is_same_v<T, TensorProductBezierSurface>) {
+                            TensorProductBezierSurface &surf = arg;
+                            for (auto &boundary: surf.boundary_curves) {
+
+                            }
+                        }
+                    }, model->underlyingGeometry);
                 }
             }
 

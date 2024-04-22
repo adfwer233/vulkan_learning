@@ -165,7 +165,7 @@ class VklModelTemplate {
 
     std::unique_ptr<MeshModelTemplate<typename VertexType::geometry_type, IndexType>> geometry;
 
-    META_GET_REGISTERED_TYPES(RenderableGeometryTag)::to<std::variant> underlayingGeometry;
+    META_GET_REGISTERED_TYPES(RenderableGeometryTag)::to<std::variant> underlyingGeometry;
 
     [[nodiscard]] int get_triangle_num() const;
 

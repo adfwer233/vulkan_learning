@@ -56,7 +56,7 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
     for (auto index : builder.indices)
         geometry->indices.push_back(index);
 
-    underlayingGeometry = MeshGeometry{};
+    underlyingGeometry = MeshGeometry{};
 }
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
@@ -112,7 +112,7 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(
 
     this->geometry = std::make_unique<MeshModelTemplate<VertexType::geometry_type, IndexType>>(geometry);
 
-    underlayingGeometry = MeshGeometry{};
+    underlyingGeometry = MeshGeometry{};
 }
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>

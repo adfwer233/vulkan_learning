@@ -26,7 +26,7 @@ void SceneInfoUI::renderImgui() {
                 } else {
                     ImGui::Text("Unknown Geometry");
                 }
-            }, model->underlayingGeometry);
+            }, model->underlyingGeometry);
         }
     }
 
