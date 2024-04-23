@@ -67,7 +67,6 @@ glm::vec2 BezierCurve2D::evaluate_polynomial(float param) const {
     return {polynomial1.evaluate(param), polynomial2.evaluate(param)};
 }
 
-
 float BezierCurve2D::winding_number(glm::vec2 test_point) {
     // computing derivative bound
 
@@ -82,11 +81,10 @@ float BezierCurve2D::winding_number(glm::vec2 test_point) {
         derivative_bound = std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
     }
 
-    return winding_number_internal(test_point,control_point_vec2.front(), control_point_vec2.back(), 0.0f, 1.0f, derivative_bound);
+    return winding_number_u_periodic_internal(test_point,control_point_vec2.front(), control_point_vec2.back(), 0.0f, 1.0f, derivative_bound);
 }
 
 float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end, float derivative_bound) {
-    std::cout << glm::length(start_pos - test_point) + glm::length(end_pos - test_point) << ' ' << derivative_bound  << std::endl;
     auto d1 = glm::length(start_pos - test_point);
     auto d2 = glm::length(end_pos - test_point);
 
@@ -98,7 +96,7 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
         auto outer = v1.x * v2.y - v1.y * v2.x;
         auto inner = glm::dot(v1, v2);
 
-        if (outer < 1e-3) return outer;
+//        if (outer < 1e-3) return outer;
         return outer > 0 ? std::acos(inner) : -std::acos(inner);
     }
 
@@ -107,4 +105,45 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
 
     return winding_number_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound)
          + winding_number_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);
+}
+
+float BezierCurve2D::winding_number_u_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos,
+                                                        float start, float end, float derivative_bound) {
+    auto d1 = glm::length(start_pos - test_point);
+    auto d2 = glm::length(end_pos - test_point);
+
+    if (d1 < 1e-3 or d2 < 1e-3) return 0;
+
+    if ( d1 + d2 > derivative_bound * (end - start) or (end - start) < 1e-3) {
+        auto v1 = start_pos - test_point;
+        auto v2 = end_pos - test_point;
+
+        int N = 10;
+
+        glm::vec2 e = {1.0f, 0.0f};
+
+        float res = 0;
+
+        for (int i = -N; i <= N; i++) {
+            auto w1 = glm::normalize(v1 + e * (1.0f * i));
+            auto w2 = glm::normalize(v2 + e * (1.0f * i));
+            auto outer_v = w1.x * w2.y - w1.y * w2.x;
+            auto inner_v = glm::dot(w1, w2);
+            inner_v = std::min(inner_v, 0.99999f);
+
+            if (std::isnan(std::acos(inner_v))) {
+                continue;
+            }
+
+            res += outer_v > 0 ? std::acos(inner_v) : -std::acos(inner_v);
+        }
+
+        return res;
+    }
+
+    auto mid_param = (start + end) / 2;
+    auto mid_pos = evaluate(mid_param);
+
+    return winding_number_u_periodic_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound)
+           + winding_number_u_periodic_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);
 }

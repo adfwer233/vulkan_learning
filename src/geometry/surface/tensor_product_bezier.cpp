@@ -255,12 +255,9 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
             glm::vec2 param{delta_u * i, delta_v * j};
             auto position = evaluate(param);
             decltype(builder.vertices)::value_type vertex;
+            auto wn = containment_test(param);
 
-            if (containment_test(param)) {
-                vertex.color = {1.0f, 0.0f, 0.0f};
-            } else {
-                std::cout << "out " << param.x << ' ' << param.y << std::endl;
-            }
+            vertex.color = {std::abs(wn) / 6.28f, 0.0f ,0.0f};
 
             vertex.position = position;
             builder.vertices.push_back(vertex);
@@ -290,7 +287,7 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
 
     return builder;
 }
-bool TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
+float TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
 
     float winding_number = 0.0;
 
@@ -299,5 +296,12 @@ bool TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
     }
 
     std::cout << "Test " << winding_number << std::endl;
-    return winding_number > 3.14;
+    return winding_number;
+}
+
+void TensorProductBezierSurface::initializePeriodicBoundary() {
+    std::vector<BezierCurve2D::point_type> boundary1{{1.0, 0.9}, {0.5, 0.2}, {0.0, 0.9}};
+    std::vector<BezierCurve2D::point_type> boundary2{{0.0, 0.1}, {0.5, 0.8}, {1.0, 0.1}};
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(boundary1))));
+    boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(boundary2))));
 }

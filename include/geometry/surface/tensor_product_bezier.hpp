@@ -29,7 +29,7 @@ class TensorProductBezierSurface : GeometrySurface {
     std::vector<std::unique_ptr<BezierCurve2D>> boundary_curves;
 
     explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts) : control_points_(control_pts) {
-        initializeBoundary();
+        initializePeriodicBoundary();
         laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
     }
 
@@ -41,7 +41,7 @@ class TensorProductBezierSurface : GeometrySurface {
             }
         }
 
-        initializeBoundary();
+        initializePeriodicBoundary();
         laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
     }
     /**
@@ -179,12 +179,14 @@ class TensorProductBezierSurface : GeometrySurface {
         return GeometrySurfaceType::TensorProductBezier;
     };
 
-    bool containment_test(glm::vec2 test_param);
+    float containment_test(glm::vec2 test_param);
 
   private:
     std::unique_ptr<render_type> mesh_model_ptr;
 
     void initializeBoundary();
+
+    void initializePeriodicBoundary();
 };
 
 #include "meta_programming/type_register/type_register.hpp"
