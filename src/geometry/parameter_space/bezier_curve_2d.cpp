@@ -63,6 +63,11 @@ std::tuple<float, float> BezierCurve2D::projection(glm::vec2 test_point)  {
     return std::make_tuple(dist, param);
 }
 
+glm::vec2 BezierCurve2D::evaluate_polynomial(float param) const {
+    return {polynomial1.evaluate(param), polynomial2.evaluate(param)};
+}
+
+
 float BezierCurve2D::winding_number(glm::vec2 test_point) {
     // computing derivative bound
 

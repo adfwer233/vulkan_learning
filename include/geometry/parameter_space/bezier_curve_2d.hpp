@@ -34,6 +34,8 @@ class BezierCurve2D {
 
         std::vector<float> polynomial_coeff1, polynomial_coeff2;
 
+
+
         for (int j = 0; j <= n; j++) {
             if (j == 0) {
                 polynomial_coeff1.push_back(control_points_[0][0]);
@@ -42,16 +44,20 @@ class BezierCurve2D {
             }
             float res1{1.0f};
             float res2{1.0f};
-            for (int m = 0; m < j; m++) {
-                float tmp1{0.0f};
-                float tmp2{0.0f};
-                for (int i = 0; i <= j; i++) {
-                    tmp1 += control_points_[i][0] * std::pow(-1, i + j);
-                    tmp2 += control_points_[i][1] * std::pow(-1, i + j);
-                }
-                res1 *= tmp1 * (1.0f * n - 1.0f * m);
-                res2 *= tmp2 * (1.0f * n - 1.0f * m);
+
+            float tmp1{0.0f};
+            float tmp2{0.0f};
+            for (int i = 0; i <= j; i++) {
+                auto denom = boost::math::factorial<float>(i) * boost::math::factorial<float>(j - i);
+                tmp1 += control_points_[i][0] * std::pow(-1, i + j) / denom;
+                tmp2 += control_points_[i][1] * std::pow(-1, i + j) / denom;
             }
+
+            auto factor = boost::math::factorial<float>(n) / boost::math::factorial<float>(n - j);
+
+            res1 = factor * tmp1;
+            res2 = factor * tmp2;
+
             polynomial_coeff1.push_back(res1);
             polynomial_coeff2.push_back(res2);
         }
@@ -72,6 +78,8 @@ class BezierCurve2D {
         auto res = BernsteinBasisFunction::evaluate(param, control_points_);
         return {res[0], res[1]};
     }
+
+    glm::vec2 evaluate_polynomial(float param) const;
 
     std::tuple<float, float> projection(glm::vec2 test_point);
 

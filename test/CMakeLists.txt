@@ -10,6 +10,7 @@ set(SRC_FILE
         geometry/surface/tensor_product_bezier_test.cpp
         templates/meta_programming_test.cpp
         coroutine/generator.cpp
+        geometry/function/bezier2d_evaluate.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})
