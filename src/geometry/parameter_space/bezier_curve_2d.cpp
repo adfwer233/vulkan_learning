@@ -5,6 +5,8 @@
 #define M_PI 3.14159265358979323846 // pi
 #include "root_finder/root_finder.hpp"
 
+#include <numbers>
+
 std::tuple<float, float> BezierCurve2D::projection(glm::vec2 test_point)  {
     auto target_poly =
         (test_point.x - polynomial1) * polynomial1_deriv + (test_point.y - polynomial2) * polynomial2_deriv;
@@ -118,18 +120,22 @@ float BezierCurve2D::winding_number_u_periodic_internal(glm::vec2 test_point, gl
         auto v1 = start_pos - test_point;
         auto v2 = end_pos - test_point;
 
-        int N = 10;
+        int N = 100;
 
         glm::vec2 e = {1.0f, 0.0f};
 
         float res = 0;
 
+        double series_main_part = 0;
+
         for (int i = -N; i <= N; i++) {
+            if (i != 0) {
+                series_main_part += (1.0f / (i * i));
+            }
             auto w1 = glm::normalize(v1 + e * (1.0f * i));
             auto w2 = glm::normalize(v2 + e * (1.0f * i));
             auto outer_v = w1.x * w2.y - w1.y * w2.x;
             auto inner_v = glm::dot(w1, w2);
-            inner_v = std::min(inner_v, 0.99999f);
 
             if (std::isnan(std::acos(inner_v))) {
                 continue;
@@ -137,6 +143,17 @@ float BezierCurve2D::winding_number_u_periodic_internal(glm::vec2 test_point, gl
 
             res += outer_v > 0 ? std::acos(inner_v) : -std::acos(inner_v);
         }
+
+        // truncated estimator
+
+        double pi_square = std::numbers::pi * std::numbers::pi;
+
+        auto v1_norm = glm::normalize(v1);
+        auto v2_norm = glm::normalize(v2);
+        auto outer = v1_norm.x * v2_norm.y - v1_norm.y * v2_norm.x;
+        auto reminder_coeff = (pi_square / 3 - series_main_part);
+        auto reminder = reminder_coeff * std::asin(outer);
+        // res += reminder;
 
         return res;
     }
