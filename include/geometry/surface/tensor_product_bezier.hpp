@@ -33,6 +33,13 @@ class TensorProductBezierSurface : GeometrySurface {
         laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
     }
 
+    explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts, std::vector<std::vector<std::array<float, 2>>> boundary_control_points) : control_points_(control_pts) {
+        for (auto vec: boundary_control_points) {
+            boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(vec))));
+        }
+        laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
+    }
+
     explicit TensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_pts) {
         for (const auto &item_i : control_pts) {
             auto &target = control_points_.emplace_back();

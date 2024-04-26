@@ -7,6 +7,7 @@ set(SRC_FILE
         surface/tensor_product_bezier.cpp
         function/bernstein.cpp
         parameter_space/bezier_curve_2d.cpp
+        io/svg_importer.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})

@@ -32,8 +32,8 @@ private:
                 .build();
 
         descriptorPool_ = VklDescriptorPool::Builder(device)
-                .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
+                .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
                 .build();
     }
 };

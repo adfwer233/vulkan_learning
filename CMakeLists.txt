@@ -32,10 +32,13 @@ include(fetch-tinyobjloader)
 include(fetch-autodiff)
 include(fetch-random)
 include(fetch-rootfinder)
+include(fetch-svgpp)
 
 igl_include(copyleft core)
 
 INCLUDE_DIRECTORIES(${stb_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${svgpp_SOURCE_DIR}/include)
+INCLUDE_DIRECTORIES(${svgpp_SOURCE_DIR}/third_party)
 INCLUDE_DIRECTORIES(${root_finder_SOURCE_DIR}/root_finder/include)
 INCLUDE_DIRECTORIES(${tinyobjloader_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${random_SOURCE_DIR}/include)

@@ -95,6 +95,54 @@ void SceneManagerUI::renderImgui() {
         uiManager_.resetPathTracingCompute();
     }
 
+    if (ImGui::Button("Load Bezier Boundary")) {
+        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape2.json");
+        std::cout << full_path << std::endl;
+        std::ifstream f(full_path);
+        json data = json::parse(f);
+
+        auto get_point = [&](json &point_json) -> std::pair<float, float> {
+            return {point_json["x"].get<float>() / 500, point_json["y"].get<float>() / 500};
+        };
+
+        std::vector<std::vector<std::array<float, 2>>> boundary_data;
+
+        for (auto path_json: data) {
+            for (auto bezier: path_json) {
+                auto straight = false;
+                for (auto points: bezier) {
+                    if (points.is_boolean()) {
+                        straight = true;
+                    }
+                }
+                auto& boundary = boundary_data.emplace_back();
+                if (straight) {
+                    auto [x1, y1] = get_point(bezier[0]);
+                    auto [x2, y2] = get_point(bezier[3]);
+                    std::cout << std::format("({}, {}), ({}, {}) \n", x1, y1, x2, y2);
+                    boundary.push_back({x1, y1});
+                    boundary.push_back({x2, y2});
+                } else {
+                    auto [x1, y1] = get_point(bezier[0]);
+                    auto [x2, y2] = get_point(bezier[1]);
+                    auto [x3, y3] = get_point(bezier[2]);
+                    auto [x4, y4] = get_point(bezier[3]);
+                    boundary.push_back({x1, y1});
+                    boundary.push_back({x2, y2});
+                    boundary.push_back({x3, y3});
+                    boundary.push_back({x4, y4});
+                    std::cout << std::format("({}, {}), ({}, {}), ({}, {}), ({}, {}) \n", x1, y1, x2, y2, x3, y3, x4, y4);
+                }
+            }
+        }
+
+        std::vector<std::vector<glm::vec3>> control_points{{{-1.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {-1.0, 0.0, 1.0}},
+                                                           {{0.0, 0.0, -1.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
+                                                           {{1.0, 0.0, -1.0}, {1.0, 0.0, 0.0}, {1.0, 0.0, 1.0}}};
+
+        scene_.addTensorProductBezierSurface(std::move(control_points), std::move(boundary_data));
+    }
+
     if (ImGui::Button("Load Bezier Surface")) {
         std::vector<std::vector<glm::vec3>> control_points{{{-1.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {-1.0, 0.0, 1.0}},
                                                            {{0.0, 0.0, -1.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},

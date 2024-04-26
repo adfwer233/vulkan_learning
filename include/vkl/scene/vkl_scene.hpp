@@ -76,6 +76,8 @@ class VklScene {
         objects.back()->models.back()->underlyingGeometry = std::move(surf);
     }
 
+    void addTensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_points, std::vector<std::vector<std::array<float, 2>>> &&boundary_data);
+
     void addObject(VklModel::BuilderFromImmediateData builder);
 
     template <typename VertexType, typename IndexType> void addObject(MeshModelTemplate<VertexType, IndexType> geom);
