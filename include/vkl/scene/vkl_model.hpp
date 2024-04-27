@@ -16,8 +16,8 @@
 #include "vkl/templates/vkl_concept.hpp"
 
 #include "geometry/mesh/mesh_model_template.hpp"
-#include "geometry/surface/tensor_product_bezier.hpp"
 #include "geometry/renderable_geometry.hpp"
+#include "geometry/surface/tensor_product_bezier.hpp"
 
 struct VklVertex2D : public Vertex2D {
     using geometry_type = Vertex2D;

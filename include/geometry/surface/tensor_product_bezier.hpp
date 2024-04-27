@@ -7,9 +7,9 @@
 #include "geometry/autodiff/autodiff.hpp"
 #include "surface.hpp"
 
+#include "geometry/loop/path_2d.hpp"
 #include "geometry/mesh/mesh_model_template.hpp"
 #include "geometry/parameter_space/bezier_curve_2d.hpp"
-#include "geometry/loop/path_2d.hpp"
 /**
  * @brief Tensor Product Bezier Surface with automatic differentiation
  */
@@ -35,16 +35,19 @@ class TensorProductBezierSurface : GeometrySurface {
         laplacianEvaluator = std::make_unique<LaplacianEvaluator>(*this);
     }
 
-    explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts, std::vector<std::vector<std::array<float, 2>>> &&boundary_control_points,
-                                        std::vector<size_t> path_indices = {}) : control_points_(control_pts) {
-        for (auto vec: boundary_control_points) {
+    explicit TensorProductBezierSurface(decltype(control_points_) &&control_pts,
+                                        std::vector<std::vector<std::array<float, 2>>> &&boundary_control_points,
+                                        std::vector<size_t> path_indices = {})
+        : control_points_(control_pts) {
+        for (auto vec : boundary_control_points) {
             boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(vec))));
         }
 
         if (not path_indices.empty()) {
-            for (size_t path_start = 0; auto path_end: path_indices) {
+            for (size_t path_start = 0; auto path_end : path_indices) {
                 std::vector<std::vector<std::array<float, 2>>> path;
-                std::copy(boundary_control_points.begin() + path_start, boundary_control_points.begin() + path_end, std::back_inserter(path));
+                std::copy(boundary_control_points.begin() + path_start, boundary_control_points.begin() + path_end,
+                          std::back_inserter(path));
                 paths.push_back(std::move(std::make_unique<Path2D>(std::move(path))));
                 path_start = path_end;
             }

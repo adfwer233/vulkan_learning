@@ -3,6 +3,6 @@
 #include <string>
 
 class SVGImporter {
-public:
+  public:
     static void read_svg_file(std::string path);
 };

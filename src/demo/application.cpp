@@ -89,9 +89,9 @@ void Application::run() {
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     LineRenderSystem<VklCurveModel2D::vertex_type> paramCurveRenderSystem(
-            device_, uvRender_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
-            {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-             {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+        device_, uvRender_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
@@ -299,39 +299,41 @@ void Application::run() {
                     }
 
                     // visiting underlying geometry
-                    std::visit([&](auto &&arg){
-                        using T = std::decay_t<decltype(arg)>;
-                        if constexpr (std::is_same_v<T, MeshGeometry>) {
+                    std::visit(
+                        [&](auto &&arg) {
+                            using T = std::decay_t<decltype(arg)>;
+                            if constexpr (std::is_same_v<T, MeshGeometry>) {
 
-                        } else if (std::is_same_v<T, TensorProductBezierSurface>) {
-                            TensorProductBezierSurface &surf = arg;
-                            auto modelBuffer = VklGeometryModelBuffer<TensorProductBezierSurface>::instance();
-                            auto geometryModel = modelBuffer->getGeometryModel(device_, &surf);
-                            for (auto &boundary3d: geometryModel->boundary_3d) {
-                                boundary3d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                                boundary3d->uniformBuffers[frameIndex]->flush();
-                                FrameInfo<VklCurveModel3D > frameInfo{frameIndex,
-                                                                   currentFrame,
-                                                                   offscreenCommandBuffer,
-                                                                   scene.camera,
-                                                                   &boundary3d->descriptorSets[frameIndex],
-                                                                   *boundary3d};
-                                curveMeshRenderSystem.renderObject(frameInfo);
-                            }
+                            } else if (std::is_same_v<T, TensorProductBezierSurface>) {
+                                TensorProductBezierSurface &surf = arg;
+                                auto modelBuffer = VklGeometryModelBuffer<TensorProductBezierSurface>::instance();
+                                auto geometryModel = modelBuffer->getGeometryModel(device_, &surf);
+                                for (auto &boundary3d : geometryModel->boundary_3d) {
+                                    boundary3d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                                    boundary3d->uniformBuffers[frameIndex]->flush();
+                                    FrameInfo<VklCurveModel3D> frameInfo{frameIndex,
+                                                                         currentFrame,
+                                                                         offscreenCommandBuffer,
+                                                                         scene.camera,
+                                                                         &boundary3d->descriptorSets[frameIndex],
+                                                                         *boundary3d};
+                                    curveMeshRenderSystem.renderObject(frameInfo);
+                                }
 
-                            for (auto &boundary2d: geometryModel->boundary_2d) {
-                                boundary2d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                                boundary2d->uniformBuffers[frameIndex]->flush();
-                                FrameInfo<VklCurveModel2D > frameInfo{frameIndex,
-                                                                      currentFrame,
-                                                                      uvCommandBuffer,
-                                                                      scene.camera,
-                                                                      &boundary2d->descriptorSets[frameIndex],
-                                                                      *boundary2d};
-                                paramCurveRenderSystem.renderObject(frameInfo);
+                                for (auto &boundary2d : geometryModel->boundary_2d) {
+                                    boundary2d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                                    boundary2d->uniformBuffers[frameIndex]->flush();
+                                    FrameInfo<VklCurveModel2D> frameInfo{frameIndex,
+                                                                         currentFrame,
+                                                                         uvCommandBuffer,
+                                                                         scene.camera,
+                                                                         &boundary2d->descriptorSets[frameIndex],
+                                                                         *boundary2d};
+                                    paramCurveRenderSystem.renderObject(frameInfo);
+                                }
                             }
-                        }
-                    }, model->underlyingGeometry);
+                        },
+                        model->underlyingGeometry);
                 }
             }
 
@@ -437,7 +439,6 @@ void Application::run() {
             renderer_.endFrame();
         }
     }
-
 
     vkDeviceWaitIdle(device_.device());
 

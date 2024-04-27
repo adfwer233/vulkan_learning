@@ -70,12 +70,13 @@ class BezierCurve2D {
         polynomial1_deriv = polynomial1.prime();
         polynomial2_deriv = polynomial2.prime();
 
-        for (auto & control_point : control_points_) {
+        for (auto &control_point : control_points_) {
             control_point_vec2.emplace_back(control_point[0], control_point[1]);
         }
 
         for (int i = 1; i <= n; i++) {
-            derivative_bound = std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
+            derivative_bound =
+                std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
         }
     }
 
@@ -95,9 +96,12 @@ class BezierCurve2D {
 
     float winding_number(glm::vec2 test_point);
 
-    float winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end, float derivative_bound);
+    float winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end,
+                                  float derivative_bound);
 
-    float winding_number_bi_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end, float derivative_bound);
+    float winding_number_bi_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start,
+                                              float end, float derivative_bound);
 
-    float winding_number_u_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end, float derivative_bound);
+    float winding_number_u_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start,
+                                             float end, float derivative_bound);
 };

@@ -269,7 +269,7 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
             glm::vec2 param{delta_u * i, delta_v * j};
             auto wn = containment_test(param);
             auto &vertex = builder.vertices[i * (n + 1) + j];
-            vertex.color = {std::abs(wn) / 6.28f, 0.0f ,0.0f};
+            vertex.color = {std::abs(wn) / 6.28f, 0.0f, 0.0f};
         }
     }
     auto end_time = std::chrono::high_resolution_clock::now();
@@ -304,11 +304,11 @@ float TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
     float winding_number = 0.0;
 
     if (this->paths.empty()) {
-        for (const auto &boundary_curve: boundary_curves) {
+        for (const auto &boundary_curve : boundary_curves) {
             winding_number += boundary_curve->winding_number(test_param);
         }
     } else {
-        for (const auto &path: paths) {
+        for (const auto &path : paths) {
             winding_number += path->winding_number(test_param);
         }
     }

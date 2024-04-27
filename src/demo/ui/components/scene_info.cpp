@@ -17,16 +17,18 @@ void SceneInfoUI::renderImgui() {
         auto &obj = scene_.objects[i];
         for (auto j = 0; j < obj->models.size(); j++) {
             auto model = obj->models[j];
-            std::visit([](auto&& arg) {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (std::is_same_v<T, MeshGeometry>) {
-                    ImGui::Text("Mesh Geometry");
-                } else if (std::is_same_v<T, TensorProductBezierSurface>) {
-                    ImGui::Text("Tensor Product Bezier Surface");
-                } else {
-                    ImGui::Text("Unknown Geometry");
-                }
-            }, model->underlyingGeometry);
+            std::visit(
+                [](auto &&arg) {
+                    using T = std::decay_t<decltype(arg)>;
+                    if constexpr (std::is_same_v<T, MeshGeometry>) {
+                        ImGui::Text("Mesh Geometry");
+                    } else if (std::is_same_v<T, TensorProductBezierSurface>) {
+                        ImGui::Text("Tensor Product Bezier Surface");
+                    } else {
+                        ImGui::Text("Unknown Geometry");
+                    }
+                },
+                model->underlyingGeometry);
         }
     }
 

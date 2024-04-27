@@ -107,15 +107,15 @@ void SceneManagerUI::renderImgui() {
 
         std::vector<std::vector<std::array<float, 2>>> boundary_data;
         std::vector<size_t> path_indices;
-        for (auto path_json: data) {
-            for (auto bezier: path_json) {
+        for (auto path_json : data) {
+            for (auto bezier : path_json) {
                 auto straight = false;
-                for (auto points: bezier) {
+                for (auto points : bezier) {
                     if (points.is_boolean()) {
                         straight = true;
                     }
                 }
-                auto& boundary = boundary_data.emplace_back();
+                auto &boundary = boundary_data.emplace_back();
                 if (straight) {
                     auto [x1, y1] = get_point(bezier[0]);
                     auto [x2, y2] = get_point(bezier[3]);
@@ -131,7 +131,8 @@ void SceneManagerUI::renderImgui() {
                     boundary.push_back({x2, y2});
                     boundary.push_back({x3, y3});
                     boundary.push_back({x4, y4});
-                    std::cout << std::format("({}, {}), ({}, {}), ({}, {}), ({}, {}) \n", x1, y1, x2, y2, x3, y3, x4, y4);
+                    std::cout << std::format("({}, {}), ({}, {}), ({}, {}), ({}, {}) \n", x1, y1, x2, y2, x3, y3, x4,
+                                             y4);
                 }
             }
 
