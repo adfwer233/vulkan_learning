@@ -106,7 +106,7 @@ void SceneManagerUI::renderImgui() {
         };
 
         std::vector<std::vector<std::array<float, 2>>> boundary_data;
-
+        std::vector<size_t> path_indices;
         for (auto path_json: data) {
             for (auto bezier: path_json) {
                 auto straight = false;
@@ -134,13 +134,15 @@ void SceneManagerUI::renderImgui() {
                     std::cout << std::format("({}, {}), ({}, {}), ({}, {}), ({}, {}) \n", x1, y1, x2, y2, x3, y3, x4, y4);
                 }
             }
+
+            path_indices.push_back(boundary_data.size());
         }
 
         std::vector<std::vector<glm::vec3>> control_points{{{-1.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {-1.0, 0.0, 1.0}},
                                                            {{0.0, 0.0, -1.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},
                                                            {{1.0, 0.0, -1.0}, {1.0, 0.0, 0.0}, {1.0, 0.0, 1.0}}};
 
-        scene_.addTensorProductBezierSurface(std::move(control_points), std::move(boundary_data));
+        scene_.addTensorProductBezierSurface(std::move(control_points), std::move(boundary_data), path_indices);
     }
 
     if (ImGui::Button("Load Bezier Surface")) {

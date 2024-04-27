@@ -244,8 +244,8 @@ void TensorProductBezierSurface::initializeBoundary() {
 MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshModelBuilder() {
     render_type builder;
 
-    constexpr int n = 100;
-    constexpr int m = 100;
+    constexpr int n = 1000;
+    constexpr int m = 1000;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;
@@ -303,8 +303,14 @@ float TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
 
     float winding_number = 0.0;
 
-    for (const auto & boundary_curve : boundary_curves) {
-        winding_number += boundary_curve->winding_number(test_param);
+    if (this->paths.empty()) {
+        for (const auto &boundary_curve: boundary_curves) {
+            winding_number += boundary_curve->winding_number(test_param);
+        }
+    } else {
+        for (const auto &path: paths) {
+            winding_number += path->winding_number(test_param);
+        }
     }
 
     // std::cout << "Test " << winding_number << std::endl;

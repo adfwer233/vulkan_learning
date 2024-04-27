@@ -16,9 +16,11 @@ class BezierCurve2D {
   private:
     std::vector<std::array<float, 2>> control_points_;
 
-    std::vector<glm::vec2> control_point_vec2;
-    float derivative_bound = -1.0f;
   public:
+    std::vector<glm::vec2> control_point_vec2;
+
+    float derivative_bound = -1.0f;
+
     using point_type = std::array<float, 2>;
 
     boost::math::tools::polynomial<float> polynomial1, polynomial2, polynomial1_deriv, polynomial2_deriv;
@@ -35,8 +37,6 @@ class BezierCurve2D {
         auto n = control_points_.size() - 1;
 
         std::vector<float> polynomial_coeff1, polynomial_coeff2;
-
-
 
         for (int j = 0; j <= n; j++) {
             if (j == 0) {

@@ -8,6 +8,7 @@ set(SRC_FILE
         function/bernstein.cpp
         parameter_space/bezier_curve_2d.cpp
         io/svg_importer.cpp
+        loop/path_2d.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})

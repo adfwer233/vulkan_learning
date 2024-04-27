@@ -6,7 +6,8 @@ void VklScene::addObject(VklModel::BuilderFromImmediateData builder) {
 }
 
 void VklScene::addTensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_points,
-                                             std::vector<std::vector<std::array<float, 2>>> &&boundary_data) {
+                                             std::vector<std::vector<std::array<float, 2>>> &&boundary_data,
+                                             std::vector<size_t> path_indices) {
     std::vector<std::vector<std::array<float, 3>>> control_points_array;
     for (auto item_i : control_points) {
         auto &target = control_points_array.emplace_back();
@@ -15,7 +16,7 @@ void VklScene::addTensorProductBezierSurface(std::vector<std::vector<glm::vec3>>
         }
     }
 
-    TensorProductBezierSurface surf(std::move(control_points_array), std::move(boundary_data));
+    TensorProductBezierSurface surf(std::move(control_points_array), std::move(boundary_data), path_indices);
     auto meshModel = surf.getMeshModel();
 
     addObject(*meshModel);
