@@ -72,18 +72,7 @@ glm::vec2 BezierCurve2D::evaluate_polynomial(float param) const {
 float BezierCurve2D::winding_number(glm::vec2 test_point) {
     // computing derivative bound
 
-    std::vector<glm::vec2> control_point_vec2;
-    for (auto & control_point : control_points_) {
-        control_point_vec2.emplace_back(control_point[0], control_point[1]);
-    }
-
-    int n = control_points_.size() - 1;
-    float derivative_bound = -1.0f;
-    for (int i = 1; i <= n; i++) {
-        derivative_bound = std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
-    }
-
-    return winding_number_u_periodic_internal(test_point,control_point_vec2.front(), control_point_vec2.back(), 0.0f, 1.0f, derivative_bound);
+    return winding_number_internal(test_point, control_point_vec2.front(), control_point_vec2.back(), 0.0f, 1.0f, derivative_bound);
 }
 
 float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end, float derivative_bound) {
@@ -98,12 +87,16 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
         auto outer = v1.x * v2.y - v1.y * v2.x;
         auto inner = glm::dot(v1, v2);
 
-//        if (outer < 1e-3) return outer;
+        if (std::isnan(std::acos(inner))) {
+            return 0;
+        }
+
         return outer > 0 ? std::acos(inner) : -std::acos(inner);
     }
 
     auto mid_param = (start + end) / 2;
-    auto mid_pos = evaluate(mid_param);
+
+    auto mid_pos = evaluate_polynomial(mid_param);
 
     return winding_number_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound)
          + winding_number_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);
@@ -159,7 +152,7 @@ float BezierCurve2D::winding_number_u_periodic_internal(glm::vec2 test_point, gl
     }
 
     auto mid_param = (start + end) / 2;
-    auto mid_pos = evaluate(mid_param);
+    auto mid_pos = evaluate_polynomial(mid_param);
 
     return winding_number_u_periodic_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound)
            + winding_number_u_periodic_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);

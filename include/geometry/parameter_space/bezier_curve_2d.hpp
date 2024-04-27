@@ -16,6 +16,8 @@ class BezierCurve2D {
   private:
     std::vector<std::array<float, 2>> control_points_;
 
+    std::vector<glm::vec2> control_point_vec2;
+    float derivative_bound = -1.0f;
   public:
     using point_type = std::array<float, 2>;
 
@@ -67,6 +69,14 @@ class BezierCurve2D {
 
         polynomial1_deriv = polynomial1.prime();
         polynomial2_deriv = polynomial2.prime();
+
+        for (auto & control_point : control_points_) {
+            control_point_vec2.emplace_back(control_point[0], control_point[1]);
+        }
+
+        for (int i = 1; i <= n; i++) {
+            derivative_bound = std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
+        }
     }
 
     /**

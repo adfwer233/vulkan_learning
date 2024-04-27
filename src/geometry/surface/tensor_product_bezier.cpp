@@ -244,8 +244,8 @@ void TensorProductBezierSurface::initializeBoundary() {
 MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshModelBuilder() {
     render_type builder;
 
-    constexpr int n = 50;
-    constexpr int m = 50;
+    constexpr int n = 100;
+    constexpr int m = 100;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;
@@ -255,14 +255,26 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
             glm::vec2 param{delta_u * i, delta_v * j};
             auto position = evaluate(param);
             decltype(builder.vertices)::value_type vertex;
-            auto wn = containment_test(param);
-
-            vertex.color = {std::abs(wn) / 6.28f, 0.0f ,0.0f};
 
             vertex.position = position;
             builder.vertices.push_back(vertex);
         }
     }
+
+    // compute the winding number of sampled parameter points
+    auto start_time = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i <= m; i++) {
+        // std::cout << "Line " << i << "\n";
+        for (int j = 0; j <= n; j++) {
+            glm::vec2 param{delta_u * i, delta_v * j};
+            auto wn = containment_test(param);
+            auto &vertex = builder.vertices[i * (n + 1) + j];
+            vertex.color = {std::abs(wn) / 6.28f, 0.0f ,0.0f};
+        }
+    }
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count() << std::endl;
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -295,7 +307,7 @@ float TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
         winding_number += boundary_curve->winding_number(test_param);
     }
 
-    std::cout << "Test " << winding_number << std::endl;
+    // std::cout << "Test " << winding_number << std::endl;
     return winding_number;
 }
 
