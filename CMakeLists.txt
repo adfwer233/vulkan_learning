@@ -53,9 +53,15 @@ message(STATUS ${Boost_INCLUDE_DIRS})
 if(NOT DEFINED ENV{VULKAN_SDK})
     message(FATAL_ERROR "VK_SDK_PATH not defined!")
 endif()
+
 set(VK_SDK_PATH $ENV{VULKAN_SDK})
 set(VK_SDK_INCLUDE ${VK_SDK_PATH}/Include)
 set(VK_SDK_LIB ${VK_SDK_PATH}/Lib/vulkan-1.lib)
+
+if (UNIX)
+    message(STATUS "Set Linux Vulkan SDK Path")
+    set(VK_SDK_LIB ${VK_SDK_PATH}/lib/libvulkan.so.1)
+endif ()
 
 add_library(imgui
         ${imgui_fetch_SOURCE_DIR}/imgui.cpp

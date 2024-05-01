@@ -110,7 +110,7 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(
         createTextureImage(path);
     }
 
-    this->geometry = std::make_unique<MeshModelTemplate<VertexType::geometry_type, IndexType>>(geometry);
+    this->geometry = std::make_unique<MeshModelTemplate<typename VertexType::geometry_type, IndexType>>(geometry);
 
     underlyingGeometry = MeshGeometry{};
 }
@@ -126,7 +126,7 @@ VklModelTemplate<VertexType, IndexType, BoxType>::~VklModelTemplate() {
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::createVertexBuffers(const std::vector<VertexType> &vertices) {
     vertexCount_ = static_cast<uint32_t>(vertices.size());
-    uint32_t vertexSize = sizeof(std::remove_reference<decltype(vertices)>::type::value_type);
+    uint32_t vertexSize = sizeof(typename std::remove_reference<decltype(vertices)>::type::value_type);
     VkDeviceSize bufferSize = vertexSize * vertexCount_;
 
     VklBuffer stagingBuffer{device_, vertexSize, vertexCount_, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -294,7 +294,7 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::createDescriptorSetLayout
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::updateVertexBuffer() {
     vertexCount_ = static_cast<uint32_t>(geometry->vertices.size());
-    uint32_t vertexSize = sizeof(std::remove_reference<decltype(geometry->vertices)>::type::value_type);
+    uint32_t vertexSize = sizeof(typename std::remove_reference<decltype(geometry->vertices)>::type::value_type);
     VkDeviceSize bufferSize = vertexSize * vertexCount_;
 
     VklBuffer stagingBuffer{device_, vertexSize, vertexCount_, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,

@@ -244,8 +244,8 @@ void TensorProductBezierSurface::initializeBoundary() {
 MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshModelBuilder() {
     render_type builder;
 
-    constexpr int n = 1000;
-    constexpr int m = 1000;
+    constexpr int n = 100;
+    constexpr int m = 100;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;

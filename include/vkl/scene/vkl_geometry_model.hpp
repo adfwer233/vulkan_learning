@@ -64,7 +64,7 @@ template <typename T> class VklGeometryModelBuffer {
   private:
     std::map<T *, VklGeometryModel<T> *> map_;
     static inline VklGeometryModelBuffer<T> *instance_ = nullptr;
-    VklGeometryModelBuffer<T>() = default;
+    // VklGeometryModelBuffer<T>() = default;
 };
 
 template <> class VklGeometryModel<TensorProductBezierSurface> {
@@ -78,7 +78,7 @@ template <> class VklGeometryModel<TensorProductBezierSurface> {
     std::vector<std::unique_ptr<boundary_render_type>> boundary_3d;
     std::vector<std::unique_ptr<parameter_render_type>> boundary_2d;
 
-    VklGeometryModel<TensorProductBezierSurface>(VklDevice &device, TensorProductBezierSurface *surf)
+    VklGeometryModel(VklDevice &device, TensorProductBezierSurface *surf)
         : device_(device), surface_(surf) {
         createBoundaryModels();
         createParameterBoundaryModels();
