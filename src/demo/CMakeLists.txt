@@ -15,6 +15,8 @@ set(SRC_FILE main.cpp
         ui/components/geometry_processing_ui.cpp
         ui/components/uv_render_ui.cpp
         ui/components/scene_info.cpp
+        ui/components/bezier_editor/bezier_editor_panel_ui.cpp
+        ui/components/bezier_editor/bezier_editor_ui.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILE})

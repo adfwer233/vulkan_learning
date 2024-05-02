@@ -166,6 +166,8 @@ void Application::run() {
     uiManager.offscreenSampler = offscreenRenderer_.imageSampler;
     uiManager.uvImageViews = uvRender_.getImageView();
     uiManager.uvSampler = uvRender_.imageSampler;
+    uiManager.bezierImageViews = bezierRenderer_.getImageView();
+    uiManager.bezierSampler = bezierRenderer_.imageSampler;
 
     controller->set_scene(scene);
     controller->setUIManager(uiManager);

@@ -17,6 +17,8 @@ class Application {
     VklWindow window_{WIDTH, HEIGHT};
     VklDevice device_;
     VklRenderer renderer_{window_, device_};
+
+    VklOffscreenRenderer bezierRenderer_{device_, 1024, 1024};
     VklOffscreenRenderer offscreenRenderer_{device_, 1024, 1024};
     VklOffscreenRenderer uvRender_{device_, 1024, 1024};
 

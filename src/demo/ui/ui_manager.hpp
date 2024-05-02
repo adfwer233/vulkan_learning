@@ -9,6 +9,8 @@
 #include "components/scene_manager.hpp"
 #include "components/scene_ui.hpp"
 #include "components/uv_render_ui.hpp"
+#include "components/bezier_editor/bezier_editor_ui.hpp"
+#include "components/bezier_editor/bezier_editor_panel_ui.hpp"
 #include "ray_tracer/ray_picker.hpp"
 
 #include "components/picking_ui.hpp"
@@ -89,6 +91,12 @@ class UIManager {
      */
     std::vector<VkImageView> *uvImageViews;
     VkSampler uvSampler;
+
+    /**
+     * bezier rending target resources
+     */
+    std::vector<VkImageView> *bezierImageViews;
+    VkSampler bezierSampler;
 
     GeometryVariableManager geometryVariableManager;
 
