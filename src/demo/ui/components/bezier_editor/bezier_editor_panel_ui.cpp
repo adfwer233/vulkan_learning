@@ -12,7 +12,6 @@ void BezierEditorPanelUI::renderImgui() {
         ImGui::BeginChild("Bezier Editor Panel");
 
         if (ImGui::Button("Add Bezier Curve")) {
-
         }
         ImGui::EndChild();
     }

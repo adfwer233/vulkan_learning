@@ -2,6 +2,8 @@
 
 #include "vkl/scene/vkl_scene.hpp"
 
+#include "components/bezier_editor/bezier_editor_panel_ui.hpp"
+#include "components/bezier_editor/bezier_editor_ui.hpp"
 #include "components/geometry_processing_ui.hpp"
 #include "components/material_ui.hpp"
 #include "components/render_mode_ui.hpp"
@@ -9,8 +11,6 @@
 #include "components/scene_manager.hpp"
 #include "components/scene_ui.hpp"
 #include "components/uv_render_ui.hpp"
-#include "components/bezier_editor/bezier_editor_ui.hpp"
-#include "components/bezier_editor/bezier_editor_panel_ui.hpp"
 #include "ray_tracer/ray_picker.hpp"
 
 #include "components/picking_ui.hpp"

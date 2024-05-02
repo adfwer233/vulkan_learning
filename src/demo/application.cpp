@@ -249,6 +249,9 @@ void Application::run() {
             auto uvCommandBuffer = uvRender_.beginFrame();
             uvRender_.beginSwapChainRenderPass(uvCommandBuffer);
 
+            auto bezierCommandBuffer = bezierRenderer_.beginFrame();
+            bezierRenderer_.beginSwapChainRenderPass(bezierCommandBuffer);
+
             GlobalUbo ubo{};
 
             ubo.view = scene.camera.get_view_transformation();
@@ -413,6 +416,9 @@ void Application::run() {
                                                       boxModel};
                 lineRenderSystem.renderObject(boxFrameInfo);
             }
+
+            bezierRenderer_.endSwapChainRenderPass(bezierCommandBuffer);
+            bezierRenderer_.endFrame();
 
             uvRender_.endSwapChainRenderPass(uvCommandBuffer);
             uvRender_.endFrame();

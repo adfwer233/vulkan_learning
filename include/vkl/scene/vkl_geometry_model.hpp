@@ -78,8 +78,7 @@ template <> class VklGeometryModel<TensorProductBezierSurface> {
     std::vector<std::unique_ptr<boundary_render_type>> boundary_3d;
     std::vector<std::unique_ptr<parameter_render_type>> boundary_2d;
 
-    VklGeometryModel(VklDevice &device, TensorProductBezierSurface *surf)
-        : device_(device), surface_(surf) {
+    VklGeometryModel(VklDevice &device, TensorProductBezierSurface *surf) : device_(device), surface_(surf) {
         createBoundaryModels();
         createParameterBoundaryModels();
     }
