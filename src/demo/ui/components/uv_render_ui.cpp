@@ -1,4 +1,3 @@
-#pragma once
 #include "uv_render_ui.hpp"
 
 #include "../ui_manager.hpp"
@@ -17,10 +16,13 @@ void UVRenderUI::renderImgui() {
         scene_.camera.ratio = wsize.x / wsize.y;
 
         if (resTex.empty()) {
-            resTex.resize(uiManager_.bezierImageViews->size());
-            for (uint32_t i = 0; i < uiManager_.bezierImageViews->size(); i++)
-                resTex[i] = ImGui_ImplVulkan_AddTexture(uiManager_.bezierSampler, (*uiManager_.bezierImageViews)[i],
+            resTex.resize(uiManager_.uvImageViews->size());
+            for (uint32_t i = 0; i < uiManager_.uvImageViews->size(); i++)
+                resTex[i] = ImGui_ImplVulkan_AddTexture(uiManager_.uvSampler, (*uiManager_.uvImageViews)[i],
                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        }
+        if (uiManager_.renderMode != RenderMode::PathTracing) {
+            ImGui::Image(resTex[uiManager_.frameIndex], wsize);
         }
 
         ImGui::EndChild();

@@ -436,7 +436,7 @@ void Application::run() {
                 throw std::runtime_error("failed to record command buffer!");
             }
 
-            std::vector<VkCommandBuffer> commandBuffers{commandBuffer, offscreenCommandBuffer, uvCommandBuffer};
+            std::vector<VkCommandBuffer> commandBuffers{commandBuffer, offscreenCommandBuffer, uvCommandBuffer, bezierCommandBuffer};
 
             auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex);
 
