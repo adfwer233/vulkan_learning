@@ -31,6 +31,7 @@ private:
         descriptorPool_ = VklDescriptorPool::Builder(device)
                 .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
                 .build();
     }
 };
