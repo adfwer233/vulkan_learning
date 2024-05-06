@@ -3,6 +3,8 @@
 #include <set>
 #include <stdexcept>
 
+#include "vkl/memory/vkl_buffer_destroy_list.hpp"
+
 /**
  * @brief local callback function, debug messenger callback
  */
@@ -123,6 +125,8 @@ VklDevice::~VklDevice() {
 
     vkDestroySurfaceKHR(instance_, surface_, nullptr);
     vkDestroyInstance(instance_, nullptr);
+
+    delete VklBufferDestroyList::instance();
 }
 
 VklDevice::VklDevice(VklWindow &window) : window_(window) {

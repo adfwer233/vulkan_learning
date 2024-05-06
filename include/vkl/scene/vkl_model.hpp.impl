@@ -5,6 +5,7 @@
 #include "vkl/core/vkl_frame_info.hpp"
 #include "vkl/core/vkl_swap_chain.hpp"
 #include "vkl/core/vkl_texture.hpp"
+#include "vkl/memory/vkl_buffer_destroy_list.hpp"
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &device,
@@ -312,6 +313,10 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::updateVertexBuffer() {
 
 template<VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::reallocateVertexBuffer() {
+    for (auto& buffer: vertexBuffer_) {
+        auto ins = VklBufferDestroyList::instance();
+        ins->destroyBuffer(buffer);
+    }
     vertexBuffer_.clear();
 
     BuilderFromImmediateData builder;
