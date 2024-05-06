@@ -40,16 +40,19 @@ void SceneRenderUI::renderImgui() {
             ImGui::Image(resTex[uiManager_.frameIndex], wsize);
         }
 
-        auto min_pos = ImGui::GetItemRectMin();
-        auto max_pos = ImGui::GetItemRectMax();
+        if (ImGui::IsItemVisible()) {
 
-        controller->scope_min = {min_pos.x, min_pos.y};
-        controller->scope_max = {max_pos.x, max_pos.y};
+            auto min_pos = ImGui::GetItemRectMin();
+            auto max_pos = ImGui::GetItemRectMax();
 
+            controller->scope_min = {min_pos.x, min_pos.y};
+            controller->scope_max = {max_pos.x, max_pos.y};
+
+            controller->currentWidgets = DemoWidgets::SceneRendering;
+        }
         ImGui::EndChild();
     }
     ImGui::End();
 }
 
-SceneRenderUI::~SceneRenderUI() {
-}
+SceneRenderUI::~SceneRenderUI() = default;

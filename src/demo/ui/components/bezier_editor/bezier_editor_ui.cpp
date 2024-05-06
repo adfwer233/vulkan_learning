@@ -1,11 +1,15 @@
 #include "bezier_editor_ui.hpp"
 
 #include "../../ui_manager.hpp"
+#include "demo/utils/controller.hpp"
 
 BezierEditorUI::BezierEditorUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
+
 }
 
 void BezierEditorUI::renderImgui() {
+
+    auto controller = KeyboardCameraController::instance();
 
     ImGui::Begin("Bezier Render");
     {
@@ -25,10 +29,19 @@ void BezierEditorUI::renderImgui() {
             ImGui::Image(resTex[uiManager_.frameIndex], wsize);
         }
 
+        if (ImGui::IsItemVisible()) {
+            auto min_pos = ImGui::GetItemRectMin();
+            auto max_pos = ImGui::GetItemRectMax();
+
+            controller->scope_min = {min_pos.x, min_pos.y};
+            controller->scope_max = {max_pos.x, max_pos.y};
+
+            controller->currentWidgets = DemoWidgets::BezierEditing;
+        }
+
         ImGui::EndChild();
     }
     ImGui::End();
 }
 
-BezierEditorUI::~BezierEditorUI() {
-}
+BezierEditorUI::~BezierEditorUI() = default;

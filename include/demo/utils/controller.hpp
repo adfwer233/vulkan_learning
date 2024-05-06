@@ -11,6 +11,12 @@
 #include "GLFW/glfw3.h"
 #include "vkl/scene/vkl_scene.hpp"
 
+enum DemoWidgets {
+    SceneRendering,
+    UVRendering,
+    BezierEditing
+};
+
 class KeyboardCameraController {
   private:
     Camera *camera;
@@ -61,4 +67,6 @@ class KeyboardCameraController {
     glm::vec2 scope_min;
 
     glm::vec2 scope_max;
+
+    DemoWidgets currentWidgets;
 };

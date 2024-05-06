@@ -12,6 +12,7 @@
 #include "vkl/system/render_system/normal_render_system.hpp"
 #include "vkl/system/render_system/simple_render_system.hpp"
 #include "vkl/system/render_system/simple_wireframe_render_system.hpp"
+#include "vkl/system/render_system/point_cloud_2d_render_system.hpp"
 
 #include "vkl/system/compute_system/base_compute_system.hpp"
 #include "vkl/system/compute_system/path_tracing_compute_system.hpp"
@@ -103,6 +104,12 @@ void Application::run() {
         {{std::format("{}/normal_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT},
          {std::format("{}/normal_generation.geom.spv", SHADER_DIR), VK_SHADER_STAGE_GEOMETRY_BIT}});
+
+    PointCloud2DRenderSystem pointCloud2DRenderSystem(
+            device_, offscreenRenderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+            {{std::format("{}/point_cloud_2d_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+             {std::format("{}/point_cloud_2d_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}}
+            );
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -397,6 +404,24 @@ void Application::run() {
             //         curveMeshRenderSystem.renderObject(boundaryModelFrameInfo);
             //     }
             // }
+
+            // rendering bezier curves
+            if (controller->currentWidgets == BezierEditing) {
+                if (uiManager.control_points_model != nullptr) {
+                    auto &model = uiManager.control_points_model;
+                    model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
+                    model->uniformBuffers[frameIndex]->flush();
+
+                    FrameInfo<VklPointCloud2D> modelFrameInfo{frameIndex,
+                                                              currentFrame,
+                                                              bezierCommandBuffer,
+                                                              scene.camera,
+                                                              &model->descriptorSets[frameIndex],
+                                                              *model};
+
+                    pointCloud2DRenderSystem.renderObject(modelFrameInfo);
+                }
+            }
 
             if (uiManager.picking_result.has_value()) {
                 auto &object_picked = scene.objects[uiManager.picking_result->object_index];

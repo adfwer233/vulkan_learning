@@ -10,13 +10,12 @@
 #include "vkl/io/model_loader_concept.hpp"
 
 class VklScene {
-  private:
-    VklDevice &device_;
-
+public:
     std::unique_ptr<VklDescriptorSetLayout> setLayout_;
     std::unique_ptr<VklDescriptorPool> descriptorPool_;
 
-  public:
+    VklDevice &device_;
+
     VklScene(VklDevice &device, glm::vec3 camera_pos, glm::vec3 camera_up)
         : device_(device), camera(camera_pos, camera_up) {
         using namespace VklBVHGPUModel;

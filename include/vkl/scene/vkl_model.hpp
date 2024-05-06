@@ -18,6 +18,7 @@
 #include "geometry/mesh/mesh_model_template.hpp"
 #include "geometry/renderable_geometry.hpp"
 #include "geometry/surface/tensor_product_bezier.hpp"
+#include "geometry/vertex/null_index.hpp"
 
 struct VklVertex2D : public Vertex2D {
     using geometry_type = Vertex2D;
@@ -189,10 +190,13 @@ class VklModelTemplate {
 
     void updateVertexBuffer();
 
+    void reallocateVertexBuffer();
+
     friend class RayPicker;
     friend class VklBVH;
 };
 
 using VklModel = VklModelTemplate<VklVertex3D>;
+using VklPointCloud2D = VklModelTemplate<VklVertex2D, NullIndex, VklBox2D>;
 
 #include "vkl_model.hpp.impl"

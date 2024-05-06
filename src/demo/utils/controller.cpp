@@ -48,9 +48,43 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
     }
 
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
-        controller->uiManager_->pickObject(
-            controller->mouse_x_pos - controller->scope_min.x, controller->mouse_y_pos - controller->scope_min.y,
-            controller->scope_max.x - controller->scope_min.x, controller->scope_max.y - controller->scope_min.y);
+        if (controller->currentWidgets == DemoWidgets::SceneRendering) {
+            controller->uiManager_->pickObject(
+                    controller->mouse_x_pos - controller->scope_min.x,
+                    controller->mouse_y_pos - controller->scope_min.y,
+                    controller->scope_max.x - controller->scope_min.x,
+                    controller->scope_max.y - controller->scope_min.y);
+        } else if (controller->currentWidgets == DemoWidgets::BezierEditing){
+            std::cout << "current " << controller->mouse_x_pos - controller->scope_min.x << " " << controller->mouse_y_pos - controller->scope_min.y << std::endl;
+            float width = controller->scope_max.x - controller->scope_min.x;
+            float height = controller->scope_max.y - controller->scope_min.y;
+            float u = (controller->mouse_x_pos - controller->scope_min.x) / width;
+            float v = (controller->mouse_y_pos - controller->scope_min.y) / height;
+
+            if (controller->uiManager_->control_points_model == nullptr) {
+                VklPointCloud2D::BuilderFromImmediateData builder;
+                builder.vertices.emplace_back(Vertex2D{{u,    v},
+                                                    {1.0f, 1.0f, 1.0f},
+                                                    {1.0f, 1.0f, 1.0f},
+                                                    {1.0f, 1.0f}});
+                controller->uiManager_->control_points_model = std::make_unique<VklPointCloud2D>(controller->scene_->get().device_, builder);
+                controller->uiManager_->control_points_model->allocDescriptorSets(*controller->scene_->get().setLayout_, *controller->scene_->get().descriptorPool_);
+            } else {
+                auto &model = controller->uiManager_->control_points_model;
+                auto &curve = controller->uiManager_->control_points_model->underlyingGeometry;
+
+                std::visit([&](auto &&arg) {
+                    using T = std::decay_t<decltype(arg)>;
+                    if constexpr (std::is_same_v<T, MeshGeometry>) {
+                        model->geometry->vertices.push_back(Vertex2D{{u,    v},
+                                                          {1.0f, 1.0f, 1.0f},
+                                                          {1.0f, 1.0f, 1.0f},
+                                                          {1.0f, 1.0f}});
+                    }
+                    model->reallocateVertexBuffer();
+                }, curve);
+            }
+        }
     }
 
     if (button == GLFW_MOUSE_BUTTON_MIDDLE and state == GLFW_RELEASE) {

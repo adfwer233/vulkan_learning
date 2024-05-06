@@ -98,6 +98,8 @@ class UIManager {
     std::vector<VkImageView> *bezierImageViews;
     VkSampler bezierSampler;
 
+    std::unique_ptr<VklPointCloud2D> control_points_model;
+
     GeometryVariableManager geometryVariableManager;
 
     std::unique_ptr<PathTracingComputeModel> pathTracingComputeModel_;

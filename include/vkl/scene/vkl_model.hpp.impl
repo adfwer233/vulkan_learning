@@ -309,3 +309,19 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::updateVertexBuffer() {
         device_.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
     }
 }
+
+template<VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
+void VklModelTemplate<VertexType, IndexType, BoxType>::reallocateVertexBuffer() {
+    vertexBuffer_.clear();
+
+    BuilderFromImmediateData builder;
+    for (auto vertex : geometry->vertices) {
+        builder.vertices.push_back(vertex);
+    }
+    for (auto index : geometry->indices) {
+        builder.indices.push_back(index);
+    }
+
+    createVertexBuffers(builder.vertices);
+    createIndexBuffers(builder.indices);
+}
