@@ -71,30 +71,63 @@ public:
     VklDevice &device_;
 
     using render_type = VklCurveModel2D;
+    using control_points_render_type = VklPointCloud2D;
 
     std::unique_ptr<render_type> curveMesh;
+    std::unique_ptr<control_points_render_type> controlPointsMesh;
 
     VklGeometryModel(VklDevice &device, BezierCurve2D *curve): device_(device), curve_(curve) {
-        createMesh();
+        createControlPointsMesh();
+
+        if (curve->control_point_vec2.size() >= 3)
+            createMesh();
     }
 
     void reallocateMesh() {
-        std::vector<render_type::vertex_type::geometry_type> vertices;
-        constexpr int n = 100;
-        double param_delta = 1.0 / n;
-
-        for (int i = 0; i <= n; i++) {
-            render_type::vertex_type vertex;
-            auto position = curve_->evaluate(param_delta * i);
-            vertex.position = position;
-            vertex.color = {1.0, 0.0, 0.0};
-            vertices.push_back(vertex);
+        if (curveMesh == nullptr and curve_->control_point_vec2.size() >= 3) {
+            createMesh();
         }
 
-        curveMesh->geometry->vertices = vertices;
-        curveMesh->reallocateVertexBuffer();
+        if (curveMesh != nullptr) {
+            std::vector<render_type::vertex_type::geometry_type> vertices;
+            constexpr int n = 100;
+            double param_delta = 1.0 / n;
+
+            for (int i = 0; i <= n; i++) {
+                render_type::vertex_type vertex;
+                auto position = curve_->evaluate(param_delta * i);
+                vertex.position = position;
+                vertex.color = {1.0, 0.0, 0.0};
+                vertices.push_back(vertex);
+            }
+
+            curveMesh->geometry->vertices = vertices;
+            curveMesh->reallocateVertexBuffer();
+        }
+
+        std::vector<control_points_render_type::vertex_type::geometry_type> control_vertices;
+        for (auto cp: curve_->control_point_vec2) {
+            control_points_render_type::vertex_type vertex;
+            vertex.position = cp;
+            control_vertices.push_back(vertex);
+        }
+        controlPointsMesh->geometry->vertices = control_vertices;
+        controlPointsMesh->reallocateVertexBuffer();
     }
 private:
+    void createControlPointsMesh() {
+        control_points_render_type::BuilderFromImmediateData builder;
+        for (auto cp: curve_->control_point_vec2) {
+            control_points_render_type::vertex_type vertex;
+            vertex.position = cp;
+            builder.vertices.push_back(vertex);
+        }
+        controlPointsMesh = std::make_unique<control_points_render_type>(device_, builder);
+
+        auto descriptorManager = VklGeometryModelDescriptorManager<BezierCurve2D>::instance(device_);
+        controlPointsMesh->allocDescriptorSets(*descriptorManager->setLayout_, *descriptorManager->descriptorPool_);
+    }
+
     void createMesh() {
         render_type::BuilderFromImmediateData builder;
         constexpr int n = 100;

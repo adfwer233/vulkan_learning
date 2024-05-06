@@ -407,8 +407,11 @@ void Application::run() {
 
             // rendering bezier curves
             if (controller->currentWidgets == BezierEditing) {
-                if (uiManager.control_points_model != nullptr) {
-                    auto &model = uiManager.control_points_model;
+                if (uiManager.bezier_editor_curve != nullptr) {
+                    auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
+                    auto curveMesh = modelBuffer->getGeometryModel(device_, uiManager.bezier_editor_curve.get());
+
+                    auto &model = curveMesh->controlPointsMesh;
                     model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                     model->uniformBuffers[frameIndex]->flush();
 
@@ -421,9 +424,7 @@ void Application::run() {
 
                     pointCloud2DRenderSystem.renderObject(modelFrameInfo);
 
-                    if (model->geometry->vertices.size() >= 3) {
-                        auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
-                        auto curveMesh = modelBuffer->getGeometryModel(device_, uiManager.bezier_editor_curve.get());
+                    if (curveMesh->curveMesh != nullptr) {
 
                         FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex,
                                                                        currentFrame,
@@ -498,4 +499,7 @@ void Application::run() {
 
     delete VklGeometryModelBuffer<TensorProductBezierSurface>::instance();
     delete VklGeometryModelDescriptorManager<TensorProductBezierSurface>::instance(device_);
+
+    delete VklGeometryModelBuffer<BezierCurve2D>::instance();
+    delete VklGeometryModelDescriptorManager<BezierCurve2D>::instance(device_);
 }

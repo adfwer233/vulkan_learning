@@ -201,6 +201,7 @@ void BezierCurve2D::initialize() {
     polynomial1_deriv = polynomial1.prime();
     polynomial2_deriv = polynomial2.prime();
 
+    control_point_vec2.clear();
     for (auto &control_point : control_points_) {
         control_point_vec2.emplace_back(control_point[0], control_point[1]);
     }

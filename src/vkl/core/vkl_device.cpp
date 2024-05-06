@@ -116,6 +116,8 @@ void VklDevice::setupDebugMessenger() {
 }
 
 VklDevice::~VklDevice() {
+    delete VklBufferDestroyList::instance();
+
     vkDestroyCommandPool(device_, commandPool_, nullptr);
     vkDestroyDevice(device_, nullptr);
 
@@ -125,8 +127,6 @@ VklDevice::~VklDevice() {
 
     vkDestroySurfaceKHR(instance_, surface_, nullptr);
     vkDestroyInstance(instance_, nullptr);
-
-    delete VklBufferDestroyList::instance();
 }
 
 VklDevice::VklDevice(VklWindow &window) : window_(window) {

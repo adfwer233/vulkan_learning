@@ -39,32 +39,10 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
     auto controller = instance_;
 
     auto addBezierControlPoint = [&](float u, float v) {
-        if (controller->uiManager_->control_points_model == nullptr) {
-            VklPointCloud2D::BuilderFromImmediateData builder;
-            builder.vertices.emplace_back(Vertex2D{{u,    v},
-                                                   {1.0f, 1.0f, 1.0f},
-                                                   {1.0f, 1.0f, 1.0f},
-                                                   {1.0f, 1.0f}});
-            controller->uiManager_->control_points_model = std::make_unique<VklPointCloud2D>(controller->scene_->get().device_, builder);
-            controller->uiManager_->control_points_model->allocDescriptorSets(*controller->scene_->get().setLayout_, *controller->scene_->get().descriptorPool_);
-
+        if (controller->uiManager_->bezier_editor_curve == nullptr) {
             std::vector<std::array<float, 2>> control_points = {{u, v}};
             controller->uiManager_->bezier_editor_curve = std::make_unique<BezierCurve2D>(std::move(control_points));
         } else {
-            auto &model = controller->uiManager_->control_points_model;
-            auto &curve = controller->uiManager_->control_points_model->underlyingGeometry;
-
-            std::visit([&](auto &&arg) {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (std::is_same_v<T, MeshGeometry>) {
-                    model->geometry->vertices.push_back(Vertex2D{{u,    v},
-                                                                 {1.0f, 1.0f, 1.0f},
-                                                                 {1.0f, 1.0f, 1.0f},
-                                                                 {1.0f, 1.0f}});
-                }
-                model->reallocateVertexBuffer();
-            }, curve);
-
             controller->uiManager_->bezier_editor_curve->add_control_point({u, v});
 
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
@@ -86,7 +64,7 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
 
         if (controller->currentWidgets == DemoWidgets::BezierEditing) {
 
-            if (controller->uiManager_->control_points_model != nullptr) {
+            if (controller->uiManager_->bezier_editor_curve != nullptr) {
                 auto start_pos = controller->uiManager_->bezier_editor_curve->evaluate(0);
                 addBezierControlPoint(start_pos.x, start_pos.y);
             }
@@ -110,15 +88,15 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
             constexpr float picking_threshold = 0.05;
 
             if (controller->pressing_shift) {
-                auto control_pts = controller->uiManager_->control_points_model->geometry->vertices;
+                auto control_pts = controller->uiManager_->bezier_editor_curve->control_point_vec2;
                 int closest_id = -1;
                 float closest_distance = 1000;
 
                 glm::vec2 cur{u, v};
 
                 for (int i = 0; i < control_pts.size(); i++) {
-                    if (closest_distance > glm::length(cur - control_pts[i].position)) {
-                        closest_distance = glm::length(cur - control_pts[i].position);
+                    if (closest_distance > glm::length(cur - control_pts[i])) {
+                        closest_distance = glm::length(cur - control_pts[i]);
                         closest_id = i;
                     }
                 }
@@ -197,12 +175,7 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
     if (controller->is_mouse_left_pressing) {
         if (controller->currentWidgets == DemoWidgets::BezierEditing) {
             if (controller->bezier_picking_result.has_value()) {
-                auto &model = controller->uiManager_->control_points_model;
-                auto &curve = controller->uiManager_->control_points_model->underlyingGeometry;
-                model->geometry->vertices[controller->bezier_picking_result.value()].position += glm::vec2{x_offset / 1024,
-                                                                                                           - y_offset / 1024};
                 controller->uiManager_->bezier_editor_curve->update_control_point(controller->bezier_picking_result.value(), {x_offset / 1024, - y_offset / 1024});
-                model->reallocateVertexBuffer();
 
                 auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
                 auto curveMesh = modelBuffer->getGeometryModel(controller->scene_->get().device_,

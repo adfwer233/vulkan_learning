@@ -18,11 +18,11 @@ void BezierEditorPanelUI::renderImgui() {
             json root = json::array();
             json path = json::array();
 
-            auto control_pts = uiManager_.control_points_model.get()->geometry->vertices;
+            auto control_pts = uiManager_.bezier_editor_curve.get()->control_point_vec2;
             for (auto vert: control_pts) {
                 json vert_json = json::object();
-                vert_json["x"] = vert.position.x;
-                vert_json["y"] = vert.position.y;
+                vert_json["x"] = vert.x;
+                vert_json["y"] = vert.y;
                 path.push_back(vert_json);
             }
 

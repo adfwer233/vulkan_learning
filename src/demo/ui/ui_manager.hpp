@@ -101,11 +101,6 @@ class UIManager {
     VkSampler bezierSampler;
 
     /**
-     * bezier editor control point rendering model
-     */
-    std::unique_ptr<VklPointCloud2D> control_points_model;
-
-    /**
      * bezier editor curve rendering model
      */
     std::unique_ptr<BezierCurve2D> bezier_editor_curve;
