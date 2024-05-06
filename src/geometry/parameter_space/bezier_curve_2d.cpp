@@ -215,3 +215,9 @@ void BezierCurve2D::add_control_point(std::array<float, 2> pt) {
     control_points_.push_back(pt);
     initialize();
 }
+
+void BezierCurve2D::update_control_point(size_t index, std::array<float, 2> offset) {
+    control_points_[index][0] += offset[0];
+    control_points_[index][1] += offset[1];
+    initialize();
+}

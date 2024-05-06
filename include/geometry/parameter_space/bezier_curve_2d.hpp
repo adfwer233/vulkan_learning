@@ -62,6 +62,7 @@ class BezierCurve2D {
 
     void add_control_point(std::array<float, 2>);
 
+    void update_control_point(size_t index, std::array<float, 2> offset);
 private:
     void initialize();
 };

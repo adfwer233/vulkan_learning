@@ -22,6 +22,7 @@ class KeyboardCameraController {
     Camera *camera;
     UIManager *uiManager_;
 
+    bool is_mouse_left_pressing = false;
     bool is_mouse_pressing = false;
     bool mouse_flag = true;
 
@@ -49,6 +50,8 @@ class KeyboardCameraController {
     std::function<void()> actionCallBack;
 
     std::optional<RayPicker::RayPickingResult> picking_result;
+
+    std::optional<int> bezier_picking_result;
 
     void setCamera(Camera &t_camera);
 
