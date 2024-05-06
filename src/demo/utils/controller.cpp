@@ -8,6 +8,7 @@
 #include <format>
 #include <iostream>
 
+
 KeyboardCameraController *KeyboardCameraController::instance_ = nullptr;
 
 void KeyboardCameraController::setCamera(Camera &t_camera) {
