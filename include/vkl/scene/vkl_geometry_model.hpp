@@ -7,33 +7,31 @@
 
 template <typename T> class VklGeometryModel {};
 
-template <typename T> class VklGeometryModelDescriptorManager {};
-
-template <> class VklGeometryModelDescriptorManager<TensorProductBezierSurface> {
-  public:
+template <typename T> class VklGeometryModelDescriptorManager {
+public:
     std::unique_ptr<VklDescriptorSetLayout> setLayout_;
     std::unique_ptr<VklDescriptorPool> descriptorPool_;
 
-    static VklGeometryModelDescriptorManager<TensorProductBezierSurface> *instance(VklDevice &device) {
+    static VklGeometryModelDescriptorManager<T> *instance(VklDevice &device) {
         if (instance_ == nullptr) {
-            instance_ = new VklGeometryModelDescriptorManager<TensorProductBezierSurface>(device);
+            instance_ = new VklGeometryModelDescriptorManager<T>(device);
         }
         return instance_;
     }
 
-  private:
-    static inline VklGeometryModelDescriptorManager<TensorProductBezierSurface> *instance_ = nullptr;
+private:
+    static inline VklGeometryModelDescriptorManager<T> *instance_ = nullptr;
 
-    explicit VklGeometryModelDescriptorManager<TensorProductBezierSurface>(VklDevice &device) {
+    explicit VklGeometryModelDescriptorManager<T>(VklDevice &device) {
         setLayout_ = VklDescriptorSetLayout::Builder(device)
-                         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                         .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                         .build();
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+                .build();
 
         descriptorPool_ = VklDescriptorPool::Builder(device)
-                              .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
-                              .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
-                              .build();
+                .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
+                .build();
     }
 };
 
@@ -65,6 +63,57 @@ template <typename T> class VklGeometryModelBuffer {
     std::map<T *, VklGeometryModel<T> *> map_;
     static inline VklGeometryModelBuffer<T> *instance_ = nullptr;
     // VklGeometryModelBuffer<T>() = default;
+};
+
+template <> class VklGeometryModel<BezierCurve2D> {
+public:
+    BezierCurve2D *curve_;
+    VklDevice &device_;
+
+    using render_type = VklCurveModel2D;
+
+    std::unique_ptr<render_type> curveMesh;
+
+    VklGeometryModel(VklDevice &device, BezierCurve2D *curve): device_(device), curve_(curve) {
+        createMesh();
+    }
+
+    void reallocateMesh() {
+        std::vector<render_type::vertex_type::geometry_type> vertices;
+        constexpr int n = 100;
+        double param_delta = 1.0 / n;
+
+        for (int i = 0; i <= n; i++) {
+            render_type::vertex_type vertex;
+            auto position = curve_->evaluate(param_delta * i);
+            vertex.position = position;
+            vertex.color = {1.0, 0.0, 0.0};
+            vertices.push_back(vertex);
+        }
+
+        curveMesh->geometry->vertices = vertices;
+        curveMesh->reallocateVertexBuffer();
+    }
+private:
+    void createMesh() {
+        render_type::BuilderFromImmediateData builder;
+        constexpr int n = 100;
+        double param_delta = 1.0 / n;
+
+        for (int i = 0; i <= n; i++) {
+            render_type::vertex_type vertex;
+            auto position = curve_->evaluate(param_delta * i);
+            vertex.position = position;
+            vertex.color = {1.0, 0.0, 0.0};
+            builder.vertices.push_back(vertex);
+        }
+
+        curveMesh = std::make_unique<render_type>(device_, builder);
+
+        auto descriptorManager = VklGeometryModelDescriptorManager<BezierCurve2D>::instance(device_);
+        curveMesh->allocDescriptorSets(*descriptorManager->setLayout_,
+                                                *descriptorManager->descriptorPool_);
+    }
 };
 
 template <> class VklGeometryModel<TensorProductBezierSurface> {

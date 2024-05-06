@@ -20,6 +20,8 @@
 
 #include "vkl/system/compute_system/path_tracing_compute_system.hpp"
 
+#include "geometry/parameter_space/bezier_curve_2d.hpp"
+
 #include "geometry_processing/variable_manager.hpp"
 
 #include "ui_manager_register.hpp"
@@ -98,7 +100,15 @@ class UIManager {
     std::vector<VkImageView> *bezierImageViews;
     VkSampler bezierSampler;
 
+    /**
+     * bezier editor control point rendering model
+     */
     std::unique_ptr<VklPointCloud2D> control_points_model;
+
+    /**
+     * bezier editor curve rendering model
+     */
+    std::unique_ptr<BezierCurve2D> bezier_editor_curve;
 
     GeometryVariableManager geometryVariableManager;
 

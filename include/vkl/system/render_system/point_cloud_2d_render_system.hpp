@@ -5,6 +5,7 @@
 struct PointCloud2DPipelineModifier {
     static void modifyPipeline(PipelineConfigInfo &configInfo) {
         configInfo.inputAssemblyInfo.topology = VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        configInfo.depthStencilInfo.depthTestEnable = VK_FALSE;
     }
 };
 

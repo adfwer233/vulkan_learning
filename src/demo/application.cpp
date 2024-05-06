@@ -420,6 +420,20 @@ void Application::run() {
                                                               *model};
 
                     pointCloud2DRenderSystem.renderObject(modelFrameInfo);
+
+                    if (model->geometry->vertices.size() >= 3) {
+                        auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
+                        auto curveMesh = modelBuffer->getGeometryModel(device_, uiManager.bezier_editor_curve.get());
+
+                        FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex,
+                                                                       currentFrame,
+                                                                       bezierCommandBuffer,
+                                                                       scene.camera,
+                                                                       &curveMesh->curveMesh->descriptorSets[frameIndex],
+                                                                       *curveMesh->curveMesh};
+
+                        paramCurveRenderSystem.renderObject(curveModelFrameInfo);
+                    }
                 }
             }
 

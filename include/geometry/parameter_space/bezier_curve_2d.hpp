@@ -32,52 +32,7 @@ class BezierCurve2D {
     BezierCurve2D(decltype(control_points_) &&control_points) {
         control_points_ = std::move(control_points);
 
-        // computing the polynomial coefficients
-
-        auto n = control_points_.size() - 1;
-
-        std::vector<float> polynomial_coeff1, polynomial_coeff2;
-
-        for (int j = 0; j <= n; j++) {
-            if (j == 0) {
-                polynomial_coeff1.push_back(control_points_[0][0]);
-                polynomial_coeff2.push_back(control_points_[0][1]);
-                continue;
-            }
-            float res1{1.0f};
-            float res2{1.0f};
-
-            float tmp1{0.0f};
-            float tmp2{0.0f};
-            for (int i = 0; i <= j; i++) {
-                auto denom = boost::math::factorial<float>(i) * boost::math::factorial<float>(j - i);
-                tmp1 += control_points_[i][0] * std::pow(-1, i + j) / denom;
-                tmp2 += control_points_[i][1] * std::pow(-1, i + j) / denom;
-            }
-
-            auto factor = boost::math::factorial<float>(n) / boost::math::factorial<float>(n - j);
-
-            res1 = factor * tmp1;
-            res2 = factor * tmp2;
-
-            polynomial_coeff1.push_back(res1);
-            polynomial_coeff2.push_back(res2);
-        }
-
-        polynomial1 = boost::math::tools::polynomial<float>(polynomial_coeff1.cbegin(), polynomial_coeff1.cend());
-        polynomial2 = boost::math::tools::polynomial<float>(polynomial_coeff2.cbegin(), polynomial_coeff2.cend());
-
-        polynomial1_deriv = polynomial1.prime();
-        polynomial2_deriv = polynomial2.prime();
-
-        for (auto &control_point : control_points_) {
-            control_point_vec2.emplace_back(control_point[0], control_point[1]);
-        }
-
-        for (int i = 1; i <= n; i++) {
-            derivative_bound =
-                std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
-        }
+        initialize();
     }
 
     /**
@@ -104,4 +59,9 @@ class BezierCurve2D {
 
     float winding_number_u_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start,
                                              float end, float derivative_bound);
+
+    void add_control_point(std::array<float, 2>);
+
+private:
+    void initialize();
 };
