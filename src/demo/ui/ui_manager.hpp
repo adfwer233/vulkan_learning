@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vkl/scene/vkl_scene.hpp"
+#include "vkl/core/vkl_offscreen_renderer.hpp"
 
 #include "components/bezier_editor/bezier_editor_panel_ui.hpp"
 #include "components/bezier_editor/bezier_editor_ui.hpp"
@@ -99,6 +100,7 @@ class UIManager {
      */
     std::vector<VkImageView> *bezierImageViews;
     VkSampler bezierSampler;
+    VklOffscreenRenderer *bezierRender;
 
     /**
      * bezier editor curve rendering model

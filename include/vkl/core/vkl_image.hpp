@@ -7,6 +7,8 @@ VkImageMemoryBarrier ReadOnlyToGeneralBarrier(const VkImage &image);
 
 VkImageMemoryBarrier ReadOnlyToDstBarrier(const VkImage &image);
 
+VkImageMemoryBarrier readOnlyToSrcBarrier(const VkImage &image);
+
 VkImageMemoryBarrier generalToTransferDstBarrier(const VkImage &image);
 
 VkImageMemoryBarrier generalToTransferSrcBarrier(const VkImage &image);

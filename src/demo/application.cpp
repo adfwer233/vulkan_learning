@@ -176,6 +176,8 @@ void Application::run() {
     uiManager.bezierImageViews = bezierRenderer_.getImageView();
     uiManager.bezierSampler = bezierRenderer_.imageSampler;
 
+    uiManager.bezierRender = &bezierRenderer_;
+
     controller->set_scene(scene);
     controller->setUIManager(uiManager);
 

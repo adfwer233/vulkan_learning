@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "vkl_device.hpp"
+#include "../io/vkl_image_export.hpp"
 
 class VklOffscreenRenderer {
     VklDevice &device_;
@@ -23,6 +24,8 @@ class VklOffscreenRenderer {
     std::vector<VkFramebuffer> framebuffers_;
 
     VkRenderPass renderPass_;
+
+    VklImageExporter imageExporter;
 
     void createCommandBuffers();
     void createImages();
@@ -63,4 +66,6 @@ class VklOffscreenRenderer {
     void endFrame();
     void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
     void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+
+    void exportCurrentImageToPPM();
 };

@@ -5,7 +5,7 @@
 
 #include "vkl/core/vkl_swap_chain.hpp"
 
-VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int height) : device_(device) {
+VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int height) : device_(device), imageExporter(device) {
     createImages();
     createDepthResources();
     createRenderPass();
@@ -22,7 +22,7 @@ void VklOffscreenRenderer::createImages() {
 
     for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
         device_.createImage(4096, 4096, VkFormat::VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->images_[i], this->memory_[i]);
 
         device_.transitionImageLayout(this->images_[i], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
@@ -260,4 +260,8 @@ VklOffscreenRenderer::~VklOffscreenRenderer() {
 
     vkDestroySampler(device_.device(), imageSampler, nullptr);
     vkDestroyRenderPass(device_.device(), renderPass_, nullptr);
+}
+
+void VklOffscreenRenderer::exportCurrentImageToPPM() {
+    imageExporter.exportToImage(images_[0], 4096, 4096);
 }

@@ -123,16 +123,10 @@ void SceneManagerUI::renderImgui() {
                     boundary.push_back({x1, y1});
                     boundary.push_back({x2, y2});
                 } else {
-                    auto [x1, y1] = get_point(bezier[0]);
-                    auto [x2, y2] = get_point(bezier[1]);
-                    auto [x3, y3] = get_point(bezier[2]);
-                    auto [x4, y4] = get_point(bezier[3]);
-                    boundary.push_back({x1, y1});
-                    boundary.push_back({x2, y2});
-                    boundary.push_back({x3, y3});
-                    boundary.push_back({x4, y4});
-                    std::cout << std::format("({}, {}), ({}, {}), ({}, {}), ({}, {}) \n", x1, y1, x2, y2, x3, y3, x4,
-                                             y4);
+                    for (auto pt: bezier) {
+                        auto [x, y] = get_point(pt);
+                        boundary.push_back({x, y});
+                    }
                 }
             }
 

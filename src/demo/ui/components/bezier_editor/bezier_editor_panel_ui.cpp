@@ -31,6 +31,13 @@ void BezierEditorPanelUI::renderImgui() {
             std::ofstream ofs("bezier_result.json");
             ofs << root.dump();
         }
+
+        if (ImGui::Button("Export To PPM")) {
+            if (uiManager_.bezierRender != nullptr) {
+                uiManager_.bezierRender->exportCurrentImageToPPM();
+            }
+        }
+
         ImGui::EndChild();
     }
     ImGui::End();
