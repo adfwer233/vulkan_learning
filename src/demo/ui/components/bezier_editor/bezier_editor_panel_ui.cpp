@@ -17,15 +17,17 @@ void BezierEditorPanelUI::renderImgui() {
         if (ImGui::Button("Save Bezier Curve")) {
             json root = json::array();
             json path = json::array();
+            json curve = json::array();
 
-            auto control_pts = uiManager_.bezier_editor_curve.get()->control_point_vec2;
+            auto control_pts = uiManager_.bezier_editor_curve->control_point_vec2;
             for (auto vert: control_pts) {
                 json vert_json = json::object();
                 vert_json["x"] = vert.x;
                 vert_json["y"] = vert.y;
-                path.push_back(vert_json);
+                curve.push_back(vert_json);
             }
 
+            path.push_back(curve);
             root.push_back(path);
 
             std::ofstream ofs("bezier_result.json");
