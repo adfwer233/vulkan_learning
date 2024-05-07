@@ -23,7 +23,7 @@ class BezierCurve2D {
 
     using point_type = std::array<float, 2>;
 
-    boost::math::tools::polynomial<float> polynomial1, polynomial2, polynomial1_deriv, polynomial2_deriv;
+    boost::math::tools::polynomial<double> polynomial1, polynomial2, polynomial1_deriv, polynomial2_deriv;
 
     /**
      * constructor
@@ -46,6 +46,8 @@ class BezierCurve2D {
     }
 
     glm::vec2 evaluate_polynomial(float param) const;
+
+    glm::vec2 evaluate_linear(float param) const;
 
     std::tuple<float, float> projection(glm::vec2 test_point);
 

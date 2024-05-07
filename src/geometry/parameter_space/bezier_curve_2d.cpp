@@ -99,7 +99,7 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
 
     auto mid_param = (start + end) / 2;
 
-    auto mid_pos = evaluate(mid_param);
+    auto mid_pos = evaluate_linear(mid_param);
 
     return winding_number_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound) +
            winding_number_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);
@@ -181,12 +181,12 @@ void BezierCurve2D::initialize() {
         float tmp1{0.0f};
         float tmp2{0.0f};
         for (int i = 0; i <= j; i++) {
-            auto denom = boost::math::factorial<float>(i) * boost::math::factorial<float>(j - i);
+            auto denom = boost::math::factorial<double>(i) * boost::math::factorial<double>(j - i);
             tmp1 += control_points_[i][0] * std::pow(-1, i + j) / denom;
             tmp2 += control_points_[i][1] * std::pow(-1, i + j) / denom;
         }
 
-        auto factor = boost::math::factorial<float>(n) / boost::math::factorial<float>(n - j);
+        auto factor = boost::math::factorial<double>(n) / boost::math::factorial<double>(n - j);
 
         res1 = factor * tmp1;
         res2 = factor * tmp2;
@@ -221,4 +221,31 @@ void BezierCurve2D::update_control_point(size_t index, std::array<float, 2> offs
     control_points_[index][0] += offset[0];
     control_points_[index][1] += offset[1];
     initialize();
+}
+
+glm::vec2 BezierCurve2D::evaluate_linear(float param) const {
+    float h = 1.0;
+    glm::vec2 result = control_point_vec2[0];
+    float t = param;
+    float u = 1 - t;
+    uint32_t n = control_points_.size() - 1;
+    uint32_t n1 = n + 1;
+    if (param <= 0.5) {
+        u = t / u;
+        for (int k = 1; k <= n; k++) {
+            h = h * u * (n1 - k);
+            h = h / (k + h);
+            float h1 = 1 - h;
+            result = result * h1 + control_point_vec2[k] * h;
+        }
+    } else {
+        u = u / t;
+        for (int k = 1; k <= n; k++) {
+            h = h * (n1 - k);
+            h = h / (k * u + h);
+            float h1 = 1 - h;
+            result = result * h1 + control_point_vec2[k] * h;
+        }
+    }
+    return result;
 }
