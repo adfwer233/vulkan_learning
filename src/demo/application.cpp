@@ -13,6 +13,7 @@
 #include "vkl/system/render_system/simple_render_system.hpp"
 #include "vkl/system/render_system/simple_wireframe_render_system.hpp"
 #include "vkl/system/render_system/point_cloud_2d_render_system.hpp"
+#include "vkl/system/render_system/param_line_render_system.hpp"
 
 #include "vkl/system/compute_system/base_compute_system.hpp"
 #include "vkl/system/compute_system/path_tracing_compute_system.hpp"
@@ -89,7 +90,7 @@ void Application::run() {
         {{std::format("{}/curve_mesh_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    LineRenderSystem<VklCurveModel2D::vertex_type> paramCurveRenderSystem(
+    ParamLineRenderSystem<VklCurveModel2D::vertex_type> paramCurveRenderSystem(
         device_, uvRender_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
         {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
@@ -273,6 +274,16 @@ void Application::run() {
                 ubo.pointLight.position = glm::vec4(ubo.cameraPos, 1.0f);
             }
 
+            // param line push constant
+
+            ParamLineRenderSystemPushConstantData paramLineRenderSystemPushConstantData {
+                .zoom = uiManager.bezier_zoom_in,
+                .shift_x = 0.0f,
+                .shift_y = 0.f
+            };
+            ParamLineRenderSystemPushConstantList paramLineRenderSystemPushConstantList;
+            paramLineRenderSystemPushConstantList.data[0] = paramLineRenderSystemPushConstantData;
+
             // render meshes
             for (auto &object_item : scene.objects) {
                 for (auto model : object_item->models) {
@@ -343,7 +354,7 @@ void Application::run() {
                                                                          scene.camera,
                                                                          &boundary2d->descriptorSets[frameIndex],
                                                                          *boundary2d};
-                                    paramCurveRenderSystem.renderObject(frameInfo);
+                                    paramCurveRenderSystem.renderObject(frameInfo, paramLineRenderSystemPushConstantList);
                                 }
                             }
                         },
@@ -443,7 +454,7 @@ void Application::run() {
                                                                        &curveMesh->curveMesh->descriptorSets[frameIndex],
                                                                        *curveMesh->curveMesh};
 
-                        paramCurveRenderSystem.renderObject(curveModelFrameInfo);
+                        paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
                     }
 
                     if (curveMesh->derivativeBoundMesh != nullptr) {
@@ -454,7 +465,7 @@ void Application::run() {
                                                                        &curveMesh->derivativeBoundMesh->descriptorSets[frameIndex],
                                                                        *curveMesh->derivativeBoundMesh};
 
-                        paramCurveRenderSystem.renderObject(curveModelFrameInfo);
+                        paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
                     }
                 }
             }
