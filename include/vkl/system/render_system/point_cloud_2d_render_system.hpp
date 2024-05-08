@@ -9,4 +9,14 @@ struct PointCloud2DPipelineModifier {
     }
 };
 
-using PointCloud2DRenderSystem = SimpleRenderSystem<VklVertex2D, SimplePushConstantInfoList, PointCloud2DPipelineModifier>;
+struct PointCloud2DRenderSystemPushConstantData {
+    float zoom, shift_x, shift_y;
+
+    static VkShaderStageFlags getStageFlags() {
+        return VK_SHADER_STAGE_VERTEX_BIT;
+    };
+};
+
+using PointCloud2DRenderSystemPushConstantList = VklPushConstantInfoList<PointCloud2DRenderSystemPushConstantData>;
+
+using PointCloud2DRenderSystem = SimpleRenderSystem<VklVertex2D, PointCloud2DRenderSystemPushConstantList, PointCloud2DPipelineModifier>;

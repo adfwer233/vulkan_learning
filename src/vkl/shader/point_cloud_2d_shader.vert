@@ -7,9 +7,17 @@ layout(location = 3) in vec2 inUV;
 
 layout(location = 0) out vec3 fragColor;
 
+layout(push_constant) uniform PushConstants {
+    float zoom;
+    float shift_x;
+    float shift_y;
+} pushConstants;
+
 void main() {
 
     gl_PointSize = 50.0;
-    gl_Position = vec4((inPosition.xy - 0.5) * 2, 0.0, 1.0);
+    gl_Position = vec4((inPosition.x - 0.5 + pushConstants.shift_x) * 2 * pushConstants.zoom,
+                       (inPosition.y - 0.5 + pushConstants.shift_y) * 2 * pushConstants.zoom,
+                       0.0, 1.0);
     fragColor = inColor.rgb;
 }

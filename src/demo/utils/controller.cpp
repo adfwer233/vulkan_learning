@@ -28,6 +28,16 @@ void KeyboardCameraController::processInput(GLFWwindow *window, float deltaTime)
         pressing_shift = true;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
         pressing_shift = false;
+
+    auto controller = KeyboardCameraController::instance();
+
+    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+        controller->uiManager_->bezier_zoom_in += deltaTime;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+        controller->uiManager_->bezier_zoom_in -= deltaTime;
+    }
 }
 
 void KeyboardCameraController::scroll_callback(GLFWwindow *window, double x_offset, double y_offset) {

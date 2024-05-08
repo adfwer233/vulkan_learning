@@ -107,6 +107,8 @@ class UIManager {
      */
     std::unique_ptr<BezierCurve2D> bezier_editor_curve;
 
+    float bezier_zoom_in = 1.0f;
+
     GeometryVariableManager geometryVariableManager;
 
     std::unique_ptr<PathTracingComputeModel> pathTracingComputeModel_;

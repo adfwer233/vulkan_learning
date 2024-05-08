@@ -417,6 +417,14 @@ void Application::run() {
                     model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
                     model->uniformBuffers[frameIndex]->flush();
 
+                    PointCloud2DRenderSystemPushConstantData pointCloud2DRenderSystemPushConstantData {
+                        .zoom = uiManager.bezier_zoom_in,
+                        .shift_x = 0.0f,
+                        .shift_y = 0.0f
+                    };
+                    PointCloud2DRenderSystemPushConstantList pointCloud2DRenderSystemPushConstantList;
+                    pointCloud2DRenderSystemPushConstantList.data[0] = pointCloud2DRenderSystemPushConstantData;
+
                     FrameInfo<VklPointCloud2D> modelFrameInfo{frameIndex,
                                                               currentFrame,
                                                               bezierCommandBuffer,
@@ -424,7 +432,7 @@ void Application::run() {
                                                               &model->descriptorSets[frameIndex],
                                                               *model};
 
-                    pointCloud2DRenderSystem.renderObject(modelFrameInfo);
+                    pointCloud2DRenderSystem.renderObject(modelFrameInfo, pointCloud2DRenderSystemPushConstantList);
 
                     if (curveMesh->curveMesh != nullptr) {
 
