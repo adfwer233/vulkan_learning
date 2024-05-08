@@ -206,6 +206,7 @@ void BezierCurve2D::initialize() {
         control_point_vec2.emplace_back(control_point[0], control_point[1]);
     }
 
+    derivative_bound = -1.0;
     for (int i = 1; i <= n; i++) {
         derivative_bound =
                 std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));

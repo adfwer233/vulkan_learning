@@ -4,6 +4,7 @@
 #include "vkl/utils/vkl_curve_model.hpp"
 #include "vkl_model.hpp"
 #include <vector>
+#include <numbers>
 
 template <typename T> class VklGeometryModel {};
 
@@ -73,9 +74,11 @@ public:
 
     using render_type = VklCurveModel2D;
     using control_points_render_type = VklPointCloud2D;
+    using derivative_bound_render_type = VklCurveModel2D;
 
     std::unique_ptr<render_type> curveMesh;
     std::unique_ptr<control_points_render_type> controlPointsMesh;
+    std::unique_ptr<derivative_bound_render_type> derivativeBoundMesh;
 
     VklGeometryModel(VklDevice &device, BezierCurve2D *curve): device_(device), curve_(curve) {
         createControlPointsMesh();
@@ -87,6 +90,7 @@ public:
     void reallocateMesh() {
         if (curveMesh == nullptr and curve_->control_point_vec2.size() >= 3) {
             createMesh();
+            createDerivativeBoundMesh();
         }
 
         if (curveMesh != nullptr) {
@@ -114,8 +118,90 @@ public:
         }
         controlPointsMesh->geometry->vertices = control_vertices;
         controlPointsMesh->reallocateVertexBuffer();
+
+        auto vkl_vertex_to_geo_vertex = []<typename T>(T geo_vert) {
+            typename T::geometry_type vert;
+            vert.position = geo_vert.position;
+            vert.color = geo_vert.color;
+            return vert;
+        };
+
+        if (derivativeBoundMesh != nullptr) {
+            auto derivativeBuilder = createDerivativeBoundMeshBuilder();
+            std::vector<control_points_render_type::vertex_type::geometry_type> derivative_vertices;
+            for (auto geo_vert: derivativeBuilder.vertices) {
+                derivative_bound_render_type::vertex_type vertex;
+                vertex.position = geo_vert.position;
+                derivative_vertices.push_back(vertex);
+            }
+
+            auto res = derivativeBuilder.vertices | std::views::transform(vkl_vertex_to_geo_vertex);
+            derivativeBoundMesh->geometry->vertices.clear();
+            std::ranges::copy(res, std::back_inserter(derivativeBoundMesh->geometry->vertices));
+
+            derivativeBoundMesh->reallocateVertexBuffer();
+        }
     }
 private:
+    derivative_bound_render_type::BuilderFromImmediateData createDerivativeBoundMeshBuilder() {
+        auto start_pos = curve_->control_point_vec2.front();
+        auto end_pos = curve_->control_point_vec2.back();
+
+        float eps = 1e-3;
+
+        derivative_bound_render_type::BuilderFromImmediateData builder;
+        if (glm::length(end_pos - start_pos) < eps) {
+            // the boundary is a circle
+            auto center = (start_pos - end_pos) / 2.0f;
+            auto bound = curve_->derivative_bound;
+
+            int n = 100;
+
+            for (int i = 0; i <= n; i++) {
+                float theta = 2.0 * std::numbers::pi / n * i;
+                derivative_bound_render_type::vertex_type vertex;
+                vertex.position.x = center.x + bound * std::cos(theta);
+                vertex.position.y = center.y + bound * std::sin(theta);
+                vertex.color = {0.0, 1.0, 0.0};
+                builder.vertices.push_back(vertex);
+            }
+        } else {
+            // the boundary is an ellipse
+            float a = curve_->derivative_bound / 2;
+            float c = glm::length(end_pos - start_pos) / 2;
+            float b = std::sqrt(a * a - c * c);
+
+            int n = 100;
+
+            glm::vec2 center = (start_pos + end_pos) / 2.0f;
+            glm::vec2 x_axis = glm::normalize((end_pos - start_pos) / 2.0f);
+            glm::vec2 y_axis = {x_axis.y, -x_axis.x};
+
+            for (int i = 0; i <= n; i++) {
+                float theta = 2.0 * std::numbers::pi / n * i;
+                derivative_bound_render_type::vertex_type vertex;
+                float x_coord = a * std::cos(theta);
+                float y_coord = b * std::sin(theta);
+
+                vertex.position = center + x_axis * x_coord + y_axis * y_coord;
+                vertex.color = {0.0, 1.0, 0.0};
+
+                builder.vertices.push_back(vertex);
+            }
+        }
+
+        return builder;
+    }
+
+    void createDerivativeBoundMesh() {
+        auto builder = createDerivativeBoundMeshBuilder();
+
+        derivativeBoundMesh = std::make_unique<derivative_bound_render_type>(device_, builder);
+
+        auto descriptorManager = VklGeometryModelDescriptorManager<BezierCurve2D>::instance(device_);
+        derivativeBoundMesh->allocDescriptorSets(*descriptorManager->setLayout_, *descriptorManager->descriptorPool_);
+    }
+
     void createControlPointsMesh() {
         control_points_render_type::BuilderFromImmediateData builder;
         for (auto cp: curve_->control_point_vec2) {

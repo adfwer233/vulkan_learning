@@ -34,6 +34,10 @@ void BezierEditorPanelUI::renderImgui() {
             ofs << root.dump();
         }
 
+        if (ImGui::Button("Show Derivative Bound")) {
+
+        }
+
         if (ImGui::Button("Export To PPM")) {
             if (uiManager_.bezierRender != nullptr) {
                 uiManager_.bezierRender->exportCurrentImageToPPM();

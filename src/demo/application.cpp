@@ -437,6 +437,17 @@ void Application::run() {
 
                         paramCurveRenderSystem.renderObject(curveModelFrameInfo);
                     }
+
+                    if (curveMesh->derivativeBoundMesh != nullptr) {
+                        FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex,
+                                                                       currentFrame,
+                                                                       bezierCommandBuffer,
+                                                                       scene.camera,
+                                                                       &curveMesh->derivativeBoundMesh->descriptorSets[frameIndex],
+                                                                       *curveMesh->derivativeBoundMesh};
+
+                        paramCurveRenderSystem.renderObject(curveModelFrameInfo);
+                    }
                 }
             }
 
