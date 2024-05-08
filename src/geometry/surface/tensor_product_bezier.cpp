@@ -4,6 +4,9 @@
 
 #include "vkl/utils/vkl_curve_model.hpp"
 
+#include "effolkronium/random.hpp"
+using Random = effolkronium::random_static;
+
 glm::vec3 TensorProductBezierSurface::evaluate(glm::vec2 param) {
     if (control_points_.empty())
         throw std::runtime_error("empty control points");
@@ -297,6 +300,18 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
         }
     }
 
+    std::vector<glm::vec2> on_boundary_parameters;
+
+    int boundary_sample_num = 1000;
+    std::ranges::generate_n(std::back_inserter(on_boundary_parameters), boundary_sample_num, [&](){return sample_boundary_parameter();});
+
+    auto start_time2 = std::chrono::high_resolution_clock::now();
+    for (auto param: on_boundary_parameters) {
+        auto wn = containment_test(param);
+    }
+    auto end_time2 = std::chrono::high_resolution_clock::now();
+    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time2 - start_time2).count() << std::endl;
+
     return builder;
 }
 float TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
@@ -322,4 +337,14 @@ void TensorProductBezierSurface::initializePeriodicBoundary() {
     std::vector<BezierCurve2D::point_type> boundary2{{0.0, 0.1}, {0.5, 0.8}, {1.0, 0.1}};
     boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(boundary1))));
     boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(boundary2))));
+}
+
+glm::vec2 TensorProductBezierSurface::sample_boundary_parameter() {
+    size_t path_index = Random::get<size_t>(0, paths.size() - 1);
+    size_t curve_index = Random::get<size_t>(0, paths[path_index]->curves.size() - 1);
+
+    auto &curve = paths[path_index]->curves[curve_index];
+    float param = Random::get(0.0f, 1.0f);
+
+    return curve->evaluate(param);
 }

@@ -204,6 +204,12 @@ class TensorProductBezierSurface : GeometrySurface {
 
     float containment_test(glm::vec2 test_param);
 
+    /**
+     * sample a random on the boundary
+     * @return the parameter of the sampled point
+     */
+    glm::vec2 sample_boundary_parameter();
+
   private:
     std::unique_ptr<render_type> mesh_model_ptr;
 

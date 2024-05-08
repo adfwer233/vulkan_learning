@@ -81,10 +81,10 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
     auto d1 = glm::length(start_pos - test_point);
     auto d2 = glm::length(end_pos - test_point);
 
-    if (d1 < 1e-8 or d2 < 1e-8)
+    if (d1 < 1e-6 or d2 < 1e-6)
         return 0;
 
-    if (d1 + d2 > derivative_bound * (end - start) or (end - start) < 1e-8) {
+    if (d1 + d2 > derivative_bound * (end - start) or (end - start) < 1e-6) {
         auto v1 = glm::normalize(start_pos - test_point);
         auto v2 = glm::normalize(end_pos - test_point);
         auto outer = v1.x * v2.y - v1.y * v2.x;

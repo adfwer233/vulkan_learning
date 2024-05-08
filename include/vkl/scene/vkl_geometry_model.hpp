@@ -152,7 +152,7 @@ private:
         derivative_bound_render_type::BuilderFromImmediateData builder;
         if (glm::length(end_pos - start_pos) < eps) {
             // the boundary is a circle
-            auto center = (start_pos - end_pos) / 2.0f;
+            auto center = (start_pos + end_pos) / 2.0f;
             auto bound = curve_->derivative_bound;
 
             int n = 100;
@@ -160,8 +160,8 @@ private:
             for (int i = 0; i <= n; i++) {
                 float theta = 2.0 * std::numbers::pi / n * i;
                 derivative_bound_render_type::vertex_type vertex;
-                vertex.position.x = center.x + bound * std::cos(theta);
-                vertex.position.y = center.y + bound * std::sin(theta);
+                vertex.position.x = center.x + bound / 2.0f * std::cos(theta);
+                vertex.position.y = center.y + bound / 2.0f * std::sin(theta);
                 vertex.color = {0.0, 1.0, 0.0};
                 builder.vertices.push_back(vertex);
             }
