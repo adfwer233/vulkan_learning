@@ -101,6 +101,7 @@ class UIManager {
     std::vector<VkImageView> *bezierImageViews;
     VkSampler bezierSampler;
     VklOffscreenRenderer *bezierRender;
+    glm::vec2 bezier_shift{0.0f, 0.0f};
 
     /**
      * bezier editor curve rendering model

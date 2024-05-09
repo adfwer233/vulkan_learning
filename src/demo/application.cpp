@@ -278,8 +278,8 @@ void Application::run() {
 
             ParamLineRenderSystemPushConstantData paramLineRenderSystemPushConstantData {
                 .zoom = uiManager.bezier_zoom_in,
-                .shift_x = 0.0f,
-                .shift_y = 0.f
+                .shift_x = uiManager.bezier_shift.x,
+                .shift_y = uiManager.bezier_shift.y
             };
             ParamLineRenderSystemPushConstantList paramLineRenderSystemPushConstantList;
             paramLineRenderSystemPushConstantList.data[0] = paramLineRenderSystemPushConstantData;
@@ -430,8 +430,8 @@ void Application::run() {
 
                     PointCloud2DRenderSystemPushConstantData pointCloud2DRenderSystemPushConstantData {
                         .zoom = uiManager.bezier_zoom_in,
-                        .shift_x = 0.0f,
-                        .shift_y = 0.0f
+                        .shift_x = uiManager.bezier_shift.x,
+                        .shift_y = uiManager.bezier_shift.y
                     };
                     PointCloud2DRenderSystemPushConstantList pointCloud2DRenderSystemPushConstantList;
                     pointCloud2DRenderSystemPushConstantList.data[0] = pointCloud2DRenderSystemPushConstantData;

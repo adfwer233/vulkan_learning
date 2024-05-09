@@ -31,12 +31,30 @@ void KeyboardCameraController::processInput(GLFWwindow *window, float deltaTime)
 
     auto controller = KeyboardCameraController::instance();
 
-    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
-        controller->uiManager_->bezier_zoom_in += deltaTime;
-    }
+    if (controller->currentWidgets == BezierEditing) {
+        if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+            controller->uiManager_->bezier_zoom_in += deltaTime;
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
-        controller->uiManager_->bezier_zoom_in -= deltaTime;
+        if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+            controller->uiManager_->bezier_zoom_in -= deltaTime;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            controller->uiManager_->bezier_shift.y += deltaTime;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            controller->uiManager_->bezier_shift.y -= deltaTime;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+            controller->uiManager_->bezier_shift.x += deltaTime;
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            controller->uiManager_->bezier_shift.x -= deltaTime;
+        }
     }
 }
 
