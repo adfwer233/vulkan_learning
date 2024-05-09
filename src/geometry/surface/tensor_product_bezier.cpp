@@ -312,6 +312,15 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
     auto end_time2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time2 - start_time2).count() << std::endl;
 
+    auto start_time3 = std::chrono::high_resolution_clock::now();
+    for (auto &path: paths) {
+        for (auto &curve: path->curves) {
+            curve->compute_extreme_points();
+        }
+    }
+    auto end_time3 = std::chrono::high_resolution_clock::now();
+    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time3 - start_time3).count() << std::endl;
+
     return builder;
 }
 float TensorProductBezierSurface::containment_test(glm::vec2 test_param) {

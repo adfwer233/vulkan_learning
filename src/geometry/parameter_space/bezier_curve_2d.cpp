@@ -250,3 +250,29 @@ glm::vec2 BezierCurve2D::evaluate_linear(float param) const {
     }
     return result;
 }
+
+std::vector<glm::vec2> BezierCurve2D::compute_extreme_points() {
+    int n = control_points_.size() - 1;
+
+    std::vector<glm::vec2> result;
+
+    auto solvePolynomialZeros = [&](decltype(this->polynomial1) poly) {
+        Eigen::VectorXd coeffs;
+        coeffs.resize(n);
+
+        for (int i = 0; i < n; i++) {
+            coeffs(i) = poly.data()[n - i - 1];
+        }
+
+        auto roots = RootFinder::solvePolynomial(coeffs, 0.0, 1.0, 1e-6);
+
+        for (auto r: roots) {
+            result.push_back(evaluate(r));
+        }
+    };
+
+    solvePolynomialZeros(polynomial1_deriv);
+    solvePolynomialZeros(polynomial2_deriv);
+
+    return result;
+}

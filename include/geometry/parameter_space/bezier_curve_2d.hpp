@@ -65,6 +65,8 @@ class BezierCurve2D {
     void add_control_point(std::array<float, 2>);
 
     void update_control_point(size_t index, std::array<float, 2> offset);
+
+    std::vector<glm::vec2> compute_extreme_points();
 private:
     void initialize();
 };

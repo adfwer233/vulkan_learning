@@ -74,10 +74,12 @@ public:
 
     using render_type = VklCurveModel2D;
     using control_points_render_type = VklPointCloud2D;
+    using extreme_point_render_type = VklPointCloud2D;
     using derivative_bound_render_type = VklCurveModel2D;
 
     std::unique_ptr<render_type> curveMesh;
     std::unique_ptr<control_points_render_type> controlPointsMesh;
+    std::unique_ptr<extreme_point_render_type> extremePointMesh;
     std::unique_ptr<derivative_bound_render_type> derivativeBoundMesh;
 
     VklGeometryModel(VklDevice &device, BezierCurve2D *curve): device_(device), curve_(curve) {
@@ -91,6 +93,10 @@ public:
         if (curveMesh == nullptr and curve_->control_point_vec2.size() >= 3) {
             createMesh();
             createDerivativeBoundMesh();
+        }
+
+        if (extremePointMesh == nullptr and curve_->control_point_vec2.size() >= 3) {
+            createExtremePointMesh();
         }
 
         if (curveMesh != nullptr) {
@@ -141,8 +147,41 @@ public:
 
             derivativeBoundMesh->reallocateVertexBuffer();
         }
+
+        if (extremePointMesh != nullptr) {
+            auto extremePointBuilder = createExtremePointMeshBuilder();
+
+            extremePointMesh->geometry->vertices.clear();
+            std::ranges::copy(extremePointBuilder.vertices | std::views::transform(vkl_vertex_to_geo_vertex), std::back_inserter(extremePointMesh->geometry->vertices));
+
+            extremePointMesh->reallocateVertexBuffer();
+        }
     }
 private:
+
+    extreme_point_render_type::BuilderFromImmediateData createExtremePointMeshBuilder() {
+        auto ex_points = curve_->compute_extreme_points();
+        extreme_point_render_type::BuilderFromImmediateData builder;
+        for (auto ep: ex_points) {
+            extreme_point_render_type::vertex_type vertex;
+            vertex.position = ep;
+            vertex.color = {0.0, 1.0, 0.0};
+            builder.vertices.push_back(vertex);
+        }
+        return builder;
+    }
+
+    void createExtremePointMesh() {
+        auto builder = createExtremePointMeshBuilder();
+        if (builder.vertices.empty()) {
+            extremePointMesh = nullptr;
+            return;
+        }
+        extremePointMesh = std::make_unique<extreme_point_render_type>(device_, builder);
+        auto descriptorManager = VklGeometryModelDescriptorManager<BezierCurve2D>::instance(device_);
+        extremePointMesh->allocDescriptorSets(*descriptorManager->setLayout_, *descriptorManager->descriptorPool_);
+    }
+
     derivative_bound_render_type::BuilderFromImmediateData createDerivativeBoundMeshBuilder() {
         auto start_pos = curve_->control_point_vec2.front();
         auto end_pos = curve_->control_point_vec2.back();

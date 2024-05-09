@@ -198,7 +198,7 @@ class TensorProductBezierSurface : GeometrySurface {
 
     render_type getMeshModelBuilder();
 
-    virtual GeometrySurfaceType type() {
+    GeometrySurfaceType type() override {
         return GeometrySurfaceType::TensorProductBezier;
     };
 
