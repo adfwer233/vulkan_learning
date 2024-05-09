@@ -14,6 +14,43 @@ void BezierEditorPanelUI::renderImgui() {
     {
         ImGui::BeginChild("Bezier Editor Panel");
 
+        if (ImGui::Button("Load the Bezier curve")) {
+            std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape_high_order2.json");
+
+            std::cout << full_path << std::endl;
+            std::ifstream f(full_path);
+            json data = json::parse(f);
+
+            auto get_point = [&](json &point_json) -> std::pair<float, float> {
+                return {point_json["x"].get<float>(), point_json["y"].get<float>()};
+            };
+
+            std::vector<std::array<float, 2>> boundary_data;
+            for (auto path_json : data) {
+                for (auto bezier : path_json) {
+                    auto straight = false;
+                    for (auto points : bezier) {
+                        if (points.is_boolean()) {
+                            straight = true;
+                        }
+                    }
+                    if (straight) {
+                        auto [x1, y1] = get_point(bezier[0]);
+                        auto [x2, y2] = get_point(bezier[3]);
+                        boundary_data.push_back({x1, y1});
+                        boundary_data.push_back({x2, y2});
+                    } else {
+                        for (auto pt: bezier) {
+                            auto [x, y] = get_point(pt);
+                            boundary_data.push_back({x, y});
+                        }
+                    }
+                }
+            }
+
+            uiManager_.bezier_editor_curve = std::make_unique<BezierCurve2D>(std::move(boundary_data));
+        }
+
         if (ImGui::Button("Save Bezier Curve")) {
             json root = json::array();
             json path = json::array();

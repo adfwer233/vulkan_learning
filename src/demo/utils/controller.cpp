@@ -31,7 +31,7 @@ void KeyboardCameraController::processInput(GLFWwindow *window, float deltaTime)
 
     auto controller = KeyboardCameraController::instance();
 
-    if (controller->currentWidgets == BezierEditing) {
+    if (controller->currentWidgets == BezierEditing || controller->currentWidgets == UVRendering) {
         if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
             controller->uiManager_->bezier_zoom_in += deltaTime;
         }
