@@ -323,6 +323,7 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
 
     return builder;
 }
+
 float TensorProductBezierSurface::containment_test(glm::vec2 test_param) {
 
     float winding_number = 0.0;

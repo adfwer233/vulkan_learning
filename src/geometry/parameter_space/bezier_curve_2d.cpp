@@ -271,7 +271,7 @@ std::vector<glm::vec2> BezierCurve2D::compute_extreme_points() {
         auto roots = RootFinder::solvePolynomial(coeffs, 0.0, 1.0, 1e-6);
 
         for (auto r: roots) {
-            result.push_back(evaluate(r));
+            result.push_back(evaluate_linear(r));
         }
     };
 

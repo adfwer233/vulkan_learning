@@ -67,7 +67,7 @@ double BezierRootFinder::newton_method(double start) {
     double fn = 0, fn1 = 0, dfn = 0, delta = 0;
     double precision = 1e-8, min_deltax = 1e-8;
     int step = 0;
-    int max_iterations = 1000;
+    int max_iterations = 100;
     do {
         fn = evaluate(xn);
         dfn = evaluate_derivative(xn);
@@ -90,7 +90,7 @@ double BezierRootFinder::newton_method(double start) {
     return xn1;
 }
 
-std::vector<double> BezierRootFinder::get_roots(std::vector<double> c, double a, double b) {
+std::vector<double> BezierRootFinder::get_roots(std::vector<double>& c, double a, double b) {
 
     bool has_positive = false, has_negative = false;
     for (double v: c) {
@@ -100,7 +100,6 @@ std::vector<double> BezierRootFinder::get_roots(std::vector<double> c, double a,
 
     if ((not has_positive) or (not has_negative))
         return {};
-
 
     this->degree = c.size() - 1;
     this->coefficients_ = c;
@@ -117,13 +116,6 @@ std::vector<double> BezierRootFinder::get_roots(std::vector<double> c, double a,
     }
 
     if (not std::isnan(t0)) {
-        double tmp = evaluate(t0);
-        if (tmp > 1e-5)
-            throw std::runtime_error("test");
-
-        if (std::fabs(t0 - 0.5) < 1e-6)
-            int x = 0;
-
         // std::cout << t0 << ' ' << a << ' ' << b << std::endl;
         auto [cl, cr] = subdivide(c, t0);
         std::vector<double> cL, cR;

@@ -30,7 +30,7 @@ private:
 
     std::pair<std::vector<double>, std::vector<double>> subdivide(const std::vector<double> &c, float param) const;
 
-    std::vector<double> get_roots(std::vector<double> c, double a, double b);
+    std::vector<double> get_roots(std::vector<double>& c, double a, double b);
 public:
     explicit BezierRootFinder(std::vector<double> &&coefficients): coefficients_(coefficients) {
         degree = coefficients.size() - 1;
