@@ -7,6 +7,8 @@
 
 #include <numbers>
 
+#include "geometry/parameter_space/bezier_root_finder.hpp"
+
 std::tuple<float, float> BezierCurve2D::projection(glm::vec2 test_point) {
     auto target_poly =
         (test_point.x - polynomial1) * polynomial1_deriv + (test_point.y - polynomial2) * polynomial2_deriv;
@@ -252,6 +254,8 @@ glm::vec2 BezierCurve2D::evaluate_linear(float param) const {
 }
 
 std::vector<glm::vec2> BezierCurve2D::compute_extreme_points() {
+    return compute_extreme_points_new();
+
     int n = control_points_.size() - 1;
 
     std::vector<glm::vec2> result;
@@ -273,6 +277,40 @@ std::vector<glm::vec2> BezierCurve2D::compute_extreme_points() {
 
     solvePolynomialZeros(polynomial1_deriv);
     solvePolynomialZeros(polynomial2_deriv);
+
+    return result;
+}
+
+std::vector<glm::vec2> BezierCurve2D::compute_extreme_points_new() {
+    std::vector<glm::vec2> deriv;
+    size_t n = control_points_.size() - 1;
+    for (int i = 1; i < control_point_vec2.size(); i++) {
+        deriv.push_back((control_point_vec2[i] - control_point_vec2[i - 1]) * (1.0f * n));
+    }
+
+    std::vector<double> x_poly, y_poly;
+
+    std::ranges::for_each(deriv, [&](glm::vec2 v) {
+       x_poly.push_back(v.x);
+       y_poly.push_back(v.y);
+    });
+
+    BezierRootFinder x_finder(std::move(x_poly));
+    BezierRootFinder y_finder(std::move(y_poly));
+
+    auto x_res = x_finder.get_roots();
+    auto y_res = y_finder.get_roots();
+
+    // std::ranges::copy(x_res, std::ostream_iterator<double>(std::cout, ", "));
+    // std::ranges::copy(y_res, std::ostream_iterator<double>(std::cout, ", "));
+    // std::cout << std::endl;
+
+    std::vector<glm::vec2> result;
+
+    auto evaluate_fn = [&](double x) { return evaluate_linear(x); };
+
+    std::ranges::copy(x_res | std::views::transform(evaluate_fn), std::back_inserter(result));
+    std::ranges::copy(y_res | std::views::transform(evaluate_fn), std::back_inserter(result));
 
     return result;
 }

@@ -9,6 +9,7 @@ set(SRC_FILE
         parameter_space/bezier_curve_2d.cpp
         io/svg_importer.cpp
         loop/path_2d.cpp
+        parameter_space/bezier_root_finder.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})
