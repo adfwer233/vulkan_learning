@@ -42,12 +42,13 @@ enum ShadingMode {
 
 class UIManager {
   private:
-    VklDevice &device_;
     VklScene &scene_;
 
     GET_REGISTERED_TYPES(UIManagerRegisteredTypeTag) uiManagerComponentList;
 
   public:
+    VklDevice &device_;
+
     // used in scene ui
     float deltaTime;
 

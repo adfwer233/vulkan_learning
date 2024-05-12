@@ -3,6 +3,9 @@
 #include "../../ui_manager.hpp"
 
 #include "nlohmann/json.hpp"
+
+#include "../../../scripts/render_srcipt_base.hpp"
+
 using json = nlohmann::json;
 
 BezierEditorPanelUI::BezierEditorPanelUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
@@ -71,8 +74,9 @@ void BezierEditorPanelUI::renderImgui() {
             ofs << root.dump();
         }
 
-        if (ImGui::Button("Show Derivative Bound")) {
-
+        if (ImGui::Button("Render Script")) {
+            RenderScriptsBase scriptBase(uiManager_.device_);
+            scriptBase.renderResult();
         }
 
         if (ImGui::Button("Export To File")) {
