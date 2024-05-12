@@ -14,6 +14,8 @@ public:
     explicit RenderScriptsBase(VklDevice &device) : device_(device) {}
 
     void renderResult() {
+        using VklModel2D = VklModelTemplate<VklVertex2D, TriangleIndex, VklBox2D>;
+
         auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
                 .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
                 .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
@@ -23,6 +25,11 @@ public:
                 .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
                 .build();
+
+        SimpleRenderSystem<VklModel2D::vertex_type> renderSystem(
+                device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+                {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+                 {std::format("{}/simple_shader_2d.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         ParamLineRenderSystem<VklCurveModel2D::vertex_type> paramCurveRenderSystem(
                 device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
@@ -37,29 +44,89 @@ public:
         ParamLineRenderSystemPushConstantList paramLineRenderSystemPushConstantList;
         paramLineRenderSystemPushConstantList.data[0] = paramLineRenderSystemPushConstantData;
 
-
         Camera camera({0, 0, 10}, {0, 1, 0});
 
-        std::vector<std::array<float, 2>> control_points_{
-                {0.0f, 0.5f}, {0.5f, 0.8f}, {1.0, 0.5f}
+        std::vector<std::unique_ptr<BezierCurve2D>> curves;
+
+        std::vector<std::array<float, 2>> control_points1{
+                {0.0f, 0.8f}, {0.5f, 0.6f}, {1.0, 0.8f}
         };
-        BezierCurve2D curve2D(std::move(control_points_));
+        curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points1))));
+
+        std::vector<std::array<float, 2>> control_points2{
+                {0.0f, 0.2f}, {0.5f, 0.4f}, {1.0, 0.2f}
+        };
+        curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points2))));
+
+
+        VklModel2D::BuilderFromImmediateData builder;
+
+        int n = 100;
+        int m = 100;
+
+        float delta_u = 1.0f / n;
+        float delta_v = 1.0f / m;
+
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                decltype(builder.vertices)::value_type vertex;
+                vertex.position = {i * delta_v, j * delta_u};
+                vertex.color = {0.0f, 1.0f, 0.0f};
+                builder.vertices.push_back(vertex);
+            }
+        }
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                auto idx1 = i * (n + 1) + j;
+                auto idx2 = i * (n + 1) + j + 1;
+                auto idx3 = (i + 1) * (n + 1) + j;
+                auto idx4 = (i + 1) * (n + 1) + j + 1;
+
+                decltype(builder.indices)::value_type primitive_idx1, primitive_idx2;
+                primitive_idx1.i = idx1;
+                primitive_idx1.j = idx2;
+                primitive_idx1.k = idx4;
+
+                primitive_idx2.i = idx1;
+                primitive_idx2.j = idx4;
+                primitive_idx2.k = idx3;
+
+                builder.indices.push_back(primitive_idx1);
+                builder.indices.push_back(primitive_idx2);
+            }
+        }
+
+        VklModel2D grid(device_, builder);
+        grid.allocDescriptorSets(*globalSetLayout, *globalPool);
 
         auto commandBuffer = renderer_.beginFrame();
         renderer_.beginSwapChainRenderPass(commandBuffer);
 
-        auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
-        auto geometryModel = modelBuffer->getGeometryModel(device_, &curve2D);
+        FrameInfo<VklModel2D> gridModelFrameInfo {
+            .frameIndex = 0,
+            .frameTime = 0.0f,
+            .commandBuffer = commandBuffer,
+            .camera = camera,
+            .pGlobalDescriptorSet = &grid.descriptorSets[0],
+            .model = grid
+        };
 
-        FrameInfo<VklCurveModel2D> curveModelFrameInfo{0,
-                                                       0.0f,
-                                                       commandBuffer,
-                                                       camera,
-                                                       &geometryModel->curveMesh->descriptorSets[0],
-                                                       *geometryModel->curveMesh};
+        renderSystem.renderObject(gridModelFrameInfo);
 
-        paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
+        for (auto &curve: curves) {
+            auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
+            auto geometryModel = modelBuffer->getGeometryModel(device_, curve.get());
 
+            FrameInfo<VklCurveModel2D> curveModelFrameInfo{0,
+                                                           0.0f,
+                                                           commandBuffer,
+                                                           camera,
+                                                           &geometryModel->curveMesh->descriptorSets[0],
+                                                           *geometryModel->curveMesh};
+
+            paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
+        }
         renderer_.endSwapChainRenderPass(commandBuffer);
 
         VkFence fence;
