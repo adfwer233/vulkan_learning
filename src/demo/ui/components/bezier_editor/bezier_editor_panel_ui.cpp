@@ -75,7 +75,7 @@ void BezierEditorPanelUI::renderImgui() {
 
         }
 
-        if (ImGui::Button("Export To PPM")) {
+        if (ImGui::Button("Export To File")) {
             if (uiManager_.bezierRender != nullptr) {
                 uiManager_.bezierRender->exportCurrentImageToPPM();
             }

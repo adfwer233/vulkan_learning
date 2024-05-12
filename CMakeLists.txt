@@ -34,6 +34,9 @@ include(fetch-random)
 include(fetch-rootfinder)
 include(fetch-svgpp)
 
+find_package( OpenCV )
+INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
+
 igl_include(copyleft core)
 
 INCLUDE_DIRECTORIES(${stb_SOURCE_DIR})
@@ -86,7 +89,13 @@ add_subdirectory(src/simulation)
 add_subdirectory(test)
 
 find_package(OpenMP)
-target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui OpenMP::OpenMP_CXX)
+
+if(OpenCV_FOUND)
+    message(STATUS "found opencv")
+    target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui OpenMP::OpenMP_CXX ${OpenCV_LIBS})
+else()
+    target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui OpenMP::OpenMP_CXX)
+endif()
 
 if(MSVC)
     add_compile_options("/source-charset:utf-8")
