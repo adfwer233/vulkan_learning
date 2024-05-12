@@ -8,6 +8,7 @@
 #include "vkl/utils/vkl_curve_model.hpp"
 #include "vkl/scene/vkl_geometry_model.hpp"
 #include "vkl/system/render_system/param_line_render_system.hpp"
+#include "vkl/system/render_system/simple_render_system_2d.hpp"
 
 class RenderScriptsBase {
 public:
@@ -26,12 +27,12 @@ public:
                 .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
                 .build();
 
-        SimpleRenderSystem<VklModel2D::vertex_type> renderSystem(
+        SimpleRenderSystem2D<VklModel2D::vertex_type> renderSystem(
                 device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
                 {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
                  {std::format("{}/simple_shader_2d.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-        ParamLineRenderSystem<VklCurveModel2D::vertex_type> paramCurveRenderSystem(
+        ParamLineRenderSystem<VklCurveModel2D::vertex_type, 1> paramCurveRenderSystem(
                 device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
                 {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
                  {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
@@ -103,6 +104,34 @@ public:
         auto commandBuffer = renderer_.beginFrame();
         renderer_.beginSwapChainRenderPass(commandBuffer);
 
+        auto endFrameRender = [&]() {
+            renderer_.endSwapChainRenderPass(commandBuffer);
+            VkFence fence;
+            {
+                VkFenceCreateInfo createInfo = {
+                    .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                    .pNext = nullptr,
+                    .flags = 0,
+                };
+                assert(vkCreateFence(device_.device(), &createInfo, nullptr, &fence) == VK_SUCCESS);
+            }
+
+            vkEndCommandBuffer(commandBuffer);
+
+            VkSubmitInfo submitInfo {
+                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                .commandBufferCount = 1,
+                .pCommandBuffers = &commandBuffer
+            };
+
+            vkQueueSubmit(device_.graphicsQueue(), 1, &submitInfo, fence);
+            vkQueueWaitIdle(device_.graphicsQueue());
+
+//            vkFreeCommandBuffers(device_.device(), device_.getCommandPool(), 1, &commandBuffer);
+
+            vkDeviceWaitIdle(device_.device());
+        };
+
         FrameInfo<VklModel2D> gridModelFrameInfo {
             .frameIndex = 0,
             .frameTime = 0.0f,
@@ -113,6 +142,20 @@ public:
         };
 
         renderSystem.renderObject(gridModelFrameInfo);
+
+        vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
+//        vkCmdEndRenderPass(commandBuffer);
+
+//        endFrameRender();
+//
+//        commandBuffer = renderer_.getCurrentCommandBuffer();
+//        VkCommandBufferBeginInfo beginInfo{};
+//        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+//        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+//            throw std::runtime_error("failed to begin recording command buffer!");
+//        }
+//        renderer_.beginSwapChainRenderPass(commandBuffer);
 
         for (auto &curve: curves) {
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
@@ -127,39 +170,13 @@ public:
 
             paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
         }
-        renderer_.endSwapChainRenderPass(commandBuffer);
 
-        VkFence fence;
-        {
-            VkFenceCreateInfo createInfo = {
-                    .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-                    .pNext = nullptr,
-                    .flags = 0,
-            };
-            assert(vkCreateFence(device_.device(), &createInfo, nullptr, &fence) == VK_SUCCESS);
-        }
-
-        vkEndCommandBuffer(commandBuffer);
-
-        VkSubmitInfo submitInfo {
-                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                .commandBufferCount = 1,
-                .pCommandBuffers = &commandBuffer
-        };
-
-        vkQueueSubmit(device_.graphicsQueue(), 1, &submitInfo, fence);
-        vkQueueWaitIdle(device_.graphicsQueue());
-
-        vkFreeCommandBuffers(device_.device(), device_.getCommandPool(), 1, &commandBuffer);
-
-        renderer_.endFrame();
-
-        vkDeviceWaitIdle(device_.device());
+        endFrameRender();
 
         renderer_.exportCurrentImageToPPM();
     }
 
 private:
     VklDevice &device_;
-    VklOffscreenRenderer renderer_{device_, 1024, 1024};
+    VklOffscreenRenderer renderer_{device_, 1024, 1024, 2};
 };

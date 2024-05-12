@@ -19,6 +19,6 @@ struct NormalRenderSystemPushConstantData {
 
 using NormalRenderSystemPushConstantDataList = VklPushConstantInfoList<NormalRenderSystemPushConstantData>;
 
-template <VklVertexType VertexType>
+template <VklVertexType VertexType, uint32_t Subpass = 0>
 using NormalRenderSystem =
-    SimpleRenderSystem<VertexType, NormalRenderSystemPushConstantDataList, NormalRenderPipelineModifier>;
+    SimpleRenderSystem<VertexType, Subpass, NormalRenderSystemPushConstantDataList, NormalRenderPipelineModifier>;

@@ -140,7 +140,9 @@ void VklImageExporter::exportToImage(VkImage image, uint32_t width, uint32_t hei
         }
 
         std::cout << "Image saved successfully as output_image.png" << std::endl;
-    #elif
+    #endif
+
+    #ifndef OPENCV_FOUND
         std::ofstream file("render.ppm", std::ios::out);
 
         file << "P3\n" << height << ' ' << width << "\n255\n";

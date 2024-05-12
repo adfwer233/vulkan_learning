@@ -6,6 +6,6 @@ struct WireFramePipelineModifier {
     }
 };
 
-template <VklVertexType VertexType>
+template <VklVertexType VertexType, uint32_t Subpass = 0>
 using SimpleWireFrameRenderSystem =
-    SimpleRenderSystem<VertexType, SimplePushConstantInfoList, WireFramePipelineModifier>;
+    SimpleRenderSystem<VertexType, Subpass, SimplePushConstantInfoList, WireFramePipelineModifier>;

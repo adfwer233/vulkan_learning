@@ -30,13 +30,13 @@ class VklOffscreenRenderer {
     void createCommandBuffers();
     void createImages();
     void createDepthResources();
-    void createRenderPass();
+    void createRenderPass(uint32_t subpassNum);
     void createFrameBuffer();
 
   public:
     VkSampler imageSampler;
 
-    VklOffscreenRenderer(VklDevice &device, int width, int height);
+    VklOffscreenRenderer(VklDevice &device, int width, int height, uint32_t subpassNum = 1);
 
     ~VklOffscreenRenderer();
 

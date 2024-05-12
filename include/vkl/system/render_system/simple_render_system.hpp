@@ -24,7 +24,7 @@ struct NullPipelineModifier {
     }
 };
 
-template <VklVertexType VertexType, VklPushConstantInfoListConcept PushConstantInfoList = SimplePushConstantInfoList,
+template <VklVertexType VertexType, uint32_t Subpass = 0, VklPushConstantInfoListConcept PushConstantInfoList = SimplePushConstantInfoList,
           VklPipelineModifierType PipelineModifierType = NullPipelineModifier>
 class SimpleRenderSystem {
   private:
