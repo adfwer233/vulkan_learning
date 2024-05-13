@@ -4,7 +4,7 @@
 
 #include "nlohmann/json.hpp"
 
-#include "../../../scripts/render_srcipt_base.hpp"
+#include "../../../scripts/render_script_base.hpp"
 
 using json = nlohmann::json;
 

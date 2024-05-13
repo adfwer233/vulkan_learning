@@ -50,20 +50,20 @@ public:
         std::vector<std::unique_ptr<BezierCurve2D>> curves;
 
         std::vector<std::array<float, 2>> control_points1{
-                {0.0f, 0.8f}, {0.5f, 0.6f}, {1.0, 0.8f}
+                {1.0f, 0.8f}, {0.5f, 0.3f}, {0.0, 0.8f}
         };
         curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points1))));
 
         std::vector<std::array<float, 2>> control_points2{
-                {0.0f, 0.2f}, {0.5f, 0.4f}, {1.0, 0.2f}
+                {0.0f, 0.2f}, {0.5f, 0.7f}, {1.0, 0.2f}
         };
         curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points2))));
 
 
         VklModel2D::BuilderFromImmediateData builder;
 
-        int n = 100;
-        int m = 100;
+        int n = 1024;
+        int m = 1024;
 
         float delta_u = 1.0f / n;
         float delta_v = 1.0f / m;
@@ -73,6 +73,15 @@ public:
                 decltype(builder.vertices)::value_type vertex;
                 vertex.position = {i * delta_v, j * delta_u};
                 vertex.color = {0.0f, 1.0f, 0.0f};
+
+                double winding_number = 0.0;
+                for (auto &curve: curves) {
+                    winding_number += curve->winding_number(vertex.position);
+                }
+
+                double pi = std::numbers::pi;
+                vertex.color.b = (winding_number + 2 * pi) / (4 * pi);
+
                 builder.vertices.push_back(vertex);
             }
         }
