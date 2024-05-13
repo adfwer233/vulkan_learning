@@ -13,7 +13,7 @@ float Path2D::winding_number(glm::vec2 test_point) {
 
 float Path2D::winding_number_internal(glm::vec2 test_point, size_t start_index, size_t end_index) {
     if (start_index >= end_index) {
-        return curves[end_index]->winding_number(test_point);
+        return curves[end_index]->winding_number_monotonic(test_point);
     }
 
     auto &start_pos = curves[start_index]->control_point_vec2.front();

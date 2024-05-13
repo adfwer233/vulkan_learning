@@ -213,6 +213,8 @@ void BezierCurve2D::initialize() {
         derivative_bound =
                 std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
     }
+
+    compute_extreme_points_new();
 }
 
 void BezierCurve2D::add_control_point(std::array<float, 2> pt) {
@@ -312,5 +314,62 @@ std::vector<glm::vec2> BezierCurve2D::compute_extreme_points_new() {
     std::ranges::copy(x_res | std::views::transform(evaluate_fn), std::back_inserter(result));
     std::ranges::copy(y_res | std::views::transform(evaluate_fn), std::back_inserter(result));
 
+    auto evaluate_fn_pair = [&](double x) { return std::make_pair(x, evaluate(x)); };
+
+    extreme_points.clear();
+
+    extreme_points.emplace_back(0, control_point_vec2.front());
+    extreme_points.emplace_back(1, control_point_vec2.back());
+    std::ranges::copy(x_res | std::views::transform(evaluate_fn_pair), std::back_inserter(extreme_points));
+    std::ranges::copy(y_res | std::views::transform(evaluate_fn_pair), std::back_inserter(extreme_points));
+
+    std::ranges::sort(extreme_points, [](extreme_info_type x, extreme_info_type y) { return x.first < y.first; });
+
     return result;
+}
+
+float BezierCurve2D::winding_number_monotonic(glm::vec2 test_point) {
+    size_t n = extreme_points.size() - 1;
+
+    float winding_number = 0.0f;
+
+    for (int i = 1; i <= n; i++) {
+        auto [param1, pos1] = extreme_points[i - 1];
+        auto [param2, pos2] = extreme_points[i];
+        winding_number += winding_number_monotonic_internal(test_point, pos1, pos2, param1, param2);
+    }
+
+    return winding_number;
+}
+
+float BezierCurve2D::winding_number_monotonic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos,
+                                                       float start, float end) {
+
+    bool out_x = (test_point.x < start_pos.x and test_point.x < end_pos.x) or (test_point.x > start_pos.x and test_point.x > end_pos.x);
+    bool out_y = (test_point.y < start_pos.y and test_point.y < end_pos.y) or (test_point.y > start_pos.y and test_point.y > end_pos.y);
+
+    auto v1 = glm::normalize(start_pos - test_point);
+    auto v2 = glm::normalize(end_pos - test_point);
+
+    if (glm::length(start_pos - test_point) < 1e-6 or glm::length(end_pos - start_pos) < 1e-6) {
+        return 0;
+    }
+
+    if (out_x or out_y) {
+        auto outer = v1.x * v2.y - v1.y * v2.x;
+        auto inner = glm::dot(v1, v2);
+
+        if (std::isnan(std::acos(inner))) {
+            return 0;
+        }
+
+        return outer > 0 ? std::acos(inner) : -std::acos(inner);
+    } else {
+        auto mid_param = (start + end) / 2;
+
+        auto mid_pos = evaluate_linear(mid_param);
+
+        return winding_number_monotonic_internal(test_point, start_pos, mid_pos, start, mid_param) +
+               winding_number_monotonic_internal(test_point, mid_pos, end_pos, mid_param, end);
+    }
 }

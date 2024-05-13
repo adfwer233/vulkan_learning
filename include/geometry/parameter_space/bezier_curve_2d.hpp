@@ -16,6 +16,16 @@ class BezierCurve2D {
   private:
     std::vector<std::array<float, 2>> control_points_;
 
+    /**
+     * extreme point represented by (param, par_pos)
+     */
+    using extreme_info_type = std::pair<double, glm::vec2>;
+
+    /**
+     * extreme points, include the end points
+     */
+    std::vector<extreme_info_type> extreme_points;
+
   public:
     std::vector<glm::vec2> control_point_vec2;
 
@@ -52,6 +62,10 @@ class BezierCurve2D {
     std::tuple<float, float> projection(glm::vec2 test_point);
 
     std::vector<float> find_roots();
+
+    float winding_number_monotonic(glm::vec2 test_point);
+
+    float winding_number_monotonic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end);
 
     float winding_number(glm::vec2 test_point);
 

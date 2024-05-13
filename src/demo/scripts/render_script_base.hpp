@@ -135,9 +135,6 @@ public:
 
             vkQueueSubmit(device_.graphicsQueue(), 1, &submitInfo, fence);
             vkQueueWaitIdle(device_.graphicsQueue());
-
-//            vkFreeCommandBuffers(device_.device(), device_.getCommandPool(), 1, &commandBuffer);
-
             vkDeviceWaitIdle(device_.device());
         };
 
@@ -153,18 +150,6 @@ public:
         renderSystem.renderObject(gridModelFrameInfo);
 
         vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
-//        vkCmdEndRenderPass(commandBuffer);
-
-//        endFrameRender();
-//
-//        commandBuffer = renderer_.getCurrentCommandBuffer();
-//        VkCommandBufferBeginInfo beginInfo{};
-//        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-//        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-//            throw std::runtime_error("failed to begin recording command buffer!");
-//        }
-//        renderer_.beginSwapChainRenderPass(commandBuffer);
 
         for (auto &curve: curves) {
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
