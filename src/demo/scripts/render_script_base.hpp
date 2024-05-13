@@ -68,6 +68,9 @@ public:
         float delta_u = 1.0f / n;
         float delta_v = 1.0f / m;
 
+        glm::vec3 lower_color{0.0f, 0.0f, 1.0f};
+        glm::vec3 upper_color(1.0f, 0.0f, 0.0f);
+
         for (int i = 0; i <= m; i++) {
             for (int j = 0; j <= n; j++) {
                 decltype(builder.vertices)::value_type vertex;
@@ -80,7 +83,14 @@ public:
                 }
 
                 double pi = std::numbers::pi;
-                vertex.color.b = (winding_number + 2 * pi) / (4 * pi);
+                double coeff = (winding_number + 2 * pi) / (4 * pi);
+                vertex.color = lower_color + (upper_color - lower_color) * float((winding_number + 2 * pi) / (4 * pi));
+
+                if (coeff > 0.75) {
+                    vertex.color = {1.0f, 0.0f, 0.0f};
+                } else {
+                    vertex.color = {1.0f, 1.0f, 1.0f};
+                }
 
                 builder.vertices.push_back(vertex);
             }

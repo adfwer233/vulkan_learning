@@ -22,7 +22,7 @@ float Path2D::winding_number_internal(glm::vec2 test_point, size_t start_index, 
     auto d1 = glm::length(start_pos - test_point);
     auto d2 = glm::length(end_pos - test_point);
 
-    if (d1 < 1e-3 or d2 < 1e-3)
+    if (d1 < 1e-6 or d2 < 1e-6)
         return 0;
 
     if (d1 + d2 > derivative_bound * (end_index - start_index)) {
