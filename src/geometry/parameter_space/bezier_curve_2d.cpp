@@ -2,6 +2,8 @@
 
 #include <set>
 
+#include "Eigen/Eigen"
+
 #define M_PI 3.14159265358979323846 // pi
 #include "root_finder/root_finder.hpp"
 
@@ -372,4 +374,41 @@ float BezierCurve2D::winding_number_monotonic_internal(glm::vec2 test_point, glm
         return winding_number_monotonic_internal(test_point, start_pos, mid_pos, start, mid_param) +
                winding_number_monotonic_internal(test_point, mid_pos, end_pos, mid_param, end);
     }
+}
+float BezierCurve2D::winding_number_bi_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos,
+                                                         float start, float end, float derivative_bound) {
+    return 0;
+}
+
+float BezierCurve2D::winding_number_u_periodic(glm::vec2 test_point) {
+    // the closed case
+
+    auto start_pos = control_point_vec2.front();
+    auto end_pos = control_point_vec2.back();
+
+    // the non-closed case
+    double winding_number_main = winding_number_internal(test_point, start_pos, end_pos, 0.0, 1.0, derivative_bound);
+
+    double winding_number_v = 0;
+    if (start_pos.x < end_pos.x) {
+        winding_number_v = start_pos.y > test_point.y ? -std::numbers::pi : std::numbers::pi;
+    } else {
+        winding_number_v = start_pos.y > test_point.y ? std::numbers::pi : -std::numbers::pi;
+    }
+
+    double winding_number_complement = 0;
+
+    auto v1 = glm::normalize(start_pos - test_point);
+    auto v2 = glm::normalize(end_pos - test_point);
+
+    auto outer = v1.x * v2.y - v1.y * v2.x;
+    auto inner = glm::dot(v1, v2);
+
+    if (std::isnan(std::acos(inner))) {
+        winding_number_complement = winding_number_v = 0;
+    } else {
+        winding_number_complement = outer > 0 ? std::acos(inner) : -std::acos(inner);
+    }
+
+    return winding_number_main + winding_number_v - winding_number_complement;
 }

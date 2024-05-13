@@ -79,7 +79,7 @@ public:
 
                 double winding_number = 0.0;
                 for (auto &curve: curves) {
-                    winding_number += curve->winding_number(vertex.position);
+                    winding_number += curve->winding_number_u_periodic(vertex.position);
                 }
 
                 double pi = std::numbers::pi;
@@ -87,7 +87,7 @@ public:
                 vertex.color = lower_color + (upper_color - lower_color) * float((winding_number + 2 * pi) / (4 * pi));
 
                 if (coeff > 0.75) {
-                    vertex.color = {1.0f, 0.0f, 0.0f};
+                    // vertex.color = {0.0f, 1.0f, 0.5f};
                 } else {
                     vertex.color = {1.0f, 1.0f, 1.0f};
                 }

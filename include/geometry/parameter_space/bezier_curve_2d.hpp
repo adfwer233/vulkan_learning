@@ -5,8 +5,6 @@
 
 #include <boost/math/tools/polynomial.hpp>
 
-#include "Eigen/Eigen"
-
 #include <vector>
 
 #include <chrono>
@@ -71,6 +69,8 @@ class BezierCurve2D {
 
     float winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end,
                                   float derivative_bound);
+
+    float winding_number_u_periodic(glm::vec2 test_point);
 
     float winding_number_bi_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start,
                                               float end, float derivative_bound);

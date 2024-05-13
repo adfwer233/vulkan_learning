@@ -4,6 +4,7 @@
 #include "vkl/utils/vkl_curve_model.hpp"
 #include "vkl_model.hpp"
 #include <vector>
+#include <map>
 #include <numbers>
 
 template <typename T> class VklGeometryModel {};
