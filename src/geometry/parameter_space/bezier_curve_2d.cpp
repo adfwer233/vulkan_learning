@@ -216,7 +216,9 @@ void BezierCurve2D::initialize() {
                 std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
     }
 
-    compute_extreme_points_new();
+    if (control_points_.size() >= 3) {
+        compute_extreme_points_new();
+    }
 }
 
 void BezierCurve2D::add_control_point(std::array<float, 2> pt) {
@@ -375,16 +377,23 @@ float BezierCurve2D::winding_number_monotonic_internal(glm::vec2 test_point, glm
                winding_number_monotonic_internal(test_point, mid_pos, end_pos, mid_param, end);
     }
 }
-float BezierCurve2D::winding_number_bi_periodic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos,
-                                                         float start, float end, float derivative_bound) {
-    return 0;
-}
 
 float BezierCurve2D::winding_number_u_periodic(glm::vec2 test_point) {
     // the closed case
 
     auto start_pos = control_point_vec2.front();
     auto end_pos = control_point_vec2.back();
+
+    if (glm::length(end_pos - start_pos) < 1e-5) {
+        double winding_number = winding_number_internal(test_point, start_pos, end_pos, 0.0, 1.0, derivative_bound);
+
+        for (int i = 1; i < 3; i++) {
+            winding_number += winding_number_internal(test_point + glm::vec2{1.0f * i, 0.0f}, start_pos, end_pos, 0.0, 1.0, derivative_bound);
+            winding_number += winding_number_internal(test_point - glm::vec2{1.0f * i, 0.0f}, start_pos, end_pos, 0.0, 1.0, derivative_bound);
+        }
+
+        return winding_number;
+    }
 
     // the non-closed case
     double winding_number_main = winding_number_internal(test_point, start_pos, end_pos, 0.0, 1.0, derivative_bound);
@@ -411,4 +420,52 @@ float BezierCurve2D::winding_number_u_periodic(glm::vec2 test_point) {
     }
 
     return winding_number_main + winding_number_v - winding_number_complement;
+}
+
+float BezierCurve2D::winding_number_bi_periodic(glm::vec2 test_point) {
+    auto start_pos = control_point_vec2.front();
+    auto end_pos = control_point_vec2.back();
+
+    int N = 2;
+
+    bool closed = glm::length(start_pos - end_pos) < 1e-5;
+
+    double winding_number = 0.0;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            auto trans_point = test_point + glm::vec2{1.0f * i, 1.0f * j};
+
+            double winding_number_main = winding_number_internal(trans_point, start_pos, end_pos, 0.0, 1.0, derivative_bound);
+            double winding_number_v = 0;
+            double winding_number_complement = 0;
+
+            if (closed) {
+                winding_number += winding_number_main;
+            } else {
+                auto v1 = glm::normalize(start_pos - trans_point);
+                auto v2 = glm::normalize(end_pos - trans_point);
+                auto v3 = glm::normalize(end_pos - start_pos);
+
+                if (v1.x * v3.y - v1.y * v3.x > 0) {
+                    winding_number_v = std::numbers::pi;
+                } else {
+                    winding_number_v = -std::numbers::pi;
+                }
+
+                auto outer = v1.x * v2.y - v1.y * v2.x;
+                auto inner = glm::dot(v1, v2);
+
+                if (std::isnan(std::acos(inner))) {
+                    winding_number_complement = winding_number_v = 0;
+                } else {
+                    winding_number_complement = outer > 0 ? std::acos(inner) : -std::acos(inner);
+                }
+
+                winding_number += winding_number_main + winding_number_v - winding_number_complement;
+            }
+        }
+    }
+
+    return winding_number;
 }

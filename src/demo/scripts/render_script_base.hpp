@@ -50,15 +50,31 @@ public:
         std::vector<std::unique_ptr<BezierCurve2D>> curves;
 
         std::vector<std::array<float, 2>> control_points1{
-                {1.0f, 0.8f}, {0.5f, 0.3f}, {0.0, 0.8f}
+                {0.25f, 0.0f}, {0.5f, 1.0f}, {1.0f, 1.0f}, {1.25f, 2.0f}
         };
         curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points1))));
 
         std::vector<std::array<float, 2>> control_points2{
-                {0.0f, 0.2f}, {0.5f, 0.7f}, {1.0, 0.2f}
+                {1.0f, 2.0f}, {0.75f, 1.0f}, {0.25f, 1.0f}, {0.0f, 0.0f}
         };
         curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points2))));
 
+        VklCurveModel2D::BuilderFromImmediateData parameterSpaceBoundaryBuilder;
+        parameterSpaceBoundaryBuilder.vertices = {
+                Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{1.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        };
+
+        VklCurveModel2D parameterSpaceBoundary(device_, parameterSpaceBoundaryBuilder);
+        parameterSpaceBoundary.allocDescriptorSets(*globalSetLayout, *globalPool);
 
         VklModel2D::BuilderFromImmediateData builder;
 
@@ -79,18 +95,24 @@ public:
 
                 double winding_number = 0.0;
                 for (auto &curve: curves) {
-                    winding_number += curve->winding_number_u_periodic(vertex.position);
+                    winding_number += curve->winding_number_bi_periodic(vertex.position);
                 }
 
                 double pi = std::numbers::pi;
                 double coeff = (winding_number + 2 * pi) / (4 * pi);
                 vertex.color = lower_color + (upper_color - lower_color) * float((winding_number + 2 * pi) / (4 * pi));
 
-                if (coeff > 0.75) {
-                    // vertex.color = {0.0f, 1.0f, 0.5f};
+                if (coeff > 0.5) {
+                    vertex.color = upper_color * float(coeff - 0.5f) * 2.0f;
                 } else {
-                    vertex.color = {1.0f, 1.0f, 1.0f};
+                    vertex.color = lower_color * float(0.5f - coeff) * 2.0f;
                 }
+
+                // if (coeff > 0.75) {
+                //     // vertex.color = {0.0f, 1.0f, 0.5f};
+                // } else {
+                //     vertex.color = {1.0f, 1.0f, 1.0f};
+                // }
 
                 builder.vertices.push_back(vertex);
             }
@@ -148,6 +170,7 @@ public:
             vkDeviceWaitIdle(device_.device());
         };
 
+
         FrameInfo<VklModel2D> gridModelFrameInfo {
             .frameIndex = 0,
             .frameTime = 0.0f,
@@ -160,6 +183,17 @@ public:
         renderSystem.renderObject(gridModelFrameInfo);
 
         vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
+
+        FrameInfo<VklCurveModel2D> parameterSpaceBoundaryFrameInfo {
+                .frameIndex = 0,
+                .frameTime = 0.0f,
+                .commandBuffer = commandBuffer,
+                .camera = camera,
+                .pGlobalDescriptorSet = &parameterSpaceBoundary.descriptorSets[0],
+                .model= parameterSpaceBoundary
+        };
+
+        // paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo, paramLineRenderSystemPushConstantList);
 
         for (auto &curve: curves) {
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();

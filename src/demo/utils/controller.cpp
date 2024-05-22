@@ -113,6 +113,13 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
             float u = (controller->mouse_x_pos - controller->scope_min.x) / width;
             float v = (controller->mouse_y_pos - controller->scope_min.y) / height;
 
+
+            u = 0.5 + (u - 0.5) / controller->uiManager_->bezier_zoom_in;
+            v = 0.5 + (v - 0.5) / controller->uiManager_->bezier_zoom_in;
+
+            u -= controller->uiManager_->bezier_shift.x;
+            v -= controller->uiManager_->bezier_shift.y;
+
             constexpr float picking_threshold = 0.05;
 
             if (controller->pressing_shift) {
