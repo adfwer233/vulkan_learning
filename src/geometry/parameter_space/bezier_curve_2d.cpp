@@ -10,6 +10,7 @@
 #include <numbers>
 
 #include "geometry/parameter_space/bezier_root_finder.hpp"
+#include "geometry/parameter_space/bezier_clipping.hpp"
 
 std::tuple<float, float> BezierCurve2D::projection(glm::vec2 test_point) {
     auto target_poly =
@@ -468,4 +469,8 @@ float BezierCurve2D::winding_number_bi_periodic(glm::vec2 test_point) {
     }
 
     return winding_number;
+}
+
+uint32_t BezierCurve2D::bezier_clipping(glm::vec2 test_point) const {
+    return BezierClipping::bezier_clipping(test_point, control_point_vec2);
 }

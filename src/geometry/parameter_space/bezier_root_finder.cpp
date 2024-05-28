@@ -116,7 +116,6 @@ std::vector<double> BezierRootFinder::get_roots(std::vector<double>& c, double a
     }
 
     if (not std::isnan(t0)) {
-        // std::cout << t0 << ' ' << a << ' ' << b << std::endl;
         auto [cl, cr] = subdivide(c, t0);
         std::vector<double> cL, cR;
         std::copy(cl.cbegin(), cl.cend() - 1, std::back_inserter(cL));
@@ -150,7 +149,6 @@ std::vector<double> BezierRootFinder::get_roots(std::vector<double>& c, double a
         auto res2 = get_roots(cr, b * t0 + a * (1 - t0), b);
 
         std::vector<double> result;
-
         std::ranges::copy(res1, std::back_inserter(result));
         std::ranges::copy(res2, std::back_inserter(result));
 
@@ -164,6 +162,8 @@ BezierRootFinder::subdivide(const std::vector<double> &c, float param) const {
 
     std::vector current(c);
     std::vector<double> lhs, rhs;
+    lhs.reserve(n);
+    rhs.reserve(n);
 
     lhs.push_back(current.front());
     rhs.push_back(current.back());

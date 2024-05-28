@@ -59,6 +59,8 @@ class BezierCurve2D {
 
     std::tuple<float, float> projection(glm::vec2 test_point);
 
+    uint32_t bezier_clipping(glm::vec2 test_point) const;
+
     std::vector<float> find_roots();
 
     float winding_number_monotonic(glm::vec2 test_point);
