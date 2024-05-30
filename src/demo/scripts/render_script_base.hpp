@@ -49,28 +49,38 @@ public:
 
         std::vector<std::unique_ptr<BezierCurve2D>> curves;
 
+        // std::vector<std::array<float, 2>> control_points1{
+        //         {0.25f, 0.0f}, {0.5f, 1.0f}, {1.0f, 1.0f}, {1.25f, 2.0f}
+        // };
+        // curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points1))));
+        //
+        // std::vector<std::array<float, 2>> control_points2{
+        //         {1.0f, 2.0f}, {0.75f, 1.0f}, {0.25f, 1.0f}, {0.0f, 0.0f}
+        // };
+        // curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points2))));
+
         std::vector<std::array<float, 2>> control_points1{
-                {0.25f, 0.0f}, {0.5f, 1.0f}, {1.0f, 1.0f}, {1.25f, 2.0f}
+                {0.01f, 0.2f}, {0.5f, 0.7f}, {0.99f, 0.2f}
         };
         curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points1))));
 
         std::vector<std::array<float, 2>> control_points2{
-                {1.0f, 2.0f}, {0.75f, 1.0f}, {0.25f, 1.0f}, {0.0f, 0.0f}
+                {0.99f, 0.8f}, {0.5f, 0.3f}, {0.01f, 0.8f}
         };
         curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points2))));
 
         VklCurveModel2D::BuilderFromImmediateData parameterSpaceBoundaryBuilder;
         parameterSpaceBoundaryBuilder.vertices = {
-                Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{0.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{1.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.01f, 0.01f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.01f, 0.99f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.99f, 0.99f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.99f, 0.01f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                Vertex2D{{0.01f, 0.01f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                // Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                // Vertex2D{{0.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                // Vertex2D{{1.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                // Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                // Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
         };
 
         VklCurveModel2D parameterSpaceBoundary(device_, parameterSpaceBoundaryBuilder);
@@ -180,7 +190,7 @@ public:
             .model = grid
         };
 
-        renderSystem.renderObject(gridModelFrameInfo);
+        // renderSystem.renderObject(gridModelFrameInfo);
 
         vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -193,7 +203,7 @@ public:
                 .model= parameterSpaceBoundary
         };
 
-        // paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo, paramLineRenderSystemPushConstantList);
+        paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo, paramLineRenderSystemPushConstantList);
 
         for (auto &curve: curves) {
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
