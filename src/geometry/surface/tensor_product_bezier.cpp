@@ -244,11 +244,19 @@ void TensorProductBezierSurface::initializeBoundary() {
     boundary_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(circle1_boundary_4))));
 }
 
+enum ExpTypes {
+    PROPOSED,
+    RAYCASTING,
+    WO_LINEAR,
+    WO_PATH,
+    WO_BASIS
+};
+
 MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshModelBuilder() {
     render_type builder;
 
-    constexpr int n = 100;
-    constexpr int m = 100;
+    constexpr int n = 1000;
+    constexpr int m = 1000;
 
     float delta_u = 1.0f / n;
     float delta_v = 1.0f / m;
@@ -264,28 +272,36 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
         }
     }
 
+    constexpr ExpTypes exp_type = PROPOSED;
+
     // compute the winding number of sampled parameter points
     auto start_time = std::chrono::high_resolution_clock::now();
     for (int i = 0; i <= m; i++) {
         // std::cout << "Line " << i << "\n";
         for (int j = 0; j <= n; j++) {
             glm::vec2 param{delta_u * i, delta_v * j};
-            // auto wn = containment_test(param);
             auto &vertex = builder.vertices[i * (n + 1) + j];
-            // vertex.color = {std::abs(wn) / 6.28f, 0.0f, 0.0f};
 
-            uint32_t cross_number = 0;
-            for (const auto &path : paths) {
-                for (const auto &curve: path->curves) {
-                    cross_number += curve->bezier_clipping(param);
-                }
+            if constexpr (exp_type == PROPOSED) {
+                auto wn = containment_test(param);
+                vertex.color = {-wn / 6.28f, 0.0f, 0.0f};
             }
-            cross_number %= 2;
 
-            if (cross_number == 0) {
+            if constexpr (exp_type == RAYCASTING) {
+                uint32_t cross_number = 0;
 
-            } else if (cross_number == 1) {
-                vertex.color = {1.0f, 0.0f, 0.0f};
+                for (const auto &path : paths) {
+                    for (const auto &curve: path->curves) {
+                        cross_number += curve->bezier_clipping(param);
+                    }
+                }
+                cross_number %= 2;
+
+                if (cross_number == 0) {
+
+                } else if (cross_number == 1) {
+                    vertex.color = {1.0f, 0.0f, 0.0f};
+                }
             }
         }
     }

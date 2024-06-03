@@ -96,20 +96,25 @@ void SceneManagerUI::renderImgui() {
     }
 
     if (ImGui::Button("Load Bezier Boundary")) {
-        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape_high_order2.json");
+        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape1.json");
 
         std::cout << full_path << std::endl;
         std::ifstream f(full_path);
         json data = json::parse(f);
 
         auto get_point = [&](json &point_json) -> std::pair<float, float> {
-            return {point_json["x"].get<float>(), point_json["y"].get<float>()};
+            return {point_json["x"].get<float>() / 1500, point_json["y"].get<float>() / 1500};
         };
 
         std::vector<std::vector<std::array<float, 2>>> boundary_data;
         std::vector<size_t> path_indices;
+        auto path_count = 0;
+        auto curve_count = 0;
+
         for (auto path_json : data) {
+            path_count ++;
             for (auto bezier : path_json) {
+                curve_count ++;
                 auto straight = false;
                 for (auto points : bezier) {
                     if (points.is_boolean()) {
@@ -133,6 +138,8 @@ void SceneManagerUI::renderImgui() {
 
             path_indices.push_back(boundary_data.size());
         }
+
+        std::cout << std::format("path: {}, curve {}\n", path_count, curve_count);
 
         std::vector<std::vector<glm::vec3>> control_points{{{-1.0, 0.0, -1.0}, {-1.0, 0.0, 0.0}, {-1.0, 0.0, 1.0}},
                                                            {{0.0, 0.0, -1.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}},

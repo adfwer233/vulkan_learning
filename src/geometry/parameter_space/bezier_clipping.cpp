@@ -52,6 +52,10 @@ uint32_t BezierClipping::bezier_clipping(glm::vec2 test_point, const std::vector
         if (tmp < 0) return 1;
     }
 
+    if ((not quadrant1) and (not quadrant4)) {
+        return 0;
+    }
+
     std::vector<double> x_poly, y_poly;
 
     std::ranges::for_each(points, [&](glm::vec2 v) {

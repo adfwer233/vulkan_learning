@@ -77,8 +77,50 @@ glm::vec2 BezierCurve2D::evaluate_polynomial(float param) const {
 float BezierCurve2D::winding_number(glm::vec2 test_point) {
     // computing derivative bound
 
-    return winding_number_internal(test_point, control_point_vec2.front(), control_point_vec2.back(), 0.0f, 1.0f,
-                                   derivative_bound);
+    bool quadrant1 = false, quadrant2 = false, quadrant3 = false, quadrant4 = false;
+
+    for (auto &point: control_point_vec2) {
+        if (point.x > test_point.x and point.y > test_point.y) quadrant1 = true;
+        if (point.x < test_point.x and point.y > test_point.y) quadrant2 = true;
+        if (point.x < test_point.x and point.y < test_point.y) quadrant3 = true;
+        if (point.x > test_point.x and point.y < test_point.y) quadrant4 = true;
+    }
+
+    uint32_t quadrant_num = 0;
+    if (quadrant1) quadrant_num++;
+    if (quadrant2) quadrant_num++;
+    if (quadrant3) quadrant_num++;
+    if (quadrant4) quadrant_num++;
+
+    bool out_bound_flag = false;
+
+    // if (quadrant_num == 1) {
+    //     out_bound_flag = true;
+    // }
+    //
+    // if (quadrant1 and quadrant2 and (not quadrant3) and (not quadrant4)) out_bound_flag = true;
+    // if (quadrant1 and quadrant4 and (not quadrant2) and (not quadrant3)) out_bound_flag = true;
+    // if (quadrant2 and quadrant3 and (not quadrant1) and (not quadrant4)) out_bound_flag = true;
+    // if (quadrant3 and quadrant4 and (not quadrant1) and (not quadrant2)) out_bound_flag = true;
+    //
+
+    if (out_bound_flag) {
+        auto v1 = glm::normalize(control_point_vec2.front() - test_point);
+        auto v2 = glm::normalize(control_point_vec2.back() - test_point);
+        auto outer = v1.x * v2.y - v1.y * v2.x;
+        auto inner = glm::dot(v1, v2);
+
+        auto acos_value = std::acos(inner);
+
+        if (std::isnan(acos_value)) {
+            return 0;
+        }
+
+        return outer > 0 ? acos_value : -acos_value;
+    } else {
+        return winding_number_internal(test_point, control_point_vec2.front(), control_point_vec2.back(), 0.0f, 1.0f,
+                                       derivative_bound);
+    }
 }
 
 float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start,
@@ -95,16 +137,18 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
         auto outer = v1.x * v2.y - v1.y * v2.x;
         auto inner = glm::dot(v1, v2);
 
-        if (std::isnan(std::acos(inner))) {
+        auto acos_value = std::acos(inner);
+
+        if (std::isnan(acos_value)) {
             return 0;
         }
 
-        return outer > 0 ? std::acos(inner) : -std::acos(inner);
+        return outer > 0 ? acos_value : -acos_value;
     }
 
     auto mid_param = (start + end) / 2;
 
-    auto mid_pos = evaluate_linear(mid_param);
+    auto mid_pos = evaluate(mid_param);
 
     return winding_number_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound) +
            winding_number_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);
