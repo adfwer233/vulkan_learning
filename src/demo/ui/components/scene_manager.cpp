@@ -96,7 +96,7 @@ void SceneManagerUI::renderImgui() {
     }
 
     if (ImGui::Button("Load Bezier Boundary")) {
-        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape1.json");
+        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape4.json");
 
         std::cout << full_path << std::endl;
         std::ifstream f(full_path);

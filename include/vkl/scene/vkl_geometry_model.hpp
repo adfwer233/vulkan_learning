@@ -86,17 +86,17 @@ public:
     VklGeometryModel(VklDevice &device, BezierCurve2D *curve): device_(device), curve_(curve) {
         createControlPointsMesh();
 
-        if (curve->control_point_vec2.size() >= 3)
+        if (curve->control_point_vec2.size() >= 2)
             createMesh();
     }
 
     void reallocateMesh() {
-        if (curveMesh == nullptr and curve_->control_point_vec2.size() >= 3) {
+        if (curveMesh == nullptr and curve_->control_point_vec2.size() >= 2) {
             createMesh();
             createDerivativeBoundMesh();
         }
 
-        if (extremePointMesh == nullptr and curve_->control_point_vec2.size() >= 3) {
+        if (extremePointMesh == nullptr and curve_->control_point_vec2.size() >= 2) {
             createExtremePointMesh();
         }
 

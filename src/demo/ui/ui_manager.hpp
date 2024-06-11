@@ -109,7 +109,7 @@ class UIManager {
      */
     std::vector<std::unique_ptr<BezierCurve2D>> bezier_editor_curves;
 
-    float bezier_zoom_in = 0.3f;
+    float bezier_zoom_in = 0.99f;
 
     GeometryVariableManager geometryVariableManager;
 

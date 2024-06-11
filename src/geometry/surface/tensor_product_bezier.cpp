@@ -272,7 +272,7 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
         }
     }
 
-    constexpr ExpTypes exp_type = PROPOSED;
+    constexpr ExpTypes exp_type = RAYCASTING;
 
     // compute the winding number of sampled parameter points
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -284,7 +284,7 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
 
             if constexpr (exp_type == PROPOSED) {
                 auto wn = containment_test(param);
-                vertex.color = {-wn / 6.28f, 0.0f, 0.0f};
+                vertex.color = {wn / 6.28f, 0.0f, 0.0f};
             }
 
             if constexpr (exp_type == RAYCASTING) {
@@ -330,26 +330,26 @@ MeshModelTemplate<Vertex3D, TriangleIndex> TensorProductBezierSurface::getMeshMo
         }
     }
 
-    std::vector<glm::vec2> on_boundary_parameters;
+    // std::vector<glm::vec2> on_boundary_parameters;
 
-    int boundary_sample_num = 1000;
-    std::ranges::generate_n(std::back_inserter(on_boundary_parameters), boundary_sample_num, [&](){return sample_boundary_parameter();});
+    // int boundary_sample_num = 1000;
+    // std::ranges::generate_n(std::back_inserter(on_boundary_parameters), boundary_sample_num, [&](){return sample_boundary_parameter();});
+    //
+    // auto start_time2 = std::chrono::high_resolution_clock::now();
+    // for (auto param: on_boundary_parameters) {
+    //     auto wn = containment_test(param);
+    // }
+    // auto end_time2 = std::chrono::high_resolution_clock::now();
+    // std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time2 - start_time2).count() << std::endl;
 
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    for (auto param: on_boundary_parameters) {
-        auto wn = containment_test(param);
-    }
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time2 - start_time2).count() << std::endl;
-
-    auto start_time3 = std::chrono::high_resolution_clock::now();
-    for (auto &path: paths) {
-        for (auto &curve: path->curves) {
-            curve->compute_extreme_points();
-        }
-    }
-    auto end_time3 = std::chrono::high_resolution_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time3 - start_time3).count() << std::endl;
+    // auto start_time3 = std::chrono::high_resolution_clock::now();
+    // for (auto &path: paths) {
+    //     for (auto &curve: path->curves) {
+    //         curve->compute_extreme_points();
+    //     }
+    // }
+    // auto end_time3 = std::chrono::high_resolution_clock::now();
+    // std::cout << std::chrono::duration_cast<std::chrono::microseconds>(end_time3 - start_time3).count() << std::endl;
 
     return builder;
 }

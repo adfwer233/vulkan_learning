@@ -5,6 +5,7 @@
 #include "nlohmann/json.hpp"
 
 #include "../../../scripts/render_script_base.hpp"
+#include "../../../scripts/containment_script.hpp"
 
 using json = nlohmann::json;
 
@@ -18,7 +19,7 @@ void BezierEditorPanelUI::renderImgui() {
         ImGui::BeginChild("Bezier Editor Panel");
 
         if (ImGui::Button("Load the Bezier curve")) {
-            std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/cross_bd0.json");
+            std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape_high_order2.json");
 
             std::cout << full_path << std::endl;
             std::ifstream f(full_path);
@@ -74,7 +75,7 @@ void BezierEditorPanelUI::renderImgui() {
         }
 
         if (ImGui::Button("Render Script")) {
-            RenderScriptsBase scriptBase(uiManager_.device_);
+            ContainmentQueryScript scriptBase(uiManager_.device_);
             scriptBase.renderResult();
         }
 

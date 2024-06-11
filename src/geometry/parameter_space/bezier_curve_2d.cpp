@@ -305,7 +305,7 @@ glm::vec2 BezierCurve2D::evaluate_linear(float param) const {
 }
 
 std::vector<glm::vec2> BezierCurve2D::compute_extreme_points() {
-    return compute_extreme_points_new();
+    // return compute_extreme_points_new();
 
     int n = control_points_.size() - 1;
 

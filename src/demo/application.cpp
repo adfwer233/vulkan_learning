@@ -478,7 +478,7 @@ void Application::run() {
                                                                   &model->descriptorSets[frameIndex],
                                                                   *model};
 
-                        // pointCloud2DRenderSystem.renderObject(modelFrameInfo, pointCloud2DRenderSystemPushConstantList);
+                        pointCloud2DRenderSystem.renderObject(modelFrameInfo, pointCloud2DRenderSystemPushConstantList);
 
                         if (curveMesh->curveMesh != nullptr) {
 
@@ -493,17 +493,17 @@ void Application::run() {
                                                                 paramLineRenderSystemPushConstantList);
                         }
 
-                        // if (curveMesh->derivativeBoundMesh != nullptr) {
-                        //     FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex,
-                        //                                                    currentFrame,
-                        //                                                    bezierCommandBuffer,
-                        //                                                    scene.camera,
-                        //                                                    &curveMesh->derivativeBoundMesh->descriptorSets[frameIndex],
-                        //                                                    *curveMesh->derivativeBoundMesh};
-                        //
-                        //     paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
-                        // }
-                        //
+                        if (curveMesh->derivativeBoundMesh != nullptr) {
+                            FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex,
+                                                                           currentFrame,
+                                                                           bezierCommandBuffer,
+                                                                           scene.camera,
+                                                                           &curveMesh->derivativeBoundMesh->descriptorSets[frameIndex],
+                                                                           *curveMesh->derivativeBoundMesh};
+
+                            paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
+                        }
+
                         // if (curveMesh->extremePointMesh != nullptr) {
                         //     FrameInfo<VklPointCloud2D> curveModelFrameInfo{frameIndex,
                         //                                                    currentFrame,
