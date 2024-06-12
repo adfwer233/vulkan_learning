@@ -96,14 +96,14 @@ void SceneManagerUI::renderImgui() {
     }
 
     if (ImGui::Button("Load Bezier Boundary")) {
-        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape4.json");
+        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/spur_1.json");
 
         std::cout << full_path << std::endl;
         std::ifstream f(full_path);
         json data = json::parse(f);
 
         auto get_point = [&](json &point_json) -> std::pair<float, float> {
-            return {point_json["x"].get<float>() / 1500, point_json["y"].get<float>() / 1500};
+            return {point_json["x"].get<float>() , point_json["y"].get<float>() };
         };
 
         std::vector<std::vector<std::array<float, 2>>> boundary_data;

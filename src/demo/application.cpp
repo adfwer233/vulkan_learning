@@ -504,16 +504,16 @@ void Application::run() {
                             paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
                         }
 
-                        // if (curveMesh->extremePointMesh != nullptr) {
-                        //     FrameInfo<VklPointCloud2D> curveModelFrameInfo{frameIndex,
-                        //                                                    currentFrame,
-                        //                                                    bezierCommandBuffer,
-                        //                                                    scene.camera,
-                        //                                                    &curveMesh->extremePointMesh->descriptorSets[frameIndex],
-                        //                                                    *curveMesh->extremePointMesh};
-                        //
-                        //     pointCloud2DRenderSystem.renderObject(curveModelFrameInfo, pointCloud2DRenderSystemPushConstantList);
-                        // }
+                        if (curveMesh->extremePointMesh != nullptr) {
+                            FrameInfo<VklPointCloud2D> curveModelFrameInfo{frameIndex,
+                                                                           currentFrame,
+                                                                           bezierCommandBuffer,
+                                                                           scene.camera,
+                                                                           &curveMesh->extremePointMesh->descriptorSets[frameIndex],
+                                                                           *curveMesh->extremePointMesh};
+
+                            pointCloud2DRenderSystem.renderObject(curveModelFrameInfo, pointCloud2DRenderSystemPushConstantList);
+                        }
                     }
                 }
             }

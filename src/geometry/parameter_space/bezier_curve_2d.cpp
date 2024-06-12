@@ -131,7 +131,7 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
     if (d1 < 1e-6 or d2 < 1e-6)
         return 0;
 
-    if (d1 + d2 > derivative_bound * (end - start) or (end - start) < 1e-6) {
+    if (d1 + d2 > derivative_bound * (end - start) or (end - start) < 1e-7) {
         auto v1 = glm::normalize(start_pos - test_point);
         auto v2 = glm::normalize(end_pos - test_point);
         auto outer = v1.x * v2.y - v1.y * v2.x;
@@ -148,7 +148,7 @@ float BezierCurve2D::winding_number_internal(glm::vec2 test_point, glm::vec2 sta
 
     auto mid_param = (start + end) / 2;
 
-    auto mid_pos = evaluate(mid_param);
+    auto mid_pos = evaluate_linear(mid_param);
 
     return winding_number_internal(test_point, start_pos, mid_pos, start, mid_param, derivative_bound) +
            winding_number_internal(test_point, mid_pos, end_pos, mid_param, end, derivative_bound);
@@ -305,7 +305,7 @@ glm::vec2 BezierCurve2D::evaluate_linear(float param) const {
 }
 
 std::vector<glm::vec2> BezierCurve2D::compute_extreme_points() {
-    // return compute_extreme_points_new();
+    return compute_extreme_points_new();
 
     int n = control_points_.size() - 1;
 
