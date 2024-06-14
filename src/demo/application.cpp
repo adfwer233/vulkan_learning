@@ -20,6 +20,8 @@
 
 #include "vkl/core/vkl_offscreen_renderer.hpp"
 
+#include "vkl/render_graph/render_graph.hpp"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"

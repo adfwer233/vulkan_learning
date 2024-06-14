@@ -264,7 +264,7 @@ private:
             render_type::vertex_type vertex;
             auto position = curve_->evaluate(param_delta * i);
             vertex.position = position;
-            vertex.color = {1.0, 0.0, 0.0};
+            vertex.color = {0.0, 1.0, 0.0};
             builder.vertices.push_back(vertex);
         }
 
