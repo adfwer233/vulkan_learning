@@ -1,14 +1,98 @@
 #include "simple_render_system.hpp"
 
+#include <iostream>
 #include <stdexcept>
+
+#include "spirv_cross/spirv_cross.hpp"
 
 template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
 SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(
-    VklDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
-    std::vector<VklShaderModuleInfo> shaderInfos)
+    VklDevice &device, VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos)
     : device_(device) {
-    createPipelineLayout(globalSetLayout);
+
+    auto GetByteCode1 = [](std::string filename) -> std::vector<uint32_t> {
+        std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+        if (!file.is_open())
+            throw std::runtime_error("failed to open file!");
+
+        size_t fileSize = (size_t)file.tellg();
+        std::vector<uint32_t> bytecode(fileSize / sizeof(uint32_t));
+
+        file.seekg(0);
+        file.read((char*)bytecode.data(), bytecode.size() * sizeof(uint32_t));
+        file.close();
+        return bytecode;
+    };
+
+    auto descriptorSetLayoutBuilder = VklDescriptorSetLayout::Builder(device_);
+
+    for (auto shaderInfo: shaderInfos) {
+        std::vector<uint32_t> bytecode = GetByteCode1(shaderInfo.shaderPath_);
+
+        spirv_cross::Compiler compiler(bytecode.data(), bytecode.size());
+
+        std::cout << "compiling " << shaderInfo.shaderPath_ << std::endl;
+
+        auto entryPoints = compiler.get_entry_points_and_stages();
+
+        switch (entryPoints[0].execution_model) {
+            case spv::ExecutionModel::ExecutionModelVertex:
+                std::cout << "Vertex Shader" << std::endl;
+                break;
+            case spv::ExecutionModel::ExecutionModelGeometry:
+                std::cout << "Geometry Shader" << std::endl;
+                break;
+            case spv::ExecutionModel::ExecutionModelFragment:
+                std::cout << "Fragment Shader" << std::endl;
+                break;
+            case spv::ExecutionModel::ExecutionModelGLCompute:
+                std::cout << "Compute Shader" << std::endl;
+            default:
+                break;
+        }
+
+        spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+        struct SetResources
+        {
+            std::vector<spirv_cross::Resource> uniformBuffers;
+            std::vector<spirv_cross::Resource> imageSamplers;
+            std::vector<spirv_cross::Resource> storageBuffers;
+            std::vector<spirv_cross::Resource> storageImages;
+        };
+        std::vector<SetResources> setResources;
+        for (const auto &buffer : resources.uniform_buffers)
+        {
+            uint32_t setShaderId = compiler.get_decoration(buffer.id, spv::DecorationDescriptorSet);
+            uint32_t bindingIndex = compiler.get_decoration(buffer.id, spv::DecorationBinding);
+            std::cout << std::format("Uniform Buffer {}, shader id {}, binding {}\n", buffer.name, setShaderId, bindingIndex);
+            if (setShaderId >= setResources.size())
+                setResources.resize(setShaderId + 1);
+            setResources[setShaderId].uniformBuffers.push_back(buffer);
+
+            descriptorSetLayoutBuilder.addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+        }
+
+        for (const auto &image: resources.sampled_images) {
+            uint32_t setShaderId = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
+            uint32_t bindingIndex = compiler.get_decoration(image.id, spv::DecorationBinding);
+            std::cout << std::format("Sampled Images {}, shader id {}, binding {}\n", image.name, setShaderId, bindingIndex);
+
+            descriptorSetLayoutBuilder.addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+        }
+
+        for (const auto &buffer: resources.storage_buffers) {
+            uint32_t setShaderId = compiler.get_decoration(buffer.id, spv::DecorationDescriptorSet);
+            uint32_t bindingIndex = compiler.get_decoration(buffer.id, spv::DecorationBinding);
+            std::cout << std::format("Storage Buffer {}, shader id {}, binding {} \n", buffer.name, setShaderId, bindingIndex);
+        }
+    }
+
+    descriptorSetLayout = descriptorSetLayoutBuilder.build();
+
+    createPipelineLayout();
     createPipeline(renderPass, shaderInfos);
 }
 
@@ -20,11 +104,10 @@ SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierTy
 
 template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
-void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::createPipelineLayout(
-    VkDescriptorSetLayout globalSetLayout) {
+void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::createPipelineLayout() {
     pushConstantRanges_ = PushConstantInfoList::getPushConstantInfo();
 
-    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts{descriptorSetLayout->getDescriptorSetLayout()};
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

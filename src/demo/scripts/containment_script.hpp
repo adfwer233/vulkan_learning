@@ -28,12 +28,12 @@ public:
                 .build();
 
         SimpleRenderSystem2D<VklModel2D::vertex_type> renderSystem(
-                device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+                device_, renderer_.getSwapChainRenderPass(),
                 {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
                  {std::format("{}/simple_shader_2d.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         ParamLineRenderSystem<VklCurveModel2D::vertex_type, 1> paramCurveRenderSystem(
-                device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+                device_, renderer_.getSwapChainRenderPass(),
                 {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
                  {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
