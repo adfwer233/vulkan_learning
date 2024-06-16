@@ -1,6 +1,7 @@
 #include "vkl/core/vkl_descriptor.hpp"
 #include <stdexcept>
 
+
 VklDescriptorSetLayout::Builder &VklDescriptorSetLayout::Builder::addBinding(uint32_t binding,
                                                                              VkDescriptorType descriptorType,
                                                                              VkShaderStageFlags stageFlags,
@@ -15,21 +16,55 @@ VklDescriptorSetLayout::Builder &VklDescriptorSetLayout::Builder::addBinding(uin
     return *this;
 }
 
-std::unique_ptr<VklDescriptorSetLayout> VklDescriptorSetLayout::Builder::build() const {
-    return std::make_unique<VklDescriptorSetLayout>(device_, bindings);
+std::unique_ptr<VklDescriptorSetLayout> VklDescriptorSetLayout::Builder::build() {
+    return std::make_unique<VklDescriptorSetLayout>(device_, *this);
+}
+
+VklDescriptorSetLayout::Builder &
+VklDescriptorSetLayout::Builder::addBindingsFromResource(spirv_cross::Compiler &compiler, spirv_cross::ShaderResources &resources) {
+    for (const auto &buffer : resources.uniform_buffers)
+    {
+        uint32_t setShaderId = compiler.get_decoration(buffer.id, spv::DecorationDescriptorSet);
+        uint32_t bindingIndex = compiler.get_decoration(buffer.id, spv::DecorationBinding);
+
+        auto &type = compiler.get_type(buffer.type_id);
+        auto &type2 = compiler.get_type(buffer.base_type_id);
+        auto declaredSize = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
+
+        addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+        descriptorSetLayoutKey.uniformDescriptors.push_back({
+            .binding = bindingIndex,
+            .size = declaredSize,
+            .typeName = buffer.name
+        });
+    }
+
+    for (const auto &image: resources.sampled_images) {
+        uint32_t setShaderId = compiler.get_decoration(image.id, spv::DecorationDescriptorSet);
+        uint32_t bindingIndex = compiler.get_decoration(image.id, spv::DecorationBinding);
+
+        addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+        descriptorSetLayoutKey.sampledImageBufferDescriptors.push_back({
+           .binding = bindingIndex,
+           .name = image.name
+        });
+    }
+
+    return *this;
 }
 
 VklDescriptorSetLayout::~VklDescriptorSetLayout() {
     vkDestroyDescriptorSetLayout(device_.device(), descriptorSetLayout_, nullptr);
 }
 
-VklDescriptorSetLayout::VklDescriptorSetLayout(VklDevice &device,
-                                               std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
-    : device_(device), bindings_(bindings) {
+VklDescriptorSetLayout::VklDescriptorSetLayout(VklDevice &device, Builder& builder)
+    : device_(device), bindings_(builder.bindings) {
     std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings;
-    for (auto [key, value] : bindings) {
+    for (auto [key, value] : builder.bindings) {
         setLayoutBindings.push_back(value);
     }
+
+    descriptorSetLayoutKey = std::move(builder.descriptorSetLayoutKey);
 
     VkDescriptorSetLayoutCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

@@ -232,7 +232,6 @@ public:
                 .frameTime = 0.0f,
                 .commandBuffer = commandBuffer,
                 .camera = camera,
-                .pGlobalDescriptorSet = &grid.descriptorSets[0],
                 .model = grid
         };
 
@@ -245,7 +244,6 @@ public:
                 .frameTime = 0.0f,
                 .commandBuffer = commandBuffer,
                 .camera = camera,
-                .pGlobalDescriptorSet = &parameterSpaceBoundary.descriptorSets[0],
                 .model= parameterSpaceBoundary
         };
 
@@ -259,7 +257,6 @@ public:
                                                            0.0f,
                                                            commandBuffer,
                                                            camera,
-                                                           &geometryModel->curveMesh->descriptorSets[0],
                                                            *geometryModel->curveMesh};
 
             paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);

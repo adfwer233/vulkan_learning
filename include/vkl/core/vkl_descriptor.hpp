@@ -1,9 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <map>
 #include <unordered_map>
+#include <string>
 
 #include "vkl_device.hpp"
+#include "spirv_cross/spirv_cross.hpp"
 
 /**
  * @page devicePage Vulkan Resource Binding
@@ -21,20 +24,50 @@ template <typename T> struct VklDescriptor {
     VkShaderStageFlags shaderStageFlags;
 };
 
+struct VklUniformBufferDescriptor {
+    bool operator < (const VklUniformBufferDescriptor& other) const {
+        return std::tie(binding, size, typeName) < std::tie(other.binding, other.size, other.typeName);
+    }
+    uint32_t binding;
+    uint32_t size;
+    std::string typeName;
+};
+
+struct VklSampledImageBufferDescriptor {
+    bool operator < (const VklSampledImageBufferDescriptor& other) const {
+        return std::tie(binding, name) < std::tie(other.binding, other.name);
+    }
+    uint32_t binding;
+    std::string name;
+};
+
+struct VklDescriptorSetLayoutKey {
+    bool operator < (const VklDescriptorSetLayoutKey &other) const {
+        return std::tie(uniformDescriptors, sampledImageBufferDescriptors) < std::tie(other.uniformDescriptors, other.sampledImageBufferDescriptors);
+    }
+    std::vector<VklUniformBufferDescriptor> uniformDescriptors;
+    std::vector<VklSampledImageBufferDescriptor> sampledImageBufferDescriptors;
+};
+
 class VklDescriptorSetLayout {
   public:
     class Builder {
       private:
         VklDevice &device_;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
+        VklDescriptorSetLayoutKey  descriptorSetLayoutKey;
 
-      public:
+    public:
         explicit Builder(VklDevice &device) : device_(device){};
 
         Builder &addBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags,
                             uint32_t count = 1);
 
-        [[nodiscard]] std::unique_ptr<VklDescriptorSetLayout> build() const;
+        Builder &addBindingsFromResource(spirv_cross::Compiler &compiler, spirv_cross::ShaderResources &resources);
+
+        [[nodiscard]] std::unique_ptr<VklDescriptorSetLayout> build();
+
+        friend class VklDescriptorSetLayout;
     };
 
   private:
@@ -43,7 +76,9 @@ class VklDescriptorSetLayout {
     std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_;
 
   public:
-    VklDescriptorSetLayout(VklDevice &device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+    VklDescriptorSetLayoutKey  descriptorSetLayoutKey;
+
+    VklDescriptorSetLayout(VklDevice &device, Builder &builder);
     ~VklDescriptorSetLayout();
     VklDescriptorSetLayout(const VklDescriptorSetLayout &) = delete;
     VklDescriptorSetLayout &operator=(const VklDescriptorSetLayout &) = delete;

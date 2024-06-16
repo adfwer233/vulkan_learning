@@ -241,28 +241,34 @@ void VklModelTemplate<VertexType, IndexType, BoxType>::draw(VkCommandBuffer comm
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 void VklModelTemplate<VertexType, IndexType, BoxType>::allocDescriptorSets(VklDescriptorSetLayout &setLayout,
                                                                            VklDescriptorPool &pool) {
-    uniformBuffers.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
-    descriptorSets.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+    auto key = setLayout.descriptorSetLayoutKey;
+    if (not descriptorSetsMap.contains(key)) {
+        descriptorSetsMap[key].clear();
+        descriptorSetsMap[key].resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
+        if (not key.uniformDescriptors.empty())
+            uniformBuffers[key].resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT);
 
-    for (int i = 0; i < uniformBuffers.size(); i++) {
-        uniformBuffers[i] = std::make_unique<VklBuffer>(
-            device_, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-        uniformBuffers[i]->map();
-    }
-
-    if (textures_.empty()) {
-        for (int i = 0; i < descriptorSets.size(); i++) {
-            auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-            VklDescriptorWriter(setLayout, pool).writeBuffer(0, &bufferInfo).build(descriptorSets[i]);
+        std::vector<VklDescriptorWriter> writer;
+        writer.resize(VklSwapChain::MAX_FRAMES_IN_FLIGHT, {setLayout, pool});
+        for (auto &uniformBufferDescriptor: key.uniformDescriptors) {
+            for (int i = 0; i < uniformBuffers[key].size(); i++) {
+                uniformBuffers[key][i] = std::move(std::make_unique<VklBuffer>(device_, uniformBufferDescriptor.size, 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT));
+                uniformBuffers[key][i]->map();
+                auto bufferInfo = uniformBuffers[key][i]->descriptorInfo();
+                writer[i].writeBuffer(uniformBufferDescriptor.binding, &bufferInfo);
+            }
         }
-    } else {
-        for (int i = 0; i < descriptorSets.size(); i++) {
-            auto bufferInfo = uniformBuffers[i]->descriptorInfo();
-            auto imageInfo = textures_[0]->descriptorInfo();
-            VklDescriptorWriter(setLayout, pool)
-                .writeBuffer(0, &bufferInfo)
-                .writeImage(1, &imageInfo)
-                .build(descriptorSets[i]);
+
+        for (int i = 0; auto &sampledImages: key.sampledImageBufferDescriptors) {
+            auto imageInfo = textures_[i]->descriptorInfo();
+            for (int j = 0; j < VklSwapChain::MAX_FRAMES_IN_FLIGHT; j++) {
+                writer[j].writeImage(sampledImages.binding, &imageInfo);
+            }
+            i++;
+        }
+
+        for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
+            writer[i].build(descriptorSetsMap[key][i]);
         }
     }
 }
@@ -272,24 +278,6 @@ int VklModelTemplate<VertexType, IndexType, BoxType>::get_triangle_num() const {
     int result = 0;
     result += this->geometry->indices.size();
     return result;
-}
-
-template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
-void VklModelTemplate<VertexType, IndexType, BoxType>::allocDescriptorSets(VklDescriptorPool &pool) {
-    if (this->descriptorSetLayout_ == VK_NULL_HANDLE) {
-        createDescriptorSetLayout();
-    }
-    allocDescriptorSets(*this->descriptorSetLayout_, pool);
-}
-
-template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
-void VklModelTemplate<VertexType, IndexType, BoxType>::createDescriptorSetLayout() {
-    auto setLayoutBuilder = VklDescriptorSetLayout::Builder(device_).addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                                                                VK_SHADER_STAGE_ALL_GRAPHICS);
-    for (int i = 0; i < this->textures_.size(); i++) {
-        setLayoutBuilder.addBinding(i + 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-    }
-    this->descriptorSetLayout_ = setLayoutBuilder.build();
 }
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>

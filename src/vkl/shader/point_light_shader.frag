@@ -21,8 +21,6 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
     vec3 cameraPos;
 } ubo;
 
-layout(binding = 1) uniform sampler2D texSampler;
-
 void main() {
 
     vec3 lightColor = ubo.pointLight.color.rgb;

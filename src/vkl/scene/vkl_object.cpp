@@ -9,9 +9,6 @@ VklObject::~VklObject() {
     }
 }
 
-void VklObject::render_object() {
-}
-
 void VklObject::allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool) {
     for (auto model : models) {
         model->allocDescriptorSets(setLayout, pool);
@@ -33,12 +30,6 @@ glm::mat4 VklObject::getModelTransformation() {
     model = glm::scale(model, modelScaling);
 
     return model;
-}
-
-void VklObject::allocDescriptorSets(VklDescriptorPool &pool) {
-    for (auto model : models) {
-        model->allocDescriptorSets(pool);
-    }
 }
 
 VklObject::VklObject(VklDevice &device, VklModel::BuilderFromImmediateData builder) : device_(device) {

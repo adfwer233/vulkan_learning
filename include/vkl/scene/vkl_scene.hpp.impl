@@ -2,11 +2,9 @@
 
 template <VklModelLoader Loader> void VklScene::addObject(VklObject::ImportBuilder<Loader> builder) {
     objects.push_back(std::make_unique<VklObject>(device_, builder));
-    objects.back()->allocDescriptorSets(*setLayout_, *descriptorPool_);
 }
 
 template <typename VertexType, typename IndexType>
 void VklScene::addObject(MeshModelTemplate<VertexType, IndexType> geom) {
     objects.push_back(std::make_unique<VklObject>(device_, geom));
-    objects.back()->allocDescriptorSets(*setLayout_, *descriptorPool_);
 }

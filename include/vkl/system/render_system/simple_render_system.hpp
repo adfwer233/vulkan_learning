@@ -10,6 +10,7 @@
 
 #include "vkl/core/vkl_push_constant.hpp"
 #include "vkl/templates/vkl_concept.hpp"
+#include "render_system_base.hpp"
 
 #ifndef SHADER_DIR
 #define SHADER_DIR "./shader/"
@@ -26,14 +27,13 @@ struct NullPipelineModifier {
 
 template <VklVertexType VertexType, uint32_t Subpass = 0, VklPushConstantInfoListConcept PushConstantInfoList = SimplePushConstantInfoList,
           VklPipelineModifierType PipelineModifierType = NullPipelineModifier>
-class SimpleRenderSystem {
+class SimpleRenderSystem: public BaseRenderSystem {
   private:
     std::string vertex_shader_path_, fragment_shader_path_, geometry_shader_path_;
 
     VklDevice &device_;
 
     std::vector<VkPushConstantRange> pushConstantRanges_;
-    std::unique_ptr<VklDescriptorSetLayout> descriptorSetLayout;
 
     void createPipelineLayout();
     void createPipeline(VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos);

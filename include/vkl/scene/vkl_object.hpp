@@ -37,10 +37,6 @@ class VklObject {
 
     void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
 
-    void allocDescriptorSets(VklDescriptorPool &pool);
-
-    void render_object();
-
     int get_triangle_num();
 
     void setMaterial(int materialIndex) {

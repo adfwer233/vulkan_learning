@@ -2,7 +2,6 @@
 
 void VklScene::addObject(VklModel::BuilderFromImmediateData builder) {
     objects.push_back(std::make_unique<VklObject>(device_, builder));
-    objects.back()->allocDescriptorSets(*setLayout_, *descriptorPool_);
 }
 
 void VklScene::addTensorProductBezierSurface(std::vector<std::vector<glm::vec3>> &&control_points,

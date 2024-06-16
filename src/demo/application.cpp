@@ -43,18 +43,7 @@ void Application::run() {
 
     VklScene scene(device_, {0, 0, 10}, {0, 1, 0});
 
-    auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
-                               .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                               .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                               .build();
-
-    auto globalPool = VklDescriptorPool::Builder(device_)
-                          .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                          .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                          .build();
-
     auto boxModel = VklBoxModel3D(device_, getStandardBox3D());
-    boxModel.allocDescriptorSets(*globalSetLayout, *globalPool);
 
     auto controller = KeyboardCameraController::instance();
 
@@ -191,7 +180,6 @@ void Application::run() {
     };
 
     VklCurveModel2D parameterSpaceBoundary(device_, parameterSpaceBoundaryBuilder);
-    parameterSpaceBoundary.allocDescriptorSets(*globalSetLayout, *globalPool);
 
     uiManager.renderResultTexture = renderRes;
     uiManager.offscreenImageViews = offscreenRenderer_.getImageView();
@@ -312,30 +300,41 @@ void Application::run() {
             for (auto &object_item : scene.objects) {
                 for (auto model : object_item->models) {
                     ubo.model = object_item->getModelTransformation();
-                    model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                    model->uniformBuffers[frameIndex]->flush();
+
+                    auto updateUniformBuffer = [&](VklDescriptorSetLayoutKey& key) {
+                        if (model->uniformBuffers.contains(key)) {
+                            model->uniformBuffers[key][frameIndex]->writeToBuffer(&ubo);
+                            model->uniformBuffers[key][frameIndex]->flush();
+                        }
+                    };
 
                     FrameInfo<VklModel> modelFrameInfo{frameIndex,
                                                        currentFrame,
                                                        offscreenCommandBuffer,
                                                        scene.camera,
-                                                       &model->descriptorSets[frameIndex],
                                                        *model};
 
                     if (uiManager.renderMode == Raw) {
                         if (uiManager.shadingMode == PointLightShading or uiManager.shadingMode == SolidShading) {
+                            updateUniformBuffer(rawRenderSystem.descriptorSetLayout->descriptorSetLayoutKey);
                             rawRenderSystem.renderObject(modelFrameInfo);
                         } else if (uiManager.shadingMode == PureColor) {
+                            updateUniformBuffer(colorRenderSystem.descriptorSetLayout->descriptorSetLayoutKey);
                             colorRenderSystem.renderObject(modelFrameInfo);
                         }
                     } else if (uiManager.renderMode == WireFrame) {
                         // modelFrameInfo.commandBuffer = uvCommandBuffer;
+                        updateUniformBuffer(wireFrameRenderSystem.descriptorSetLayout->descriptorSetLayoutKey);
                         wireFrameRenderSystem.renderObject(modelFrameInfo);
                     } else if (uiManager.renderMode == WithTexture) {
-                        if (model->textures_.empty())
+                        if (model->textures_.empty()) {
+                            updateUniformBuffer(rawRenderSystem.descriptorSetLayout->descriptorSetLayoutKey);
                             rawRenderSystem.renderObject(modelFrameInfo);
-                        else
+                        }
+                        else {
+                            updateUniformBuffer(renderSystem.descriptorSetLayout->descriptorSetLayoutKey);
                             renderSystem.renderObject(modelFrameInfo);
+                        }
                     }
 
                     if (uiManager.showNormal) {
@@ -358,25 +357,23 @@ void Application::run() {
                                 auto modelBuffer = VklGeometryModelBuffer<TensorProductBezierSurface>::instance();
                                 auto geometryModel = modelBuffer->getGeometryModel(device_, &surf);
                                 for (auto &boundary3d : geometryModel->boundary_3d) {
-                                    boundary3d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                                    boundary3d->uniformBuffers[frameIndex]->flush();
+                                    if (not boundary3d->uniformBuffers.empty()) {
+                                        boundary3d->uniformBuffers[curveMeshRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->writeToBuffer(&ubo);
+                                        boundary3d->uniformBuffers[curveMeshRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->flush();
+                                    }
                                     FrameInfo<VklCurveModel3D> frameInfo{frameIndex,
                                                                          currentFrame,
                                                                          offscreenCommandBuffer,
                                                                          scene.camera,
-                                                                         &boundary3d->descriptorSets[frameIndex],
                                                                          *boundary3d};
                                     curveMeshRenderSystem.renderObject(frameInfo);
                                 }
 
                                 for (auto &boundary2d : geometryModel->boundary_2d) {
-                                    boundary2d->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                                    boundary2d->uniformBuffers[frameIndex]->flush();
                                     FrameInfo<VklCurveModel2D> frameInfo{frameIndex,
                                                                          currentFrame,
                                                                          uvCommandBuffer,
                                                                          scene.camera,
-                                                                         &boundary2d->descriptorSets[frameIndex],
                                                                          *boundary2d};
                                     paramCurveRenderSystem.renderObject(frameInfo, paramLineRenderSystemPushConstantList);
                                 }
@@ -450,7 +447,6 @@ void Application::run() {
                     currentFrame,
                     bezierCommandBuffer,
                     scene.camera,
-                    &parameterSpaceBoundary.descriptorSets[frameIndex],
                     parameterSpaceBoundary
                 };
 
@@ -462,8 +458,6 @@ void Application::run() {
                         auto curveMesh = modelBuffer->getGeometryModel(device_, bezier_editor_curve.get());
 
                         auto &model = curveMesh->controlPointsMesh;
-                        model->uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                        model->uniformBuffers[frameIndex]->flush();
 
                         PointCloud2DRenderSystemPushConstantData pointCloud2DRenderSystemPushConstantData{
                                 .zoom = uiManager.bezier_zoom_in,
@@ -477,7 +471,6 @@ void Application::run() {
                                                                   currentFrame,
                                                                   bezierCommandBuffer,
                                                                   scene.camera,
-                                                                  &model->descriptorSets[frameIndex],
                                                                   *model};
 
                         pointCloud2DRenderSystem.renderObject(modelFrameInfo, pointCloud2DRenderSystemPushConstantList);
@@ -488,7 +481,6 @@ void Application::run() {
                                                                            currentFrame,
                                                                            bezierCommandBuffer,
                                                                            scene.camera,
-                                                                           &curveMesh->curveMesh->descriptorSets[frameIndex],
                                                                            *curveMesh->curveMesh};
 
                             paramCurveRenderSystem.renderObject(curveModelFrameInfo,
@@ -500,7 +492,6 @@ void Application::run() {
                                                                            currentFrame,
                                                                            bezierCommandBuffer,
                                                                            scene.camera,
-                                                                           &curveMesh->derivativeBoundMesh->descriptorSets[frameIndex],
                                                                            *curveMesh->derivativeBoundMesh};
 
                             paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
@@ -511,7 +502,6 @@ void Application::run() {
                                                                            currentFrame,
                                                                            bezierCommandBuffer,
                                                                            scene.camera,
-                                                                           &curveMesh->extremePointMesh->descriptorSets[frameIndex],
                                                                            *curveMesh->extremePointMesh};
 
                             pointCloud2DRenderSystem.renderObject(curveModelFrameInfo, pointCloud2DRenderSystemPushConstantList);
@@ -528,13 +518,14 @@ void Application::run() {
                 auto box_trans = box.get_box_transformation();
 
                 ubo.model = box_trans;
-                boxModel.uniformBuffers[frameIndex]->writeToBuffer(&ubo);
-                boxModel.uniformBuffers[frameIndex]->flush();
+                if (not boxModel.uniformBuffers.empty()) {
+                    boxModel.uniformBuffers[lineRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->writeToBuffer(&ubo);
+                    boxModel.uniformBuffers[lineRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->flush();
+                }
                 FrameInfo<VklBoxModel3D> boxFrameInfo{frameIndex,
                                                       currentFrame,
                                                       offscreenCommandBuffer,
                                                       scene.camera,
-                                                      &boxModel.descriptorSets[frameIndex],
                                                       boxModel};
                 lineRenderSystem.renderObject(boxFrameInfo);
             }
@@ -580,8 +571,6 @@ void Application::run() {
     vkDestroyDescriptorPool(device_.device(), imguiPool, nullptr);
 
     delete VklGeometryModelBuffer<TensorProductBezierSurface>::instance();
-    delete VklGeometryModelDescriptorManager<TensorProductBezierSurface>::instance(device_);
 
     delete VklGeometryModelBuffer<BezierCurve2D>::instance();
-    delete VklGeometryModelDescriptorManager<BezierCurve2D>::instance(device_);
 }

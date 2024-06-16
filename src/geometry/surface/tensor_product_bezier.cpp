@@ -2,8 +2,6 @@
 #include "geometry/function/bernstein.hpp"
 #include <iterator>
 
-#include "vkl/utils/vkl_curve_model.hpp"
-
 #include "effolkronium/random.hpp"
 using Random = effolkronium::random_static;
 

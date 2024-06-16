@@ -17,16 +17,6 @@ public:
     void renderResult() {
         using VklModel2D = VklModelTemplate<VklVertex2D, TriangleIndex, VklBox2D>;
 
-        auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                .build();
-
-        auto globalPool = VklDescriptorPool::Builder(device_)
-                .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                .build();
-
         SimpleRenderSystem2D<VklModel2D::vertex_type> renderSystem(
                 device_, renderer_.getSwapChainRenderPass(),
                 {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
@@ -84,7 +74,6 @@ public:
         };
 
         VklCurveModel2D parameterSpaceBoundary(device_, parameterSpaceBoundaryBuilder);
-        parameterSpaceBoundary.allocDescriptorSets(*globalSetLayout, *globalPool);
 
         VklModel2D::BuilderFromImmediateData builder;
 
@@ -150,7 +139,6 @@ public:
         }
 
         VklModel2D grid(device_, builder);
-        grid.allocDescriptorSets(*globalSetLayout, *globalPool);
 
         auto commandBuffer = renderer_.beginFrame();
         renderer_.beginSwapChainRenderPass(commandBuffer);
@@ -186,7 +174,6 @@ public:
             .frameTime = 0.0f,
             .commandBuffer = commandBuffer,
             .camera = camera,
-            .pGlobalDescriptorSet = &grid.descriptorSets[0],
             .model = grid
         };
 
@@ -199,7 +186,6 @@ public:
                 .frameTime = 0.0f,
                 .commandBuffer = commandBuffer,
                 .camera = camera,
-                .pGlobalDescriptorSet = &parameterSpaceBoundary.descriptorSets[0],
                 .model= parameterSpaceBoundary
         };
 
@@ -213,7 +199,6 @@ public:
                                                            0.0f,
                                                            commandBuffer,
                                                            camera,
-                                                           &geometryModel->curveMesh->descriptorSets[0],
                                                            *geometryModel->curveMesh};
 
             paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);

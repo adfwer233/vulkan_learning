@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include <map>
 
 #include "glm/glm.hpp"
 
@@ -105,8 +106,10 @@ class VklModelTemplate {
 
     std::vector<VklTexture *> textures_;
 
-    std::vector<std::unique_ptr<VklBuffer>> uniformBuffers;
+    std::map<VklDescriptorSetLayoutKey, std::vector<std::unique_ptr<VklBuffer>>> uniformBuffers;
     std::vector<VkDescriptorSet> descriptorSets;
+
+    std::map<VklDescriptorSetLayoutKey, std::vector<VkDescriptorSet>> descriptorSetsMap;
 
     std::unique_ptr<VklDescriptorSetLayout> descriptorSetLayout_;
 
@@ -170,11 +173,7 @@ class VklModelTemplate {
 
     [[nodiscard]] int get_triangle_num() const;
 
-    void createDescriptorSetLayout();
-
     void allocDescriptorSets(VklDescriptorSetLayout &setLayout, VklDescriptorPool &pool);
-
-    void allocDescriptorSets(VklDescriptorPool &pool);
 
     void bind(VkCommandBuffer commandBuffer);
 

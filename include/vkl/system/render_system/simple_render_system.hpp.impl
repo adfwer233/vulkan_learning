@@ -67,12 +67,17 @@ SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierTy
         {
             uint32_t setShaderId = compiler.get_decoration(buffer.id, spv::DecorationDescriptorSet);
             uint32_t bindingIndex = compiler.get_decoration(buffer.id, spv::DecorationBinding);
+
+            auto &type = compiler.get_type(buffer.type_id);
+            auto &type2 = compiler.get_type(buffer.base_type_id);
+            auto declaredSize = static_cast<uint32_t>(compiler.get_declared_struct_size(type));
+
             std::cout << std::format("Uniform Buffer {}, shader id {}, binding {}\n", buffer.name, setShaderId, bindingIndex);
             if (setShaderId >= setResources.size())
                 setResources.resize(setShaderId + 1);
             setResources[setShaderId].uniformBuffers.push_back(buffer);
 
-            descriptorSetLayoutBuilder.addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
+            // descriptorSetLayoutBuilder.addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS);
         }
 
         for (const auto &image: resources.sampled_images) {
@@ -80,7 +85,7 @@ SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierTy
             uint32_t bindingIndex = compiler.get_decoration(image.id, spv::DecorationBinding);
             std::cout << std::format("Sampled Images {}, shader id {}, binding {}\n", image.name, setShaderId, bindingIndex);
 
-            descriptorSetLayoutBuilder.addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+            // descriptorSetLayoutBuilder.addBinding(bindingIndex, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
         }
 
         for (const auto &buffer: resources.storage_buffers) {
@@ -88,9 +93,16 @@ SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierTy
             uint32_t bindingIndex = compiler.get_decoration(buffer.id, spv::DecorationBinding);
             std::cout << std::format("Storage Buffer {}, shader id {}, binding {} \n", buffer.name, setShaderId, bindingIndex);
         }
+
+        descriptorSetLayoutBuilder.addBindingsFromResource(compiler, resources);
     }
 
     descriptorSetLayout = descriptorSetLayoutBuilder.build();
+
+    descriptorPool = VklDescriptorPool::Builder(device_)
+            .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 2000)
+            .build();
 
     createPipelineLayout();
     createPipeline(renderPass, shaderInfos);
@@ -142,11 +154,12 @@ template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListCon
 template <VklRenderable ModelType>
 void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::renderObject(
     FrameInfo<ModelType> &frameInfo, PushConstantInfoList pushData) {
+    frameInfo.model.allocDescriptorSets(*descriptorSetLayout, *descriptorPool);
 
     vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);
 
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout_, 0, 1,
-                            frameInfo.pGlobalDescriptorSet, 0, nullptr);
+                            &frameInfo.model.descriptorSetsMap[descriptorSetLayout->descriptorSetLayoutKey][frameInfo.frameIndex], 0, nullptr);
 
     auto pushConstantRawPointers = pushData.getDataRawPointer();
 
@@ -165,11 +178,11 @@ template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListCon
 template <VklRenderable ModelType>
 void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::renderObject(
     FrameInfo<ModelType> &frameInfo) {
-
+    frameInfo.model.allocDescriptorSets(*descriptorSetLayout, *descriptorPool);
     vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);
 
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout_, 0, 1,
-                            frameInfo.pGlobalDescriptorSet, 0, nullptr);
+                            &frameInfo.model.descriptorSetsMap[descriptorSetLayout->descriptorSetLayoutKey][frameInfo.frameIndex], 0, nullptr);
 
     frameInfo.model.bind(frameInfo.commandBuffer);
     frameInfo.model.draw(frameInfo.commandBuffer);
