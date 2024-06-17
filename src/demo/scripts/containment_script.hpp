@@ -17,16 +17,6 @@ public:
     void renderResult() {
         using VklModel2D = VklModelTemplate<VklVertex2D, TriangleIndex, VklBox2D>;
 
-        auto globalSetLayout = VklDescriptorSetLayout::Builder(device_)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                .build();
-
-        auto globalPool = VklDescriptorPool::Builder(device_)
-                .setMaxSets(VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VklSwapChain::MAX_FRAMES_IN_FLIGHT * 200)
-                .build();
-
         SimpleRenderSystem2D<VklModel2D::vertex_type> renderSystem(
                 device_, renderer_.getSwapChainRenderPass(),
                 {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
@@ -69,14 +59,14 @@ public:
         // };
         // curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points2))));
 
-        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/spur_1.json");
+        std::string full_path = std::format("{}/{}", DATA_DIR, "bezier/shape4.json");
 
         std::cout << full_path << std::endl;
         std::ifstream f(full_path);
         json data = json::parse(f);
 
         auto get_point = [&](json &point_json) -> std::pair<float, float> {
-            return {point_json["x"].get<float>(), point_json["y"].get<float>()};
+            return {point_json["x"].get<float>() / 1500 + 0.1, point_json["y"].get<float>() / 1500};
         };
 
         std::vector<std::vector<std::array<float, 2>>> boundary_data;
@@ -113,7 +103,6 @@ public:
         for (auto &curve: curves) {
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
             auto geometryModel = modelBuffer->getGeometryModel(device_, curve.get());
-            geometryModel->curveMesh->allocDescriptorSets(*globalSetLayout, *globalPool);
         }
 
         VklCurveModel2D::BuilderFromImmediateData parameterSpaceBoundaryBuilder;
@@ -131,7 +120,6 @@ public:
         };
 
         VklCurveModel2D parameterSpaceBoundary(device_, parameterSpaceBoundaryBuilder);
-        parameterSpaceBoundary.allocDescriptorSets(*globalSetLayout, *globalPool);
 
         VklModel2D::BuilderFromImmediateData builder;
 
@@ -196,7 +184,6 @@ public:
         }
 
         VklModel2D grid(device_, builder);
-        grid.allocDescriptorSets(*globalSetLayout, *globalPool);
 
         auto commandBuffer = renderer_.beginFrame();
         renderer_.beginSwapChainRenderPass(commandBuffer);

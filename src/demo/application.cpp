@@ -450,7 +450,7 @@ void Application::run() {
                     parameterSpaceBoundary
                 };
 
-                paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo, paramLineRenderSystemPushConstantList);
+                // paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo, paramLineRenderSystemPushConstantList);
 
                 for (auto &bezier_editor_curve: uiManager.bezier_editor_curves) {
                     if (bezier_editor_curve != nullptr) {
@@ -504,7 +504,7 @@ void Application::run() {
                                                                            scene.camera,
                                                                            *curveMesh->extremePointMesh};
 
-                            pointCloud2DRenderSystem.renderObject(curveModelFrameInfo, pointCloud2DRenderSystemPushConstantList);
+                            // pointCloud2DRenderSystem.renderObject(curveModelFrameInfo, pointCloud2DRenderSystemPushConstantList);
                         }
                     }
                 }
