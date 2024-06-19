@@ -4,10 +4,11 @@
 #include <stdexcept>
 
 #include "spirv_cross/spirv_cross.hpp"
+#include "spirv_cross/spirv_glsl.hpp"
 
-template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
+template <uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
-SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(
+SimpleRenderSystem<Subpass, PushConstantInfoList, PipelineModifierType>::SimpleRenderSystem(
     VklDevice &device, VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos)
     : device_(device) {
 
@@ -24,6 +25,30 @@ SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierTy
         file.read((char*)bytecode.data(), bytecode.size() * sizeof(uint32_t));
         file.close();
         return bytecode;
+    };
+
+    // Function to get the size of a SPIRType in bytes
+    auto GetTypeSize = [](const spirv_cross::Compiler &compiler, const spirv_cross::SPIRType &type) {
+        size_t size = 0;
+        switch (type.basetype) {
+            case spirv_cross::SPIRType::Char:
+                size = 1;
+                break;
+            case spirv_cross::SPIRType::Float:
+            case spirv_cross::SPIRType::Int:
+            case spirv_cross::SPIRType::UInt:
+                size = 4;
+                break;
+            case spirv_cross::SPIRType::Double:
+            case spirv_cross::SPIRType::Int64:
+            case spirv_cross::SPIRType::UInt64:
+                size = 8;
+                break;
+                // Add more cases as necessary
+            default:
+                throw std::runtime_error("Unsupported type");
+        }
+        return size * type.columns * type.vecsize / 8;
     };
 
     auto descriptorSetLayoutBuilder = VklDescriptorSetLayout::Builder(device_);
@@ -54,6 +79,33 @@ SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierTy
         }
 
         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+        if (entryPoints.front().execution_model == spv::ExecutionModel::ExecutionModelVertex) {
+            auto &vertex_input = resources.stage_inputs;
+
+            for (auto &input: vertex_input) {
+                auto &base_type = compiler.get_type(input.base_type_id);
+                uint32_t location = compiler.get_decoration(input.id, spv::DecorationLocation);
+                uint32_t size = GetTypeSize(compiler, base_type);
+
+                this->attributeDescriptions.push_back({location, 0, VK_FORMAT_R32G32B32_SFLOAT, size});
+                std::cout << input.name << ' ' << location << ' ' << ' ' <<  size << std::endl;
+            }
+
+            uint32_t offset = 0;
+            std::ranges::sort(attributeDescriptions, [](auto &l, auto &r){ return l.location < r.location; });
+            for (auto &attr: attributeDescriptions) {
+                auto size = attr.offset;
+                attr.offset = offset;
+                offset += size;
+            }
+
+            bindingDescriptions.push_back({
+                .binding = 0,
+                .stride = 44,
+                .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
+            });
+        }
 
         struct SetResources
         {
@@ -108,15 +160,15 @@ SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierTy
     createPipeline(renderPass, shaderInfos);
 }
 
-template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
+template <uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
-SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::~SimpleRenderSystem() {
+SimpleRenderSystem<Subpass, PushConstantInfoList, PipelineModifierType>::~SimpleRenderSystem() {
     vkDestroyPipelineLayout(device_.device(), pipelineLayout_, nullptr);
 }
 
-template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
+template <uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
-void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::createPipelineLayout() {
+void SimpleRenderSystem<Subpass, PushConstantInfoList, PipelineModifierType>::createPipelineLayout() {
     pushConstantRanges_ = PushConstantInfoList::getPushConstantInfo();
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{descriptorSetLayout->getDescriptorSetLayout()};
@@ -133,26 +185,30 @@ void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModif
     }
 }
 
-template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
+template <uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
-void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::createPipeline(
+void SimpleRenderSystem<Subpass, PushConstantInfoList, PipelineModifierType>::createPipeline(
     VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos) {
     PipelineConfigInfo pipelineConfigInfo{};
 
-    VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(pipelineConfigInfo);
+    VklGraphicsPipeline::defaultPipelineConfigInfo(pipelineConfigInfo);
 
     PipelineModifierType::modifyPipeline(pipelineConfigInfo);
 
     pipelineConfigInfo.renderPass = renderPass;
     pipelineConfigInfo.pipelineLayout = pipelineLayout_;
     pipelineConfigInfo.subpass = Subpass;
-    pipeline_ = std::make_unique<VklGraphicsPipeline<VertexType>>(device_, shaderInfos, pipelineConfigInfo);
+
+    pipelineConfigInfo.bindingDescriptions = bindingDescriptions;
+    pipelineConfigInfo.attributeDescriptions = attributeDescriptions;
+
+    pipeline_ = std::make_unique<VklGraphicsPipeline>(device_, shaderInfos, pipelineConfigInfo);
 }
 
-template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
+template <uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
 template <VklRenderable ModelType>
-void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::renderObject(
+void SimpleRenderSystem<Subpass, PushConstantInfoList, PipelineModifierType>::renderObject(
     FrameInfo<ModelType> &frameInfo, PushConstantInfoList pushData) {
     frameInfo.model.allocDescriptorSets(*descriptorSetLayout, *descriptorPool);
 
@@ -173,10 +229,10 @@ void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModif
     frameInfo.model.draw(frameInfo.commandBuffer);
 }
 
-template <VklVertexType VertexType, uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
+template <uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>
 template <VklRenderable ModelType>
-void SimpleRenderSystem<VertexType, Subpass, PushConstantInfoList, PipelineModifierType>::renderObject(
+void SimpleRenderSystem<Subpass, PushConstantInfoList, PipelineModifierType>::renderObject(
     FrameInfo<ModelType> &frameInfo) {
     frameInfo.model.allocDescriptorSets(*descriptorSetLayout, *descriptorPool);
     vkCmdBindPipeline(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->graphicsPipeline_);

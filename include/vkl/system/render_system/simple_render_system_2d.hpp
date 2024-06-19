@@ -8,5 +8,5 @@ struct SimpleRender2DPipelineModifier {
     }
 };
 
-template <VklVertexType VertexType, uint32_t Subpass = 0>
-using SimpleRenderSystem2D = SimpleRenderSystem<VertexType, Subpass, SimplePushConstantInfoList , SimpleRender2DPipelineModifier>;
+template <uint32_t Subpass = 0>
+using SimpleRenderSystem2D = SimpleRenderSystem<Subpass, SimplePushConstantInfoList , SimpleRender2DPipelineModifier>;

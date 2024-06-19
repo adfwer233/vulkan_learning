@@ -18,5 +18,5 @@ struct ParamLineRenderSystemPushConstantData {
 
 using ParamLineRenderSystemPushConstantList = VklPushConstantInfoList<ParamLineRenderSystemPushConstantData>;
 
-template <VklVertexType VertexType, uint32_t Subpass = 0>
-using ParamLineRenderSystem = SimpleRenderSystem<VertexType, Subpass, ParamLineRenderSystemPushConstantList, ParamLinePipelineModifier>;
+template <uint32_t Subpass = 0>
+using ParamLineRenderSystem = SimpleRenderSystem<Subpass, ParamLineRenderSystemPushConstantList, ParamLinePipelineModifier>;

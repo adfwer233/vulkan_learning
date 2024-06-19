@@ -25,7 +25,7 @@ struct NullPipelineModifier {
     }
 };
 
-template <VklVertexType VertexType, uint32_t Subpass = 0, VklPushConstantInfoListConcept PushConstantInfoList = SimplePushConstantInfoList,
+template <uint32_t Subpass = 0, VklPushConstantInfoListConcept PushConstantInfoList = SimplePushConstantInfoList,
           VklPipelineModifierType PipelineModifierType = NullPipelineModifier>
 class SimpleRenderSystem: public BaseRenderSystem {
   private:
@@ -39,7 +39,7 @@ class SimpleRenderSystem: public BaseRenderSystem {
     void createPipeline(VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos);
 
   public:
-    std::unique_ptr<VklGraphicsPipeline<VertexType>> pipeline_;
+    std::unique_ptr<VklGraphicsPipeline> pipeline_;
     VkPipelineLayout pipelineLayout_{};
     SimpleRenderSystem(VklDevice &device, VkRenderPass renderPass, std::vector<VklShaderModuleInfo> shaderInfos);
 
