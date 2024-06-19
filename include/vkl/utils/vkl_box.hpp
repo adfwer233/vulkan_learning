@@ -6,50 +6,6 @@
 
 #include "glm/ext/matrix_transform.hpp"
 
-struct Vertex3DRaw {
-    using geometry_type = Vertex3DRaw;
-    glm::vec3 position{};
-
-    static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
-        std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
-        bindingDescriptions[0].binding = 0;
-        bindingDescriptions[0].stride = sizeof(Vertex3DRaw);
-        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return bindingDescriptions;
-    }
-
-    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
-        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
-
-        attributeDescriptions.push_back(
-            {0, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex3DRaw, position))});
-
-        return attributeDescriptions;
-    }
-};
-
-struct Vertex2DRaw {
-    using geometry_type = Vertex2DRaw;
-    glm::vec2 position{};
-
-    static std::vector<VkVertexInputBindingDescription> getBindingDescriptions() {
-        std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
-        bindingDescriptions[0].binding = 0;
-        bindingDescriptions[0].stride = sizeof(Vertex2DRaw);
-        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return bindingDescriptions;
-    }
-
-    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
-        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
-
-        attributeDescriptions.push_back(
-            {0, 0, VK_FORMAT_R32G32B32_SFLOAT, static_cast<uint32_t>(offsetof(Vertex2DRaw, position))});
-
-        return attributeDescriptions;
-    }
-};
-
 class VklBox3D {
   public:
     glm::vec3 min_position;

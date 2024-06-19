@@ -15,7 +15,7 @@ public:
     explicit RenderScriptsBase(VklDevice &device) : device_(device) {}
 
     void renderResult() {
-        using VklModel2D = VklModelTemplate<VklVertex2D, TriangleIndex, VklBox2D>;
+        using VklModel2D = VklModelTemplate<Vertex2D, TriangleIndex, VklBox2D>;
 
         SimpleRenderSystem2D renderSystem(
                 device_, renderer_.getSwapChainRenderPass(),

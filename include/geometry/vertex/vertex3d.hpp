@@ -9,6 +9,10 @@ struct Vertex3D {
     glm::vec2 uv{};
 };
 
+struct Vertex3DRaw {
+    glm::vec3 position{};
+};
+
 struct TriangleIndex {
     uint32_t i, j, k;
     static constexpr size_t vertexCount = 3;

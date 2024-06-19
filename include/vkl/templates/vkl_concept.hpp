@@ -1,22 +1,15 @@
 #pragma once
 
+#include "geometry/vertex/vertex2d.hpp"
+#include "geometry/vertex/vertex3d.hpp"
+
 template <typename T>
-concept VklVertexType = requires {
-    typename T::geometry_type;
-    T::getBindingDescriptions();
-    T::getAttributeDescriptions();
-};
+concept VklVertexType = std::is_same_v<T, Vertex3D> || std::is_same_v<T, Vertex2D> || std::is_same_v<T, Vertex2DRaw> || std::is_same_v<T, Vertex3DRaw>;
 
 template <typename T>
 concept VklRenderable = requires(T t, VkCommandBuffer commandBuffer) {
     t.bind(commandBuffer);
     t.draw(commandBuffer);
-};
-
-template <typename T>
-concept VklDataType = requires {
-    T::getBindingDescriptions();
-    T::getAttributeDescriptions();
 };
 
 // utils

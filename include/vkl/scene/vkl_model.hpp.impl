@@ -51,7 +51,7 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
         createTextureImage(path);
     }
 
-    geometry = std::make_unique<MeshModelTemplate<typename VertexType::geometry_type, IndexType>>();
+    geometry = std::make_unique<MeshModelTemplate<VertexType, IndexType>>();
     for (auto vert : builder.vertices)
         geometry->vertices.push_back(vert);
     for (auto index : builder.indices)
@@ -62,7 +62,7 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(VklDevice &de
 
 template <VklVertexType VertexType, VklIndexType IndexType, VklBoxType BoxType>
 VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(
-    VklDevice &device, MeshModelTemplate<typename VertexType::geometry_type, IndexType> geometry)
+    VklDevice &device, MeshModelTemplate<VertexType, IndexType> geometry)
     : device_(device) {
     if constexpr (std::same_as<BoxType, VklBox2D>) {
         auto min_pos = glm::vec2(999999.0);
@@ -111,7 +111,7 @@ VklModelTemplate<VertexType, IndexType, BoxType>::VklModelTemplate(
         createTextureImage(path);
     }
 
-    this->geometry = std::make_unique<MeshModelTemplate<typename VertexType::geometry_type, IndexType>>(geometry);
+    this->geometry = std::make_unique<MeshModelTemplate<VertexType, IndexType>>(geometry);
 
     underlyingGeometry = MeshGeometry{};
 }
