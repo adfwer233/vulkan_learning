@@ -9,6 +9,11 @@ struct Vertex2D {
     glm::vec2 uv{};
 };
 
+struct Vertex2DRaw {
+    glm::vec2 position{};
+};
+
+
 struct LineIndex {
     uint32_t i, j, k;
     static constexpr size_t vertexCount = 3;

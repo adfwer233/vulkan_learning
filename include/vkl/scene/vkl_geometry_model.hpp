@@ -72,7 +72,7 @@ public:
         }
 
         if (curveMesh != nullptr) {
-            std::vector<render_type::vertex_type::geometry_type> vertices;
+            std::vector<render_type::vertex_type> vertices;
             constexpr int n = 100;
             double param_delta = 1.0 / n;
 
@@ -88,7 +88,7 @@ public:
             curveMesh->reallocateVertexBuffer();
         }
 
-        std::vector<control_points_render_type::vertex_type::geometry_type> control_vertices;
+        std::vector<control_points_render_type::vertex_type> control_vertices;
         for (auto cp: curve_->control_point_vec2) {
             control_points_render_type::vertex_type vertex;
             vertex.position = cp;
@@ -97,23 +97,16 @@ public:
         controlPointsMesh->geometry->vertices = control_vertices;
         controlPointsMesh->reallocateVertexBuffer();
 
-        auto vkl_vertex_to_geo_vertex = []<typename T>(T geo_vert) {
-            typename T::geometry_type vert;
-            vert.position = geo_vert.position;
-            vert.color = geo_vert.color;
-            return vert;
-        };
-
         if (derivativeBoundMesh != nullptr) {
             auto derivativeBuilder = createDerivativeBoundMeshBuilder();
-            std::vector<control_points_render_type::vertex_type::geometry_type> derivative_vertices;
+            std::vector<control_points_render_type::vertex_type> derivative_vertices;
             for (auto geo_vert: derivativeBuilder.vertices) {
                 derivative_bound_render_type::vertex_type vertex;
                 vertex.position = geo_vert.position;
                 derivative_vertices.push_back(vertex);
             }
 
-            auto res = derivativeBuilder.vertices | std::views::transform(vkl_vertex_to_geo_vertex);
+            auto res = derivativeBuilder.vertices;
             derivativeBoundMesh->geometry->vertices.clear();
             std::ranges::copy(res, std::back_inserter(derivativeBoundMesh->geometry->vertices));
 
@@ -124,7 +117,7 @@ public:
             auto extremePointBuilder = createExtremePointMeshBuilder();
 
             extremePointMesh->geometry->vertices.clear();
-            std::ranges::copy(extremePointBuilder.vertices | std::views::transform(vkl_vertex_to_geo_vertex), std::back_inserter(extremePointMesh->geometry->vertices));
+            std::ranges::copy(extremePointBuilder.vertices, std::back_inserter(extremePointMesh->geometry->vertices));
 
             extremePointMesh->reallocateVertexBuffer();
         }

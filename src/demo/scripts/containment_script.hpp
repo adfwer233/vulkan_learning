@@ -15,14 +15,14 @@ public:
     explicit ContainmentQueryScript(VklDevice &device): device_(device) {}
 
     void renderResult() {
-        using VklModel2D = VklModelTemplate<VklVertex2D, TriangleIndex, VklBox2D>;
+        using VklModel2D = VklModelTemplate<Vertex2D, TriangleIndex, VklBox2D>;
 
-        SimpleRenderSystem2D<VklModel2D::vertex_type> renderSystem(
+        SimpleRenderSystem2D renderSystem(
                 device_, renderer_.getSwapChainRenderPass(),
                 {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
                  {std::format("{}/simple_shader_2d.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-        ParamLineRenderSystem<VklCurveModel2D::vertex_type, 1> paramCurveRenderSystem(
+        ParamLineRenderSystem<1> paramCurveRenderSystem(
                 device_, renderer_.getSwapChainRenderPass(),
                 {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
                  {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});

@@ -3,24 +3,23 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
-template <VklVertexType VertexType>
-VklGraphicsPipeline<VertexType>::VklGraphicsPipeline(VklDevice &device, std::vector<VklShaderModuleInfo> shaderInfos,
-                                                     const PipelineConfigInfo &configInfo)
-    : VklPipeline(device) {
-    createGraphicsPipeline(configInfo, shaderInfos);
+VklGraphicsPipeline::VklGraphicsPipeline(VklDevice &device, std::vector<VklShaderModuleInfo> shaderInfos,
+                                         const PipelineConfigInfo &configInfo)
+        : VklPipeline(device) {
+    createGraphicsPipeline(configInfo, std::move(shaderInfos));
 }
 
-template <VklVertexType VertexType> VklGraphicsPipeline<VertexType>::~VklGraphicsPipeline() {
+VklGraphicsPipeline::~VklGraphicsPipeline() {
     for (auto module : shaderModules)
         vkDestroyShaderModule(device_.device(), module, nullptr);
 
     vkDestroyPipeline(device_.device(), graphicsPipeline_, nullptr);
 }
 
-template <VklVertexType VertexType>
-void VklGraphicsPipeline<VertexType>::createGraphicsPipeline(const PipelineConfigInfo &configInfo,
-                                                             std::vector<VklShaderModuleInfo> infos) {
+void VklGraphicsPipeline::createGraphicsPipeline(const PipelineConfigInfo &configInfo,
+                                                 std::vector<VklShaderModuleInfo> infos) {
     shaderModules.resize(infos.size());
 
     for (auto i = 0; i < infos.size(); i++) {
@@ -75,8 +74,7 @@ void VklGraphicsPipeline<VertexType>::createGraphicsPipeline(const PipelineConfi
     }
 }
 
-template <VklVertexType VertexType>
-void VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo) {
+void VklGraphicsPipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo) {
     configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
@@ -108,7 +106,7 @@ void VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(PipelineConfigIn
     configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;      // Optional
 
     configInfo.colorBlendAttachment.colorWriteMask =
-        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
     configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
     configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
@@ -143,7 +141,4 @@ void VklGraphicsPipeline<VertexType>::defaultPipelineConfigInfo(PipelineConfigIn
     configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
     configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags = 0;
-
-    configInfo.bindingDescriptions = VertexType::getBindingDescriptions();
-    configInfo.attributeDescriptions = VertexType::getAttributeDescriptions();
 }

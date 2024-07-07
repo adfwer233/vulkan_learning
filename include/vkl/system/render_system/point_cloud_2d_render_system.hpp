@@ -21,4 +21,4 @@ struct PointCloud2DRenderSystemPushConstantData {
 using PointCloud2DRenderSystemPushConstantList = VklPushConstantInfoList<PointCloud2DRenderSystemPushConstantData>;
 
 template<uint32_t Subpass = 0>
-using PointCloud2DRenderSystem = SimpleRenderSystem<VklVertex2D, Subpass, PointCloud2DRenderSystemPushConstantList, PointCloud2DPipelineModifier>;
+using PointCloud2DRenderSystem = SimpleRenderSystem<Subpass, PointCloud2DRenderSystemPushConstantList, PointCloud2DPipelineModifier>;

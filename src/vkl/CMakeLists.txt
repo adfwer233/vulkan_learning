@@ -21,6 +21,7 @@ set(SRC_FILE core/vkl_window.cpp
         scene/vkl_scene.cpp
         scene/vkl_collection.cpp
         io/vkl_image_export.cpp
+        core/vkl_graphic_pipeline.cpp
 )
 
 add_library(${PROJECT_NAME} ${SRC_FILE})

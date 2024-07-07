@@ -56,42 +56,42 @@ void Application::run() {
     glfwSetMouseButtonCallback(window, KeyboardCameraController::mouse_button_callback);
 
     /** render system */
-    SimpleRenderSystem<VklModel::vertex_type> renderSystem(
+    SimpleRenderSystem renderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/simple_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    SimpleRenderSystem<VklModel::vertex_type> rawRenderSystem(
+    SimpleRenderSystem rawRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    SimpleWireFrameRenderSystem<VklModel::vertex_type> wireFrameRenderSystem(
+    SimpleWireFrameRenderSystem wireFrameRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/point_light_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    LineRenderSystem<VklBoxModel3D::vertex_type> lineRenderSystem(
+    LineRenderSystem lineRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(),
         {{std::format("{}/line_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    LineRenderSystem<VklCurveModel3D::vertex_type> curveMeshRenderSystem(
+    LineRenderSystem curveMeshRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(),
         {{std::format("{}/curve_mesh_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    ParamLineRenderSystem<VklCurveModel2D::vertex_type> paramCurveRenderSystem(
+    ParamLineRenderSystem paramCurveRenderSystem(
         device_, uvRender_.getSwapChainRenderPass(),
         {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    SimpleRenderSystem<VklModel::vertex_type> colorRenderSystem(
+    SimpleRenderSystem colorRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(),
         {{std::format("{}/simple_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/simple_color_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
-    NormalRenderSystem<VklModel::vertex_type> normalRenderSystem(
+    NormalRenderSystem normalRenderSystem(
         device_, offscreenRenderer_.getSwapChainRenderPass(),
         {{std::format("{}/normal_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/line_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT},

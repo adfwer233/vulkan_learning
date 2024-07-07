@@ -7,7 +7,7 @@
 
 #include "vkl/core/vkl_shader_module.hpp"
 
-template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeline {
+class VklGraphicsPipeline : public VklPipeline {
   private:
     std::vector<VkShaderModule> shaderModules;
 
@@ -24,9 +24,5 @@ template <VklVertexType VertexType> class VklGraphicsPipeline : public VklPipeli
     VklGraphicsPipeline(const VklGraphicsPipeline &) = delete;
     VklGraphicsPipeline &operator=(const VklGraphicsPipeline &) = delete;
 
-    void bind(VkCommandBuffer commandBuffer);
-
     static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo);
 };
-
-#include "vkl_graphics_pipeline.hpp.impl"
