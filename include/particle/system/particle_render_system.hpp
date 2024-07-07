@@ -22,4 +22,4 @@ struct ParticleRenderPipelineModifier {
     }
 };
 
-using ParticleRenderSystem = SimpleRenderSystem<Particle, SimplePushConstantInfoList, ParticleRenderPipelineModifier>;
+using ParticleRenderSystem = SimpleRenderSystem<Particle, 0, SimplePushConstantInfoList, ParticleRenderPipelineModifier>;

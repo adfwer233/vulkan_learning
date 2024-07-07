@@ -95,9 +95,9 @@ find_package(OpenMP)
 
 if(OpenCV_FOUND)
     message(STATUS "found opencv")
-    target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui spirv-cross-c-shared OpenMP::OpenMP_CXX ${OpenCV_LIBS})
+    target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui spirv-cross-core spirv-cross-cpp OpenMP::OpenMP_CXX ${OpenCV_LIBS})
 else()
-    target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui spirv-cross-c-shared OpenMP::OpenMP_CXX)
+    target_link_libraries(vkl glfw glm ${VK_SDK_LIB} assimp imgui spirv-cross-core spirv-cross-cpp OpenMP::OpenMP_CXX)
 endif()
 
 if(MSVC)

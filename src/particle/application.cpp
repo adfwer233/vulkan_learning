@@ -66,7 +66,7 @@ void Application::run() {
     float deltaTime = 0, lastFrame = 0;
 
     ParticleRenderSystem renderSystem(
-        device_, renderer_.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(),
+        device_, renderer_.getSwapChainRenderPass(),
         {{std::format("{}/particle.vert.spv", PARTICLE_SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
          {std::format("{}/particle.frag.spv", PARTICLE_SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
@@ -153,7 +153,7 @@ void Application::run() {
             auto commandBuffer = renderer_.beginFrame();
 
             FrameInfo<VklParticleModel> frameInfo{
-                frameIndex, currentFrame, commandBuffer, camera, &model.descriptorSets[frameIndex], model};
+                frameIndex, currentFrame, commandBuffer, camera, model};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
             renderSystem.renderObject(frameInfo);
