@@ -16,6 +16,8 @@ template <typename... Ts> struct TypeList {
 
     template <typename... T> using prepend = TypeList<T..., Ts...>;
 
+    using to_ptr = TypeList<Ts*...>;
+
     template <template <typename...> typename T> using to = T<Ts...>;
 
     template <template <typename> typename T> using monad = TypeList<T<Ts>...>;
