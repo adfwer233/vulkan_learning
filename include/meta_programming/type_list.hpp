@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include <numeric>
+#include <limits>
 
 namespace MetaProgramming {
 

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "spirv_cross/spirv_cross.hpp"
-#include "spirv_cross/spirv_glsl.hpp"
+#include "spirv_cross.hpp"
+#include "spirv_glsl.hpp"
 
 template <uint32_t Subpass, VklPushConstantInfoListConcept PushConstantInfoList,
           VklPipelineModifierType PipelineModifierType>

@@ -8,6 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CUDA_ENABLE OFF CACHE BOOL "Whether enable cuda kernel")
 
+message(STATUS "cmake version ${CMAKE_VERSION} ${CMAKE_GENERATOR}")
+
 if (CUDA_ENABLE)
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
         set(CMAKE_CUDA_ARCHITECTURES 50)
@@ -17,6 +19,9 @@ if (CUDA_ENABLE)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+set(EIGEN_BUILD_CMAKE_PACKAGE ON)
+set(SPIRV_CROSS_SHARED ON)
 
 include(fetch-glfw)
 include(fetch-glm)
@@ -49,6 +54,7 @@ INCLUDE_DIRECTORIES(${random_SOURCE_DIR}/include)
 INCLUDE_DIRECTORIES(${imgui_fetch_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${imgui_fetch_SOURCE_DIR}/backends)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${spirv_cross_SOURCE_DIRS})
 
 message(STATUS ${gtest_SOURCE_DIR})
 message(STATUS ${Boost_INCLUDE_DIRS})
@@ -112,4 +118,4 @@ build_doxygen()
 include(clang-format)
 
 add_custom_target(BUILD_ALL)
-add_dependencies(BUILD_ALL vkl demo particle geometry test)
+add_dependencies(BUILD_ALL vkl demo geometry test)

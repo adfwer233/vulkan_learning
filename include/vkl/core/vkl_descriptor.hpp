@@ -6,7 +6,7 @@
 #include <string>
 
 #include "vkl_device.hpp"
-#include "spirv_cross/spirv_cross.hpp"
+#include "spirv_cross.hpp"
 
 /**
  * @page devicePage Vulkan Resource Binding
