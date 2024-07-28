@@ -20,7 +20,15 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+# install eigen for autodiff
 set(EIGEN_BUILD_CMAKE_PACKAGE ON)
+
+# autodiff settings
+set(AUTODIFF_BUILD_DOCS OFF)
+set(AUTODIFF_BUILD_EXAMPLES OFF)
+set(AUTODIFF_BUILD_PYTHON OFF)
+set(AUTODIFF_BUILD_TESTS OFF)
+
 set(SPIRV_CROSS_SHARED ON)
 
 include(fetch-glfw)

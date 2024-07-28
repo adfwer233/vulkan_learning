@@ -13,6 +13,8 @@ set(SRC_FILE
         geometry/function/bezier2d_evaluate.cpp
 )
 
+enable_testing()
+
 add_executable(${PROJECT_NAME} ${SRC_FILE})
 
 target_link_libraries(${PROJECT_NAME} glm glfw vkl autodiff geometry GTest::gtest_main)
