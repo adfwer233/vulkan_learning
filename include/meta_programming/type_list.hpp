@@ -48,6 +48,25 @@ struct index_of<T> {
 
 template<typename T, typename... Ts> struct IndexOf<TypeList<Ts...>, T>: index_of<T, Ts...> {};
 
+// KthOf
+
+template <TL In, size_t index> struct KthOf;
+
+template<size_t index, typename... Ts>
+struct kth_of {};
+
+template<typename First, typename... Rest>
+struct kth_of<0, First, Rest...> {
+    using type = First;
+};
+
+template<size_t index, typename First, typename... Rest>
+struct kth_of<index, First, Rest...> {
+    using type = kth_of<index - 1, Rest...>::type;
+};
+
+template<size_t index, typename... Ts> struct KthOf<TypeList<Ts...>, index> : kth_of<index, Ts...> {};
+
 // IsAnyOf
 
 template <TL In, typename T> struct IsAnyOf;

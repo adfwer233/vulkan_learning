@@ -17,11 +17,10 @@ class Application {
     VklWindow window_{WIDTH, HEIGHT};
     VklDevice device_;
 
-  public:
-    Application()
-        : device_(window_){
+    VklSwapChain swapChain_;
 
-          };
+  public:
+    Application(): device_(window_), swapChain_(device_, {WIDTH, HEIGHT}) {};
     ~Application();
 
     Application(const Application &) = delete;
