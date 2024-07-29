@@ -19,7 +19,7 @@ void Application::run() {
     auto simple_render_pass = graphDescriptor.pass<RenderGraphRenderPass>("simple_render_pass");
     simple_render_pass->outTextureAttachmentDescriptors.push_back(output_texture);
 
-    RenderGraph renderGraph(device_, &graphDescriptor, 2);
+    RenderGraph renderGraph(device_, swapChain_, &graphDescriptor, 2);
 
     renderGraph.createLayouts();
 

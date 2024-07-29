@@ -85,10 +85,31 @@ struct RenderGraphPassDescriptor: public RenderGraphPassDescriptorBase {};
 template<RenderGraphPass T>
 struct RenderGraphPassInstance: public RenderGraphObjectsBase {};
 
+template<RenderGraphAttachment T> struct RenderGraphAttachmentDerived: public RenderGraphAttachmentBase {
+    RenderGraphAttachmentDescriptor<T> *descriptor_p;
+    std::vector<RenderGraphAttachmentInstance<T> *> instances;
+};
+
 struct RenderGraphPassBase: public RenderGraphObjectsBase {
     RenderGraphPassDescriptorBase* descriptor_p;
     std::vector<RenderGraphAttachmentBase*> input_attachments;
     std::vector<RenderGraphAttachmentBase*> output_attachments;
+
+    using RenderGraphAttachmentVectorsType = RenderGraphAttachmentTypeList::monad<RenderGraphAttachmentDerived>::to_ptr::monad<std::vector>::to<std::tuple>;
+    RenderGraphAttachmentVectorsType input_attachment_vectors;
+    RenderGraphAttachmentVectorsType output_attachment_vectors;
+
+    template<RenderGraphAttachment AttachmentType>
+    std::vector<RenderGraphAttachmentDerived<AttachmentType> *>& get_input_attachment_vector() {
+        constexpr size_t index = MetaProgramming::TypeListFunctions::IndexOf<RenderGraphAttachmentTypeList, AttachmentType>::value;
+        return std::get<index>(input_attachment_vectors);
+    }
+
+    template<RenderGraphAttachment AttachmentType>
+    std::vector<RenderGraphAttachmentDerived<AttachmentType> *>& get_output_attachment_vector() {
+        constexpr size_t index = MetaProgramming::TypeListFunctions::IndexOf<RenderGraphAttachmentTypeList, AttachmentType>::value;
+        return std::get<index>(output_attachment_vectors);
+    }
 };
 
 template<RenderGraphPass T>
@@ -102,10 +123,6 @@ template<> struct RenderGraphPassDerived<RenderGraphRenderPass>: public RenderGr
     VkRenderPass renderPass;
 };
 
-template<RenderGraphAttachment T> struct RenderGraphAttachmentDerived: public RenderGraphAttachmentBase {
-    RenderGraphAttachmentDescriptor<T> *descriptor_p;
-    std::vector<RenderGraphAttachmentInstance<T> *> instances;
-};
 
 template<> struct RenderGraphAttachmentDescriptor<RenderGraphTextureAttachment> {
     std::string name;
@@ -221,6 +238,7 @@ struct RenderGraphDescriptor {
 struct RenderGraph {
 
     VklDevice &device_;
+    VklSwapChain &swapChain_;
 
     uint32_t instance_n_;
 
@@ -323,8 +341,8 @@ struct RenderGraph {
         return res;
     }
 
-    [[nodiscard]] RenderGraphAttachmentBase* getAttachment(const std::string& name) const {
-        for (auto att: attachments) {
+    [[nodiscard]] RenderGraphAttachmentBase* getAttachment(const std::string& name) {
+        for (auto att: all_attachments_generator()) {
             if (att->name == name) {
                 return att;
             }
@@ -332,8 +350,8 @@ struct RenderGraph {
         return nullptr;
     }
 
-    [[nodiscard]] RenderGraphPassBase* getPass(const std::string& name) const {
-        for (auto pass: passes){
+    [[nodiscard]] RenderGraphPassBase* getPass(const std::string& name) {
+        for (auto pass: all_passes_generator()){
             if (pass->name == name) {
                 return pass;
             }
@@ -371,22 +389,37 @@ struct RenderGraph {
         }
     };
 
-    explicit RenderGraph(VklDevice &device, RenderGraphDescriptor *renderGraphDescriptor, uint32_t instance_n): device_(device), instance_n_(instance_n) {
+    explicit RenderGraph(VklDevice &device, VklSwapChain& swapChain, RenderGraphDescriptor *renderGraphDescriptor, uint32_t instance_n): device_(device), instance_n_(instance_n), swapChain_(swapChain) {
         renderGraphDescriptor_ = renderGraphDescriptor;
 
-        // for (auto & passDescriptor : renderGraphDescriptor->passDescriptors) {
-        //     passes.push_back(pass_desc_to_obj(passDescriptor));
-        // }
-        //
-        // for (auto & attachmentDescriptor : renderGraphDescriptor->attachmentDescriptors) {
-        //     attachments.push_back(attachment_desc_to_obj(attachmentDescriptor));
-        // }
-
+        /**
+         * create node/edge objects
+         */
         constructor_copy_pass_detail<RenderGraphPassTypeList::size - 1>(renderGraphDescriptor);
         constructor_copy_attachment_detail<RenderGraphAttachmentTypeList::size - 1>(renderGraphDescriptor);
 
+        /**
+         * copy attachent informations to the pass objects
+         */
+
+        for (auto pass: passes_generator<RenderGraphRenderPass>()) {
+            auto& pass_texture_input = pass->get_input_attachment_vector<RenderGraphTextureAttachment>();
+            for (auto input_desc: pass->descriptor_p->inTextureAttachmentDescriptors) {
+                auto att = getAttachment(input_desc->name);
+                pass_texture_input.push_back(dynamic_cast<RenderGraphAttachmentDerived<RenderGraphTextureAttachment> *>(getAttachment(input_desc->name)));
+            }
+
+            auto& pass_texture_output = pass->get_output_attachment_vector<RenderGraphTextureAttachment>();
+            for (auto output_desc: pass->descriptor_p->outTextureAttachmentDescriptors) {
+                auto att = getAttachment(output_desc->name);
+                pass_texture_output.push_back(dynamic_cast<RenderGraphAttachmentDerived<RenderGraphTextureAttachment> *>(getAttachment(output_desc->name)));
+            }
+        }
+
         for (auto node: passes) {
-            // for (auto input: node->descriptor_p->input_descriptors) {
+            // for (auto input: node->descriptor_
+            //
+            // p->input_descriptors) {
             //     RenderGraphAttachmentBase* att = getAttachment(input->name);
             //     node->input_attachments.push_back(att);
             // }
@@ -613,6 +646,39 @@ struct RenderGraph {
              */
             for (auto edge: attachments_generator<RenderGraphStorageBufferAttachment>()) {
 
+            }
+
+            /**
+             * create framebuffer for nodes
+             */
+
+            for (auto node: passes_generator<RenderGraphRenderPass>()) {
+                std::vector<VkImageView> attachmentImageViews;
+
+                for (auto edge: node->get_input_attachment_vector<RenderGraphTextureAttachment>()) {
+                    attachmentImageViews.push_back(edge->instances[i]->texture->getTextureImageView());
+                }
+
+                for (auto edge: node->get_output_attachment_vector<RenderGraphTextureAttachment>()) {
+                    if (edge->descriptor_p->isSwapChain) {
+                        attachmentImageViews.push_back(swapChain_.getImageView(i));
+                    } else {
+                        attachmentImageViews.push_back(edge->instances[i]->texture->getTextureImageView());
+                    }
+                }
+
+                VkFramebufferCreateInfo framebufferCreateInfo {};
+                framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+                framebufferCreateInfo.renderPass = node->renderPass;
+                framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachmentImageViews.size());
+                framebufferCreateInfo.pAttachments = attachmentImageViews.data();
+                framebufferCreateInfo.width = node->descriptor_p->width;
+                framebufferCreateInfo.height = node->descriptor_p->height;
+                framebufferCreateInfo.layers = 1;
+
+                if (vkCreateFramebuffer(device_.device(), &framebufferCreateInfo, nullptr, &(node->instances[i]->framebuffer)) != VK_SUCCESS) {
+                    throw std::runtime_error("Failed to create framebuffer!");
+                }
             }
         }
     }
