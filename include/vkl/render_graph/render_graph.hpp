@@ -638,7 +638,9 @@ struct RenderGraph {
              */
             for (auto edge: attachments_generator<RenderGraphTextureAttachment>()) {
                 std::cout << std::format("create instance for texture {}, instance id {}", edge->name, i) << std::endl;
+                auto tmp_texture = new VklTexture(device_, edge->descriptor_p->width, edge->descriptor_p->height, 4);
                 edge->instances[i]->texture = std::move(std::make_unique<VklTexture>(device_, edge->descriptor_p->width, edge->descriptor_p->height, 4));
+                int x = 0;
             }
 
             /**
