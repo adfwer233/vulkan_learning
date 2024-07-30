@@ -7,4 +7,6 @@ public:
 
     std::vector<VkVertexInputBindingDescription> bindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+
+    virtual ~BaseRenderSystem() = default;
 };

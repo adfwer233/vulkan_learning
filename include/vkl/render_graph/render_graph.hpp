@@ -11,6 +11,8 @@
 
 #include "coroutine/generator.hpp"
 
+#include "vkl/core/vkl_shader_module.hpp"
+#include "vkl/system/render_system/render_system_base.hpp"
 
 struct RenderGraphRenderPass{};
 struct RenderGraphComputePass{};
@@ -121,6 +123,25 @@ template<> struct RenderGraphPassDerived<RenderGraphRenderPass>: public RenderGr
     std::vector<RenderGraphPassInstance<RenderGraphRenderPass> *> instances;
     RenderGraphPassDescriptor<RenderGraphRenderPass>* descriptor_p;
     VkRenderPass renderPass;
+
+    template<typename RenderSystemType>
+    RenderSystemType* getRenderSystem(VklDevice& device, const std::string &name, std::vector<VklShaderModuleInfo>&& shader_info) {
+        if (render_system_cache.contains(name)) {
+            auto casted_ptr = dynamic_cast<RenderSystemType*>(render_system_cache[name]);
+            if (casted_ptr != nullptr) {
+                return casted_ptr;
+            } else {
+                throw std::runtime_error("render system type error");
+            }
+        } else {
+            auto render_system = new RenderSystemType(device, renderPass, shader_info);
+            render_system_cache[name] = dynamic_cast<BaseRenderSystem*>(render_system);
+            return render_system;
+        }
+    }
+
+  private:
+    std::unordered_map<std::string, BaseRenderSystem*> render_system_cache;
 };
 
 
@@ -350,8 +371,9 @@ struct RenderGraph {
         return nullptr;
     }
 
-    [[nodiscard]] RenderGraphPassBase* getPass(const std::string& name) {
-        for (auto pass: all_passes_generator()){
+    template<RenderGraphPass PassType>
+    [[nodiscard]] RenderGraphPassDerived<PassType>* getPass(const std::string& name) {
+        for (auto pass: passes_generator<PassType>()){
             if (pass->name == name) {
                 return pass;
             }
@@ -481,7 +503,7 @@ struct RenderGraph {
                     .format = output_desc->format,
                     .samples = VK_SAMPLE_COUNT_1_BIT,
                     .loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-                    .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+                    .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
                     .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                     .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
                 };
