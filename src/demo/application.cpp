@@ -10,10 +10,10 @@
 #include "demo/utils/controller.hpp"
 #include "vkl/system/render_system/line_render_system.hpp"
 #include "vkl/system/render_system/normal_render_system.hpp"
+#include "vkl/system/render_system/param_line_render_system.hpp"
+#include "vkl/system/render_system/point_cloud_2d_render_system.hpp"
 #include "vkl/system/render_system/simple_render_system.hpp"
 #include "vkl/system/render_system/simple_wireframe_render_system.hpp"
-#include "vkl/system/render_system/point_cloud_2d_render_system.hpp"
-#include "vkl/system/render_system/param_line_render_system.hpp"
 
 #include "vkl/system/compute_system/base_compute_system.hpp"
 #include "vkl/system/compute_system/path_tracing_compute_system.hpp"
@@ -98,9 +98,9 @@ void Application::run() {
          {std::format("{}/normal_generation.geom.spv", SHADER_DIR), VK_SHADER_STAGE_GEOMETRY_BIT}});
 
     PointCloud2DRenderSystem pointCloud2DRenderSystem(
-            device_, offscreenRenderer_.getSwapChainRenderPass(),
-            {{std::format("{}/point_cloud_2d_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-             {std::format("{}/point_cloud_2d_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+        device_, offscreenRenderer_.getSwapChainRenderPass(),
+        {{std::format("{}/point_cloud_2d_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/point_cloud_2d_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     float deltaTime = 0, lastFrame = 0;
 
@@ -159,24 +159,23 @@ void Application::run() {
     device_.transitionImageLayout(renderRes->image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-
     VklCurveModel2D::BuilderFromImmediateData parameterSpaceBoundaryBuilder;
     parameterSpaceBoundaryBuilder.vertices = {
-            Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{2.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{2.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{3.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{3.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            // Vertex2D{{2.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{2.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{2.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{2.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{3.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{3.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        // Vertex2D{{2.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
     };
 
     VklCurveModel2D parameterSpaceBoundary(device_, parameterSpaceBoundaryBuilder);
@@ -288,11 +287,10 @@ void Application::run() {
 
             // param line push constant
 
-            ParamLineRenderSystemPushConstantData paramLineRenderSystemPushConstantData {
+            ParamLineRenderSystemPushConstantData paramLineRenderSystemPushConstantData{
                 .zoom = uiManager.bezier_zoom_in,
                 .shift_x = uiManager.bezier_shift.x,
-                .shift_y = uiManager.bezier_shift.y
-            };
+                .shift_y = uiManager.bezier_shift.y};
             ParamLineRenderSystemPushConstantList paramLineRenderSystemPushConstantList;
             paramLineRenderSystemPushConstantList.data[0] = paramLineRenderSystemPushConstantData;
 
@@ -301,17 +299,14 @@ void Application::run() {
                 for (auto model : object_item->models) {
                     ubo.model = object_item->getModelTransformation();
 
-                    auto updateUniformBuffer = [&](VklDescriptorSetLayoutKey& key) {
+                    auto updateUniformBuffer = [&](VklDescriptorSetLayoutKey &key) {
                         if (model->uniformBuffers.contains(key)) {
                             model->uniformBuffers[key][frameIndex]->writeToBuffer(&ubo);
                             model->uniformBuffers[key][frameIndex]->flush();
                         }
                     };
 
-                    FrameInfo<VklModel> modelFrameInfo{frameIndex,
-                                                       currentFrame,
-                                                       offscreenCommandBuffer,
-                                                       scene.camera,
+                    FrameInfo<VklModel> modelFrameInfo{frameIndex, currentFrame, offscreenCommandBuffer, scene.camera,
                                                        *model};
 
                     if (uiManager.renderMode == Raw) {
@@ -330,8 +325,7 @@ void Application::run() {
                         if (model->textures_.empty()) {
                             updateUniformBuffer(rawRenderSystem.descriptorSetLayout->descriptorSetLayoutKey);
                             rawRenderSystem.renderObject(modelFrameInfo);
-                        }
-                        else {
+                        } else {
                             updateUniformBuffer(renderSystem.descriptorSetLayout->descriptorSetLayoutKey);
                             renderSystem.renderObject(modelFrameInfo);
                         }
@@ -358,24 +352,25 @@ void Application::run() {
                                 auto geometryModel = modelBuffer->getGeometryModel(device_, &surf);
                                 for (auto &boundary3d : geometryModel->boundary_3d) {
                                     if (not boundary3d->uniformBuffers.empty()) {
-                                        boundary3d->uniformBuffers[curveMeshRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->writeToBuffer(&ubo);
-                                        boundary3d->uniformBuffers[curveMeshRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->flush();
+                                        boundary3d
+                                            ->uniformBuffers[curveMeshRenderSystem.descriptorSetLayout
+                                                                 ->descriptorSetLayoutKey][frameIndex]
+                                            ->writeToBuffer(&ubo);
+                                        boundary3d
+                                            ->uniformBuffers[curveMeshRenderSystem.descriptorSetLayout
+                                                                 ->descriptorSetLayoutKey][frameIndex]
+                                            ->flush();
                                     }
-                                    FrameInfo<VklCurveModel3D> frameInfo{frameIndex,
-                                                                         currentFrame,
-                                                                         offscreenCommandBuffer,
-                                                                         scene.camera,
-                                                                         *boundary3d};
+                                    FrameInfo<VklCurveModel3D> frameInfo{
+                                        frameIndex, currentFrame, offscreenCommandBuffer, scene.camera, *boundary3d};
                                     curveMeshRenderSystem.renderObject(frameInfo);
                                 }
 
                                 for (auto &boundary2d : geometryModel->boundary_2d) {
-                                    FrameInfo<VklCurveModel2D> frameInfo{frameIndex,
-                                                                         currentFrame,
-                                                                         uvCommandBuffer,
-                                                                         scene.camera,
-                                                                         *boundary2d};
-                                    paramCurveRenderSystem.renderObject(frameInfo, paramLineRenderSystemPushConstantList);
+                                    FrameInfo<VklCurveModel2D> frameInfo{frameIndex, currentFrame, uvCommandBuffer,
+                                                                         scene.camera, *boundary2d};
+                                    paramCurveRenderSystem.renderObject(frameInfo,
+                                                                        paramLineRenderSystemPushConstantList);
                                 }
                             }
                         },
@@ -442,17 +437,13 @@ void Application::run() {
             // rendering bezier curves
             if (controller->currentWidgets == BezierEditing) {
 
-                FrameInfo<VklCurveModel2D> parameterSpaceBoundaryFrameInfo {
-                    frameIndex,
-                    currentFrame,
-                    bezierCommandBuffer,
-                    scene.camera,
-                    parameterSpaceBoundary
-                };
+                FrameInfo<VklCurveModel2D> parameterSpaceBoundaryFrameInfo{
+                    frameIndex, currentFrame, bezierCommandBuffer, scene.camera, parameterSpaceBoundary};
 
-                // paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo, paramLineRenderSystemPushConstantList);
+                // paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo,
+                // paramLineRenderSystemPushConstantList);
 
-                for (auto &bezier_editor_curve: uiManager.bezier_editor_curves) {
+                for (auto &bezier_editor_curve : uiManager.bezier_editor_curves) {
                     if (bezier_editor_curve != nullptr) {
                         auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
                         auto curveMesh = modelBuffer->getGeometryModel(device_, bezier_editor_curve.get());
@@ -460,51 +451,42 @@ void Application::run() {
                         auto &model = curveMesh->controlPointsMesh;
 
                         PointCloud2DRenderSystemPushConstantData pointCloud2DRenderSystemPushConstantData{
-                                .zoom = uiManager.bezier_zoom_in,
-                                .shift_x = uiManager.bezier_shift.x,
-                                .shift_y = uiManager.bezier_shift.y
-                        };
+                            .zoom = uiManager.bezier_zoom_in,
+                            .shift_x = uiManager.bezier_shift.x,
+                            .shift_y = uiManager.bezier_shift.y};
                         PointCloud2DRenderSystemPushConstantList pointCloud2DRenderSystemPushConstantList;
                         pointCloud2DRenderSystemPushConstantList.data[0] = pointCloud2DRenderSystemPushConstantData;
 
-                        FrameInfo<VklPointCloud2D> modelFrameInfo{frameIndex,
-                                                                  currentFrame,
-                                                                  bezierCommandBuffer,
-                                                                  scene.camera,
-                                                                  *model};
+                        FrameInfo<VklPointCloud2D> modelFrameInfo{frameIndex, currentFrame, bezierCommandBuffer,
+                                                                  scene.camera, *model};
 
                         pointCloud2DRenderSystem.renderObject(modelFrameInfo, pointCloud2DRenderSystemPushConstantList);
 
                         if (curveMesh->curveMesh != nullptr) {
 
-                            FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex,
-                                                                           currentFrame,
-                                                                           bezierCommandBuffer,
-                                                                           scene.camera,
-                                                                           *curveMesh->curveMesh};
+                            FrameInfo<VklCurveModel2D> curveModelFrameInfo{
+                                frameIndex, currentFrame, bezierCommandBuffer, scene.camera, *curveMesh->curveMesh};
 
                             paramCurveRenderSystem.renderObject(curveModelFrameInfo,
                                                                 paramLineRenderSystemPushConstantList);
                         }
 
                         if (curveMesh->derivativeBoundMesh != nullptr) {
-                            FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex,
-                                                                           currentFrame,
-                                                                           bezierCommandBuffer,
-                                                                           scene.camera,
+                            FrameInfo<VklCurveModel2D> curveModelFrameInfo{frameIndex, currentFrame,
+                                                                           bezierCommandBuffer, scene.camera,
                                                                            *curveMesh->derivativeBoundMesh};
 
-                            paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
+                            paramCurveRenderSystem.renderObject(curveModelFrameInfo,
+                                                                paramLineRenderSystemPushConstantList);
                         }
 
                         if (curveMesh->extremePointMesh != nullptr) {
-                            FrameInfo<VklPointCloud2D> curveModelFrameInfo{frameIndex,
-                                                                           currentFrame,
-                                                                           bezierCommandBuffer,
-                                                                           scene.camera,
+                            FrameInfo<VklPointCloud2D> curveModelFrameInfo{frameIndex, currentFrame,
+                                                                           bezierCommandBuffer, scene.camera,
                                                                            *curveMesh->extremePointMesh};
 
-                            // pointCloud2DRenderSystem.renderObject(curveModelFrameInfo, pointCloud2DRenderSystemPushConstantList);
+                            // pointCloud2DRenderSystem.renderObject(curveModelFrameInfo,
+                            // pointCloud2DRenderSystemPushConstantList);
                         }
                     }
                 }
@@ -519,13 +501,12 @@ void Application::run() {
 
                 ubo.model = box_trans;
                 if (not boxModel.uniformBuffers.empty()) {
-                    boxModel.uniformBuffers[lineRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->writeToBuffer(&ubo);
-                    boxModel.uniformBuffers[lineRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]->flush();
+                    boxModel.uniformBuffers[lineRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]
+                        ->writeToBuffer(&ubo);
+                    boxModel.uniformBuffers[lineRenderSystem.descriptorSetLayout->descriptorSetLayoutKey][frameIndex]
+                        ->flush();
                 }
-                FrameInfo<VklBoxModel3D> boxFrameInfo{frameIndex,
-                                                      currentFrame,
-                                                      offscreenCommandBuffer,
-                                                      scene.camera,
+                FrameInfo<VklBoxModel3D> boxFrameInfo{frameIndex, currentFrame, offscreenCommandBuffer, scene.camera,
                                                       boxModel};
                 lineRenderSystem.renderObject(boxFrameInfo);
             }
@@ -549,7 +530,8 @@ void Application::run() {
                 throw std::runtime_error("failed to record command buffer!");
             }
 
-            std::vector<VkCommandBuffer> commandBuffers{commandBuffer, offscreenCommandBuffer, uvCommandBuffer, bezierCommandBuffer};
+            std::vector<VkCommandBuffer> commandBuffers{commandBuffer, offscreenCommandBuffer, uvCommandBuffer,
+                                                        bezierCommandBuffer};
 
             auto result = renderer_.swapChain_->submitCommandBuffers(commandBuffers, &renderer_.currentImageIndex);
 

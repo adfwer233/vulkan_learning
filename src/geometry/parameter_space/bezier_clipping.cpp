@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <ranges>
 
-double evaluate(double param, std::vector<double>& coefficients) {
+double evaluate(double param, std::vector<double> &coefficients) {
     double h = 1.0;
     double result = coefficients[0];
     double t = param;
@@ -34,22 +34,30 @@ double evaluate(double param, std::vector<double>& coefficients) {
 uint32_t BezierClipping::bezier_clipping(glm::vec2 test_point, const std::vector<glm::vec2> &points) {
     bool quadrant1 = false, quadrant2 = false, quadrant3 = false, quadrant4 = false;
 
-    for (auto &point: points) {
-        if (point.x > test_point.x and point.y > test_point.y) quadrant1 = true;
-        if (point.x < test_point.x and point.y > test_point.y) quadrant2 = true;
-        if (point.x < test_point.x and point.y < test_point.y) quadrant3 = true;
-        if (point.x > test_point.x and point.y < test_point.y) quadrant4 = true;
+    for (auto &point : points) {
+        if (point.x > test_point.x and point.y > test_point.y)
+            quadrant1 = true;
+        if (point.x < test_point.x and point.y > test_point.y)
+            quadrant2 = true;
+        if (point.x < test_point.x and point.y < test_point.y)
+            quadrant3 = true;
+        if (point.x > test_point.x and point.y < test_point.y)
+            quadrant4 = true;
     }
 
     // if all points lies on the same side of the ray, return zero
 
-    if (quadrant1 and quadrant2 and (not quadrant3) and (not quadrant4)) return 0;
-    if ((not quadrant1) and (not quadrant2) and quadrant3 and quadrant4) return 0;
+    if (quadrant1 and quadrant2 and (not quadrant3) and (not quadrant4))
+        return 0;
+    if ((not quadrant1) and (not quadrant2) and quadrant3 and quadrant4)
+        return 0;
 
     if ((not quadrant2) and (not quadrant3)) {
-        auto tmp = (points.front().y  - test_point.y) * (points.back().y - test_point.y);
-        if (tmp > 0) return 0;
-        if (tmp < 0) return 1;
+        auto tmp = (points.front().y - test_point.y) * (points.back().y - test_point.y);
+        if (tmp > 0)
+            return 0;
+        if (tmp < 0)
+            return 1;
     }
 
     if ((not quadrant1) and (not quadrant4)) {
@@ -67,7 +75,8 @@ uint32_t BezierClipping::bezier_clipping(glm::vec2 test_point, const std::vector
 
     auto result = finder.get_roots();
 
-    size_t valid_num = std::ranges::count_if(result, [&](double param) {return evaluate(param, x_poly) > test_point.x; });
+    size_t valid_num =
+        std::ranges::count_if(result, [&](double param) { return evaluate(param, x_poly) > test_point.x; });
 
     return valid_num % 2;
 }

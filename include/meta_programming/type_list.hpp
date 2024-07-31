@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tuple>
-#include <numeric>
 #include <limits>
+#include <numeric>
+#include <tuple>
 
 namespace MetaProgramming {
 
@@ -17,7 +17,7 @@ template <typename... Ts> struct TypeList {
 
     template <typename... T> using prepend = TypeList<T..., Ts...>;
 
-    using to_ptr = TypeList<Ts*...>;
+    using to_ptr = TypeList<Ts *...>;
 
     template <template <typename...> typename T> using to = T<Ts...>;
 
@@ -33,59 +33,49 @@ concept TL = requires { typename TypeList::IsTypeList; };
 
 template <TL In, typename T> struct IndexOf;
 
-template <typename... Ts>
-struct index_of {};
+template <typename... Ts> struct index_of {};
 
-template<typename T, typename First, typename... Rest>
-struct index_of<T, First, Rest...> {
+template <typename T, typename First, typename... Rest> struct index_of<T, First, Rest...> {
     static constexpr size_t value = std::is_same_v<T, First> ? 0 : 1 + index_of<T, Rest...>::value;
 };
 
-template<typename T>
-struct index_of<T> {
+template <typename T> struct index_of<T> {
     static constexpr size_t value = std::numeric_limits<size_t>::max();
 };
 
-template<typename T, typename... Ts> struct IndexOf<TypeList<Ts...>, T>: index_of<T, Ts...> {};
+template <typename T, typename... Ts> struct IndexOf<TypeList<Ts...>, T> : index_of<T, Ts...> {};
 
 // KthOf
 
 template <TL In, size_t index> struct KthOf;
 
-template<size_t index, typename... Ts>
-struct kth_of {};
+template <size_t index, typename... Ts> struct kth_of {};
 
-template<typename First, typename... Rest>
-struct kth_of<0, First, Rest...> {
+template <typename First, typename... Rest> struct kth_of<0, First, Rest...> {
     using type = First;
 };
 
-template<size_t index, typename First, typename... Rest>
-struct kth_of<index, First, Rest...> {
+template <size_t index, typename First, typename... Rest> struct kth_of<index, First, Rest...> {
     using type = kth_of<index - 1, Rest...>::type;
 };
 
-template<size_t index, typename... Ts> struct KthOf<TypeList<Ts...>, index> : kth_of<index, Ts...> {};
+template <size_t index, typename... Ts> struct KthOf<TypeList<Ts...>, index> : kth_of<index, Ts...> {};
 
 // IsAnyOf
 
 template <TL In, typename T> struct IsAnyOf;
 
-template <typename... Ts>
-struct is_any_of {};
+template <typename... Ts> struct is_any_of {};
 
-template<typename T, typename First, typename... Rest>
-struct is_any_of<T, First, Rest...> {
+template <typename T, typename First, typename... Rest> struct is_any_of<T, First, Rest...> {
     static constexpr bool value = std::is_same_v<T, First> || is_any_of<T, Rest...>::value;
 };
 
-template<typename T>
-struct is_any_of<T> {
+template <typename T> struct is_any_of<T> {
     static constexpr bool value = false;
 };
 
-template<typename T, typename... Ts>
-struct IsAnyOf<TypeList<Ts...>, T> : is_any_of<T, Ts...> {};
+template <typename T, typename... Ts> struct IsAnyOf<TypeList<Ts...>, T> : is_any_of<T, Ts...> {};
 
 // Map
 

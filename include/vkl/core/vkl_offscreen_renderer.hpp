@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "vkl_device.hpp"
 #include "../io/vkl_image_export.hpp"
+#include "vkl_device.hpp"
 
 class VklOffscreenRenderer {
     VklDevice &device_;

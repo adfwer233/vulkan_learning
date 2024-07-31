@@ -1,7 +1,7 @@
 #pragma once
 
-#include "vkl/scene/vkl_scene.hpp"
 #include "vkl/core/vkl_offscreen_renderer.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 
 #include "components/bezier_editor/bezier_editor_panel_ui.hpp"
 #include "components/bezier_editor/bezier_editor_ui.hpp"

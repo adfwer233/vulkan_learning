@@ -19,4 +19,5 @@ struct ParamLineRenderSystemPushConstantData {
 using ParamLineRenderSystemPushConstantList = VklPushConstantInfoList<ParamLineRenderSystemPushConstantData>;
 
 template <uint32_t Subpass = 0>
-using ParamLineRenderSystem = SimpleRenderSystem<Subpass, ParamLineRenderSystemPushConstantList, ParamLinePipelineModifier>;
+using ParamLineRenderSystem =
+    SimpleRenderSystem<Subpass, ParamLineRenderSystemPushConstantList, ParamLinePipelineModifier>;

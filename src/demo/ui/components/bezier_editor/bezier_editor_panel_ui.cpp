@@ -4,8 +4,8 @@
 
 #include "nlohmann/json.hpp"
 
-#include "../../../scripts/render_script_base.hpp"
 #include "../../../scripts/containment_script.hpp"
+#include "../../../scripts/render_script_base.hpp"
 
 using json = nlohmann::json;
 
@@ -44,12 +44,13 @@ void BezierEditorPanelUI::renderImgui() {
                         boundary_data.push_back({x1, y1});
                         boundary_data.push_back({x2, y2});
                     } else {
-                        for (auto pt: bezier) {
+                        for (auto pt : bezier) {
                             auto [x, y] = get_point(pt);
                             boundary_data.push_back({x, y});
                         }
                     }
-                    uiManager_.bezier_editor_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(boundary_data))));
+                    uiManager_.bezier_editor_curves.push_back(
+                        std::move(std::make_unique<BezierCurve2D>(std::move(boundary_data))));
                 }
             }
         }
@@ -60,7 +61,7 @@ void BezierEditorPanelUI::renderImgui() {
             json curve = json::array();
 
             auto control_pts = uiManager_.bezier_editor_curves.front()->control_point_vec2;
-            for (auto vert: control_pts) {
+            for (auto vert : control_pts) {
                 json vert_json = json::object();
                 vert_json["x"] = vert.x;
                 vert_json["y"] = vert.y;

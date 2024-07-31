@@ -7,5 +7,4 @@ struct WireFramePipelineModifier {
 };
 
 template <uint32_t Subpass = 0>
-using SimpleWireFrameRenderSystem =
-    SimpleRenderSystem<Subpass, SimplePushConstantInfoList, WireFramePipelineModifier>;
+using SimpleWireFrameRenderSystem = SimpleRenderSystem<Subpass, SimplePushConstantInfoList, WireFramePipelineModifier>;

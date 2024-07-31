@@ -43,9 +43,10 @@ void Application::run() {
 
     auto simple_render_pass_obj = renderGraph.getPass<RenderGraphRenderPass>("simple_render_pass");
 
-    auto simple_render_system = simple_render_pass_obj->getRenderSystem<SimpleRenderSystem<>>(device_, "simple_render_system",
-                                                                                            {{std::format("{}/first_triangle_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-                                                                                             {std::format("{}/first_triangle_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+    auto simple_render_system = simple_render_pass_obj->getRenderSystem<SimpleRenderSystem<>>(
+        device_, "simple_render_system",
+        {{std::format("{}/first_triangle_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+         {std::format("{}/first_triangle_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
     simple_render_pass_obj->recordFunction = [&](VkCommandBuffer commandBuffer, uint32_t frame_index) {
         FrameInfo<VklModel> frameInfo{

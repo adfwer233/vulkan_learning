@@ -9,8 +9,8 @@
 
 #include <numbers>
 
-#include "geometry/parameter_space/bezier_root_finder.hpp"
 #include "geometry/parameter_space/bezier_clipping.hpp"
+#include "geometry/parameter_space/bezier_root_finder.hpp"
 
 std::tuple<float, float> BezierCurve2D::projection(glm::vec2 test_point) {
     auto target_poly =
@@ -79,18 +79,26 @@ float BezierCurve2D::winding_number(glm::vec2 test_point) {
 
     bool quadrant1 = false, quadrant2 = false, quadrant3 = false, quadrant4 = false;
 
-    for (auto &point: control_point_vec2) {
-        if (point.x > test_point.x and point.y > test_point.y) quadrant1 = true;
-        if (point.x < test_point.x and point.y > test_point.y) quadrant2 = true;
-        if (point.x < test_point.x and point.y < test_point.y) quadrant3 = true;
-        if (point.x > test_point.x and point.y < test_point.y) quadrant4 = true;
+    for (auto &point : control_point_vec2) {
+        if (point.x > test_point.x and point.y > test_point.y)
+            quadrant1 = true;
+        if (point.x < test_point.x and point.y > test_point.y)
+            quadrant2 = true;
+        if (point.x < test_point.x and point.y < test_point.y)
+            quadrant3 = true;
+        if (point.x > test_point.x and point.y < test_point.y)
+            quadrant4 = true;
     }
 
     uint32_t quadrant_num = 0;
-    if (quadrant1) quadrant_num++;
-    if (quadrant2) quadrant_num++;
-    if (quadrant3) quadrant_num++;
-    if (quadrant4) quadrant_num++;
+    if (quadrant1)
+        quadrant_num++;
+    if (quadrant2)
+        quadrant_num++;
+    if (quadrant3)
+        quadrant_num++;
+    if (quadrant4)
+        quadrant_num++;
 
     bool out_bound_flag = false;
 
@@ -258,7 +266,7 @@ void BezierCurve2D::initialize() {
     derivative_bound = -1.0;
     for (int i = 1; i <= n; i++) {
         derivative_bound =
-                std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
+            std::max(derivative_bound, n * glm::length(control_point_vec2[i] - control_point_vec2[i - 1]));
     }
 
     if (control_points_.size() >= 3) {
@@ -321,7 +329,7 @@ std::vector<glm::vec2> BezierCurve2D::compute_extreme_points() {
 
         auto roots = RootFinder::solvePolynomial(coeffs, 0.0, 1.0, 1e-6);
 
-        for (auto r: roots) {
+        for (auto r : roots) {
             result.push_back(evaluate_linear(r));
         }
     };
@@ -342,8 +350,8 @@ std::vector<glm::vec2> BezierCurve2D::compute_extreme_points_new() {
     std::vector<double> x_poly, y_poly;
 
     std::ranges::for_each(deriv, [&](glm::vec2 v) {
-       x_poly.push_back(v.x);
-       y_poly.push_back(v.y);
+        x_poly.push_back(v.x);
+        y_poly.push_back(v.y);
     });
 
     BezierRootFinder x_finder(std::move(x_poly));
@@ -394,8 +402,10 @@ float BezierCurve2D::winding_number_monotonic(glm::vec2 test_point) {
 float BezierCurve2D::winding_number_monotonic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos,
                                                        float start, float end) {
 
-    bool out_x = (test_point.x < start_pos.x and test_point.x < end_pos.x) or (test_point.x > start_pos.x and test_point.x > end_pos.x);
-    bool out_y = (test_point.y < start_pos.y and test_point.y < end_pos.y) or (test_point.y > start_pos.y and test_point.y > end_pos.y);
+    bool out_x = (test_point.x < start_pos.x and test_point.x < end_pos.x) or
+                 (test_point.x > start_pos.x and test_point.x > end_pos.x);
+    bool out_y = (test_point.y < start_pos.y and test_point.y < end_pos.y) or
+                 (test_point.y > start_pos.y and test_point.y > end_pos.y);
 
     auto v1 = glm::normalize(start_pos - test_point);
     auto v2 = glm::normalize(end_pos - test_point);
@@ -433,8 +443,10 @@ float BezierCurve2D::winding_number_u_periodic(glm::vec2 test_point) {
         double winding_number = winding_number_internal(test_point, start_pos, end_pos, 0.0, 1.0, derivative_bound);
 
         for (int i = 1; i < 3; i++) {
-            winding_number += winding_number_internal(test_point + glm::vec2{1.0f * i, 0.0f}, start_pos, end_pos, 0.0, 1.0, derivative_bound);
-            winding_number += winding_number_internal(test_point - glm::vec2{1.0f * i, 0.0f}, start_pos, end_pos, 0.0, 1.0, derivative_bound);
+            winding_number += winding_number_internal(test_point + glm::vec2{1.0f * i, 0.0f}, start_pos, end_pos, 0.0,
+                                                      1.0, derivative_bound);
+            winding_number += winding_number_internal(test_point - glm::vec2{1.0f * i, 0.0f}, start_pos, end_pos, 0.0,
+                                                      1.0, derivative_bound);
         }
 
         return winding_number;
@@ -481,7 +493,8 @@ float BezierCurve2D::winding_number_bi_periodic(glm::vec2 test_point) {
         for (int j = 0; j < N; j++) {
             auto trans_point = test_point + glm::vec2{1.0f * i, 1.0f * j};
 
-            double winding_number_main = winding_number_internal(trans_point, start_pos, end_pos, 0.0, 1.0, derivative_bound);
+            double winding_number_main =
+                winding_number_internal(trans_point, start_pos, end_pos, 0.0, 1.0, derivative_bound);
             double winding_number_v = 0;
             double winding_number_complement = 0;
 

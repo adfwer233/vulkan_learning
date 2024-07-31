@@ -6,7 +6,8 @@
 
 #include "vkl/core/vkl_swap_chain.hpp"
 
-VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int height, uint32_t subpassNum) : device_(device), imageExporter(device) {
+VklOffscreenRenderer::VklOffscreenRenderer(VklDevice &device, int width, int height, uint32_t subpassNum)
+    : device_(device), imageExporter(device) {
     createImages();
     createDepthResources();
     createRenderPass(subpassNum);
@@ -23,7 +24,8 @@ void VklOffscreenRenderer::createImages() {
 
     for (int i = 0; i < VklSwapChain::MAX_FRAMES_IN_FLIGHT; i++) {
         device_.createImage(4096, 4096, VkFormat::VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT |
+                                VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, this->images_[i], this->memory_[i]);
 
         device_.transitionImageLayout(this->images_[i], VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
@@ -115,17 +117,14 @@ void VklOffscreenRenderer::createRenderPass(uint32_t subpassNum) {
     std::vector<VkSubpassDescription> subpassList;
 
     for (int i = 1; i <= subpassNum; i++) {
-        VkSubpassDescription subpass{
-            .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-            .colorAttachmentCount = 1,
-            .pColorAttachments = &colorAttachmentRef,
-            .pDepthStencilAttachment = &depthAttachmentRef
-        };
+        VkSubpassDescription subpass{.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                     .colorAttachmentCount = 1,
+                                     .pColorAttachments = &colorAttachmentRef,
+                                     .pDepthStencilAttachment = &depthAttachmentRef};
         subpassList.push_back(subpass);
     }
 
     std::vector<VkSubpassDependency> dependencies;
-
 
     VkSubpassDependency firstDependency = {};
     firstDependency.dstSubpass = 0;
@@ -140,14 +139,13 @@ void VklOffscreenRenderer::createRenderPass(uint32_t subpassNum) {
     dependencies.push_back(firstDependency);
 
     for (uint32_t i = 1; i < subpassNum; i++) {
-        VkSubpassDependency dependency {
+        VkSubpassDependency dependency{
             .srcSubpass = i - 1,
             .dstSubpass = i,
             .srcStageMask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
             .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
             .srcAccessMask = 0,
-            .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT
-        };
+            .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT};
         dependencies.push_back(dependency);
     }
 

@@ -2,12 +2,11 @@
 
 #include "ray_tracer/ray_picker.hpp"
 
-#include "vkl/scene/vkl_scene.hpp"
 #include "vkl/scene/vkl_geometry_model.hpp"
+#include "vkl/scene/vkl_scene.hpp"
 
 #include <format>
 #include <iostream>
-
 
 KeyboardCameraController *KeyboardCameraController::instance_ = nullptr;
 
@@ -69,12 +68,14 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
     auto addBezierControlPoint = [&](float u, float v) {
         if (controller->uiManager_->bezier_editor_curves.empty()) {
             std::vector<std::array<float, 2>> control_points = {{u, v}};
-            controller->uiManager_->bezier_editor_curves.push_back(std::move(std::make_unique<BezierCurve2D>(std::move(control_points))));
+            controller->uiManager_->bezier_editor_curves.push_back(
+                std::move(std::make_unique<BezierCurve2D>(std::move(control_points))));
         } else {
             controller->uiManager_->bezier_editor_curves.front()->add_control_point({u, v});
 
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
-            auto curveMesh = modelBuffer->getGeometryModel(controller->scene_->get().device_, controller->uiManager_->bezier_editor_curves.front().get());
+            auto curveMesh = modelBuffer->getGeometryModel(controller->scene_->get().device_,
+                                                           controller->uiManager_->bezier_editor_curves.front().get());
 
             curveMesh->reallocateMesh();
         }
@@ -102,17 +103,15 @@ void KeyboardCameraController::mouse_button_callback(GLFWwindow *window, int but
     if (button == GLFW_MOUSE_BUTTON_LEFT and state == GLFW_PRESS) {
         if (controller->currentWidgets == DemoWidgets::SceneRendering) {
             controller->uiManager_->pickObject(
-                    controller->mouse_x_pos - controller->scope_min.x,
-                    controller->mouse_y_pos - controller->scope_min.y,
-                    controller->scope_max.x - controller->scope_min.x,
-                    controller->scope_max.y - controller->scope_min.y);
-        } else if (controller->currentWidgets == DemoWidgets::BezierEditing){
-            std::cout << "current " << controller->mouse_x_pos - controller->scope_min.x << " " << controller->mouse_y_pos - controller->scope_min.y << std::endl;
+                controller->mouse_x_pos - controller->scope_min.x, controller->mouse_y_pos - controller->scope_min.y,
+                controller->scope_max.x - controller->scope_min.x, controller->scope_max.y - controller->scope_min.y);
+        } else if (controller->currentWidgets == DemoWidgets::BezierEditing) {
+            std::cout << "current " << controller->mouse_x_pos - controller->scope_min.x << " "
+                      << controller->mouse_y_pos - controller->scope_min.y << std::endl;
             float width = controller->scope_max.x - controller->scope_min.x;
             float height = controller->scope_max.y - controller->scope_min.y;
             float u = (controller->mouse_x_pos - controller->scope_min.x) / width;
             float v = (controller->mouse_y_pos - controller->scope_min.y) / height;
-
 
             u = 0.5 + (u - 0.5) / controller->uiManager_->bezier_zoom_in;
             v = 0.5 + (v - 0.5) / controller->uiManager_->bezier_zoom_in;
@@ -180,7 +179,7 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
     else
         controller->in_region = false;
 
-    if (not (controller->is_mouse_pressing or controller->is_mouse_left_pressing))
+    if (not(controller->is_mouse_pressing or controller->is_mouse_left_pressing))
         return;
 
     if (controller->mouse_flag) {
@@ -190,8 +189,7 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
     }
 
     float x_offset = controller->mouse_x_pos - controller->last_x;
-    float y_offset =
-            controller->last_y - controller->mouse_y_pos; // reversed since y-coordinates go from bottom to top
+    float y_offset = controller->last_y - controller->mouse_y_pos; // reversed since y-coordinates go from bottom to top
 
     controller->last_x = controller->mouse_x_pos;
     controller->last_y = controller->mouse_y_pos;
@@ -204,17 +202,17 @@ void KeyboardCameraController::mouse_callback(GLFWwindow *window, double xposIn,
             else
                 controller->camera->process_mouse_movement(x_offset, y_offset);
         }
-
     }
 
     if (controller->is_mouse_left_pressing) {
         if (controller->currentWidgets == DemoWidgets::BezierEditing) {
             if (controller->bezier_picking_result.has_value()) {
-                controller->uiManager_->bezier_editor_curves.front()->update_control_point(controller->bezier_picking_result.value(), {x_offset / 1024, - y_offset / 1024});
+                controller->uiManager_->bezier_editor_curves.front()->update_control_point(
+                    controller->bezier_picking_result.value(), {x_offset / 1024, -y_offset / 1024});
 
                 auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
-                auto curveMesh = modelBuffer->getGeometryModel(controller->scene_->get().device_,
-                                                               controller->uiManager_->bezier_editor_curves.front().get());
+                auto curveMesh = modelBuffer->getGeometryModel(
+                    controller->scene_->get().device_, controller->uiManager_->bezier_editor_curves.front().get());
 
                 curveMesh->reallocateMesh();
             }

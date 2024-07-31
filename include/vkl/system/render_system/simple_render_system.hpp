@@ -8,9 +8,9 @@
 #include <memory>
 #include <optional>
 
+#include "render_system_base.hpp"
 #include "vkl/core/vkl_push_constant.hpp"
 #include "vkl/templates/vkl_concept.hpp"
-#include "render_system_base.hpp"
 
 #ifndef SHADER_DIR
 #define SHADER_DIR "./shader/"
@@ -27,7 +27,7 @@ struct NullPipelineModifier {
 
 template <uint32_t Subpass = 0, VklPushConstantInfoListConcept PushConstantInfoList = SimplePushConstantInfoList,
           VklPipelineModifierType PipelineModifierType = NullPipelineModifier>
-class SimpleRenderSystem: public BaseRenderSystem {
+class SimpleRenderSystem : public BaseRenderSystem {
   private:
     std::string vertex_shader_path_, fragment_shader_path_, geometry_shader_path_;
 

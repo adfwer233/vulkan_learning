@@ -17,7 +17,7 @@ float Path2D::winding_number_internal(glm::vec2 test_point, size_t start_index, 
 
     if (not enable_path_optim) {
         float wn = 0;
-        for (auto &curve: curves) {
+        for (auto &curve : curves) {
             wn += curve->winding_number(test_point);
         }
         return wn;

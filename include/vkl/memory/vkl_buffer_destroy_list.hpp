@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "../core/vkl_buffer.hpp"
 
@@ -13,7 +13,7 @@ class VklBufferDestroyList {
         buffer_to_destroy.push_back(std::move(buffer));
     }
 
-    static VklBufferDestroyList* instance() {
+    static VklBufferDestroyList *instance() {
         if (instance_ == nullptr)
             instance_ = new VklBufferDestroyList();
         return instance_;

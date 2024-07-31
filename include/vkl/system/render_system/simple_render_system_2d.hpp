@@ -9,4 +9,4 @@ struct SimpleRender2DPipelineModifier {
 };
 
 template <uint32_t Subpass = 0>
-using SimpleRenderSystem2D = SimpleRenderSystem<Subpass, SimplePushConstantInfoList , SimpleRender2DPipelineModifier>;
+using SimpleRenderSystem2D = SimpleRenderSystem<Subpass, SimplePushConstantInfoList, SimpleRender2DPipelineModifier>;

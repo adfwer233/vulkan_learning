@@ -3,9 +3,9 @@
 #include "geometry/surface/tensor_product_bezier.hpp"
 #include "vkl/utils/vkl_curve_model.hpp"
 #include "vkl_model.hpp"
-#include <vector>
 #include <map>
 #include <numbers>
+#include <vector>
 
 template <typename T> class VklGeometryModel {};
 
@@ -40,7 +40,7 @@ template <typename T> class VklGeometryModelBuffer {
 };
 
 template <> class VklGeometryModel<BezierCurve2D> {
-public:
+  public:
     BezierCurve2D *curve_;
     VklDevice &device_;
 
@@ -54,7 +54,7 @@ public:
     std::unique_ptr<extreme_point_render_type> extremePointMesh;
     std::unique_ptr<derivative_bound_render_type> derivativeBoundMesh;
 
-    VklGeometryModel(VklDevice &device, BezierCurve2D *curve): device_(device), curve_(curve) {
+    VklGeometryModel(VklDevice &device, BezierCurve2D *curve) : device_(device), curve_(curve) {
         createControlPointsMesh();
 
         if (curve->control_point_vec2.size() >= 2)
@@ -89,7 +89,7 @@ public:
         }
 
         std::vector<control_points_render_type::vertex_type> control_vertices;
-        for (auto cp: curve_->control_point_vec2) {
+        for (auto cp : curve_->control_point_vec2) {
             control_points_render_type::vertex_type vertex;
             vertex.position = cp;
             control_vertices.push_back(vertex);
@@ -100,7 +100,7 @@ public:
         if (derivativeBoundMesh != nullptr) {
             auto derivativeBuilder = createDerivativeBoundMeshBuilder();
             std::vector<control_points_render_type::vertex_type> derivative_vertices;
-            for (auto geo_vert: derivativeBuilder.vertices) {
+            for (auto geo_vert : derivativeBuilder.vertices) {
                 derivative_bound_render_type::vertex_type vertex;
                 vertex.position = geo_vert.position;
                 derivative_vertices.push_back(vertex);
@@ -122,12 +122,12 @@ public:
             extremePointMesh->reallocateVertexBuffer();
         }
     }
-private:
 
+  private:
     extreme_point_render_type::BuilderFromImmediateData createExtremePointMeshBuilder() {
         auto ex_points = curve_->compute_extreme_points();
         extreme_point_render_type::BuilderFromImmediateData builder;
-        for (auto ep: ex_points) {
+        for (auto ep : ex_points) {
             extreme_point_render_type::vertex_type vertex;
             vertex.position = ep;
             vertex.color = {0.0, 1.0, 0.0};
@@ -203,7 +203,7 @@ private:
 
     void createControlPointsMesh() {
         control_points_render_type::BuilderFromImmediateData builder;
-        for (auto cp: curve_->control_point_vec2) {
+        for (auto cp : curve_->control_point_vec2) {
             control_points_render_type::vertex_type vertex;
             vertex.position = cp;
             builder.vertices.push_back(vertex);

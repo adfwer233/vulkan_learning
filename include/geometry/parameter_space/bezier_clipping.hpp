@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <optional>
+#include <vector>
 
 #include "glm/glm.hpp"
 
@@ -12,6 +12,6 @@
  * between the curve and ray (u, v) -> (+inf, v)
  */
 struct BezierClipping {
-public:
+  public:
     static uint32_t bezier_clipping(glm::vec2 test_point, const std::vector<glm::vec2> &points);
 };

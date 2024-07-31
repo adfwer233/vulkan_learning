@@ -103,7 +103,7 @@ void SceneManagerUI::renderImgui() {
         json data = json::parse(f);
 
         auto get_point = [&](json &point_json) -> std::pair<float, float> {
-            return {point_json["x"].get<float>() , point_json["y"].get<float>() };
+            return {point_json["x"].get<float>(), point_json["y"].get<float>()};
         };
 
         std::vector<std::vector<std::array<float, 2>>> boundary_data;
@@ -112,9 +112,9 @@ void SceneManagerUI::renderImgui() {
         auto curve_count = 0;
 
         for (auto path_json : data) {
-            path_count ++;
+            path_count++;
             for (auto bezier : path_json) {
-                curve_count ++;
+                curve_count++;
                 auto straight = false;
                 for (auto points : bezier) {
                     if (points.is_boolean()) {
@@ -129,7 +129,7 @@ void SceneManagerUI::renderImgui() {
                     boundary.push_back({x1, y1});
                     boundary.push_back({x2, y2});
                 } else {
-                    for (auto pt: bezier) {
+                    for (auto pt : bezier) {
                         auto [x, y] = get_point(pt);
                         boundary.push_back({x, y});
                     }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
 #include <map>
-#include <unordered_map>
+#include <memory>
 #include <string>
+#include <unordered_map>
 
-#include "vkl_device.hpp"
 #include "spirv_cross.hpp"
+#include "vkl_device.hpp"
 
 /**
  * @page devicePage Vulkan Resource Binding
@@ -25,7 +25,7 @@ template <typename T> struct VklDescriptor {
 };
 
 struct VklUniformBufferDescriptor {
-    bool operator < (const VklUniformBufferDescriptor& other) const {
+    bool operator<(const VklUniformBufferDescriptor &other) const {
         return std::tie(binding, size, typeName) < std::tie(other.binding, other.size, other.typeName);
     }
     uint32_t binding;
@@ -34,7 +34,7 @@ struct VklUniformBufferDescriptor {
 };
 
 struct VklSampledImageBufferDescriptor {
-    bool operator < (const VklSampledImageBufferDescriptor& other) const {
+    bool operator<(const VklSampledImageBufferDescriptor &other) const {
         return std::tie(binding, name) < std::tie(other.binding, other.name);
     }
     uint32_t binding;
@@ -42,8 +42,9 @@ struct VklSampledImageBufferDescriptor {
 };
 
 struct VklDescriptorSetLayoutKey {
-    bool operator < (const VklDescriptorSetLayoutKey &other) const {
-        return std::tie(uniformDescriptors, sampledImageBufferDescriptors) < std::tie(other.uniformDescriptors, other.sampledImageBufferDescriptors);
+    bool operator<(const VklDescriptorSetLayoutKey &other) const {
+        return std::tie(uniformDescriptors, sampledImageBufferDescriptors) <
+               std::tie(other.uniformDescriptors, other.sampledImageBufferDescriptors);
     }
     std::vector<VklUniformBufferDescriptor> uniformDescriptors;
     std::vector<VklSampledImageBufferDescriptor> sampledImageBufferDescriptors;
@@ -55,9 +56,9 @@ class VklDescriptorSetLayout {
       private:
         VklDevice &device_;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
-        VklDescriptorSetLayoutKey  descriptorSetLayoutKey;
+        VklDescriptorSetLayoutKey descriptorSetLayoutKey;
 
-    public:
+      public:
         explicit Builder(VklDevice &device) : device_(device){};
 
         Builder &addBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags,
@@ -76,7 +77,7 @@ class VklDescriptorSetLayout {
     std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_;
 
   public:
-    VklDescriptorSetLayoutKey  descriptorSetLayoutKey;
+    VklDescriptorSetLayoutKey descriptorSetLayoutKey;
 
     VklDescriptorSetLayout(VklDevice &device, Builder &builder);
     ~VklDescriptorSetLayout();

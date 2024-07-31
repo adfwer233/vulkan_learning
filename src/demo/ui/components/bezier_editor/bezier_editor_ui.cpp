@@ -4,7 +4,6 @@
 #include "demo/utils/controller.hpp"
 
 BezierEditorUI::BezierEditorUI(VklScene &scene, UIManager &uiManager) : scene_(scene), uiManager_(uiManager) {
-
 }
 
 void BezierEditorUI::renderImgui() {

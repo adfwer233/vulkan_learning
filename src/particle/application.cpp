@@ -152,8 +152,7 @@ void Application::run() {
 
             auto commandBuffer = renderer_.beginFrame();
 
-            FrameInfo<VklParticleModel> frameInfo{
-                frameIndex, currentFrame, commandBuffer, camera, model};
+            FrameInfo<VklParticleModel> frameInfo{frameIndex, currentFrame, commandBuffer, camera, model};
 
             renderer_.beginSwapChainRenderPass(commandBuffer);
             renderSystem.renderObject(frameInfo);

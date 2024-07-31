@@ -65,7 +65,8 @@ class BezierCurve2D {
 
     float winding_number_monotonic(glm::vec2 test_point);
 
-    float winding_number_monotonic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start, float end);
+    float winding_number_monotonic_internal(glm::vec2 test_point, glm::vec2 start_pos, glm::vec2 end_pos, float start,
+                                            float end);
 
     float winding_number(glm::vec2 test_point);
 
@@ -86,6 +87,7 @@ class BezierCurve2D {
     std::vector<glm::vec2> compute_extreme_points();
 
     std::vector<glm::vec2> compute_extreme_points_new();
-private:
+
+  private:
     void initialize();
 };

@@ -1,9 +1,9 @@
+#include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <iterator>
 #include <ranges>
-#include <algorithm>
 #include <stdexcept>
-#include <iostream>
 
 #include "geometry/parameter_space/bezier_root_finder.hpp"
 
@@ -85,17 +85,19 @@ double BezierRootFinder::newton_method(double start) {
         }
         xn = xn1;
 
-    } while(fabs(fn1) > precision || delta > min_deltax);
+    } while (fabs(fn1) > precision || delta > min_deltax);
 
     return xn1;
 }
 
-std::vector<double> BezierRootFinder::get_roots(std::vector<double>& c, double a, double b) {
+std::vector<double> BezierRootFinder::get_roots(std::vector<double> &c, double a, double b) {
 
     bool has_positive = false, has_negative = false;
-    for (double v: c) {
-        if (v > 0) has_positive = true;
-        if (v < 0) has_negative = true;
+    for (double v : c) {
+        if (v > 0)
+            has_positive = true;
+        if (v < 0)
+            has_negative = true;
     }
 
     if ((not has_positive) or (not has_negative))
@@ -141,7 +143,8 @@ std::vector<double> BezierRootFinder::get_roots(std::vector<double>& c, double a
 
         return result;
     } else {
-        if (b - a < 1e-3) return {};
+        if (b - a < 1e-3)
+            return {};
         t0 = (a + b) / 2;
         auto [cl, cr] = subdivide(c, t0);
 
@@ -156,8 +159,8 @@ std::vector<double> BezierRootFinder::get_roots(std::vector<double>& c, double a
     }
 }
 
-std::pair<std::vector<double>, std::vector<double>>
-BezierRootFinder::subdivide(const std::vector<double> &c, float param) const {
+std::pair<std::vector<double>, std::vector<double>> BezierRootFinder::subdivide(const std::vector<double> &c,
+                                                                                float param) const {
     size_t n = c.size() - 1;
 
     std::vector current(c);

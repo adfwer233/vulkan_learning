@@ -1,37 +1,35 @@
 #pragma once
 
 #include "vkl/core/vkl_offscreen_renderer.hpp"
-#include "vkl/utils/vkl_camera.hpp"
-#include "vkl/utils/vkl_curve_model.hpp"
 #include "vkl/scene/vkl_geometry_model.hpp"
 #include "vkl/system/render_system/param_line_render_system.hpp"
 #include "vkl/system/render_system/simple_render_system_2d.hpp"
+#include "vkl/utils/vkl_camera.hpp"
+#include "vkl/utils/vkl_curve_model.hpp"
 
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
 class ContainmentQueryScript {
-public:
-    explicit ContainmentQueryScript(VklDevice &device): device_(device) {}
+  public:
+    explicit ContainmentQueryScript(VklDevice &device) : device_(device) {
+    }
 
     void renderResult() {
         using VklModel2D = VklModelTemplate<Vertex2D, TriangleIndex, VklBox2D>;
 
         SimpleRenderSystem2D renderSystem(
-                device_, renderer_.getSwapChainRenderPass(),
-                {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-                 {std::format("{}/simple_shader_2d.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+            device_, renderer_.getSwapChainRenderPass(),
+            {{std::format("{}/simple_shader_2d.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+             {std::format("{}/simple_shader_2d.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         ParamLineRenderSystem<1> paramCurveRenderSystem(
-                device_, renderer_.getSwapChainRenderPass(),
-                {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
-                 {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
+            device_, renderer_.getSwapChainRenderPass(),
+            {{std::format("{}/param_curve_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
+             {std::format("{}/param_curve_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
         ParamLineRenderSystemPushConstantData paramLineRenderSystemPushConstantData{
-                .zoom = 1.0,
-                .shift_x = 0.0,
-                .shift_y = 0.0
-        };
+            .zoom = 1.0, .shift_x = 0.0, .shift_y = 0.0};
         ParamLineRenderSystemPushConstantList paramLineRenderSystemPushConstantList;
         paramLineRenderSystemPushConstantList.data[0] = paramLineRenderSystemPushConstantData;
 
@@ -74,9 +72,9 @@ public:
         auto curve_count = 0;
 
         for (auto path_json : data) {
-            path_count ++;
+            path_count++;
             for (auto bezier : path_json) {
-                curve_count ++;
+                curve_count++;
                 auto straight = false;
                 for (auto points : bezier) {
                     if (points.is_boolean()) {
@@ -91,7 +89,7 @@ public:
                     boundary.push_back({x1, y1});
                     boundary.push_back({x2, y2});
                 } else {
-                    for (auto pt: bezier) {
+                    for (auto pt : bezier) {
                         auto [x, y] = get_point(pt);
                         boundary.push_back({x, y});
                     }
@@ -100,23 +98,23 @@ public:
             }
         }
 
-        for (auto &curve: curves) {
+        for (auto &curve : curves) {
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
             auto geometryModel = modelBuffer->getGeometryModel(device_, curve.get());
         }
 
         VklCurveModel2D::BuilderFromImmediateData parameterSpaceBoundaryBuilder;
         parameterSpaceBoundaryBuilder.vertices = {
-                Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                // Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                // Vertex2D{{0.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                // Vertex2D{{1.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                // Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                // Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            Vertex2D{{1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            Vertex2D{{0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            // Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            // Vertex2D{{0.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            // Vertex2D{{1.0f, 2.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            // Vertex2D{{1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            // Vertex2D{{0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
         };
 
         VklCurveModel2D parameterSpaceBoundary(device_, parameterSpaceBoundaryBuilder);
@@ -139,7 +137,7 @@ public:
                 // vertex.color = {0.0f, 1.0f, 0.0f};
 
                 double winding_number = 0.0;
-                for (auto &curve: curves) {
+                for (auto &curve : curves) {
                     winding_number += curve->winding_number(vertex.position);
                 }
 
@@ -193,58 +191,43 @@ public:
             VkFence fence;
             {
                 VkFenceCreateInfo createInfo = {
-                        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-                        .pNext = nullptr,
-                        .flags = 0,
+                    .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                    .pNext = nullptr,
+                    .flags = 0,
                 };
                 assert(vkCreateFence(device_.device(), &createInfo, nullptr, &fence) == VK_SUCCESS);
             }
 
             vkEndCommandBuffer(commandBuffer);
 
-            VkSubmitInfo submitInfo {
-                    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                    .commandBufferCount = 1,
-                    .pCommandBuffers = &commandBuffer
-            };
+            VkSubmitInfo submitInfo{
+                .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO, .commandBufferCount = 1, .pCommandBuffers = &commandBuffer};
 
             vkQueueSubmit(device_.graphicsQueue(), 1, &submitInfo, fence);
             vkQueueWaitIdle(device_.graphicsQueue());
             vkDeviceWaitIdle(device_.device());
         };
 
-
-        FrameInfo<VklModel2D> gridModelFrameInfo {
-                .frameIndex = 0,
-                .frameTime = 0.0f,
-                .commandBuffer = commandBuffer,
-                .camera = camera,
-                .model = grid
-        };
+        FrameInfo<VklModel2D> gridModelFrameInfo{
+            .frameIndex = 0, .frameTime = 0.0f, .commandBuffer = commandBuffer, .camera = camera, .model = grid};
 
         renderSystem.renderObject(gridModelFrameInfo);
 
         vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 
-        FrameInfo<VklCurveModel2D> parameterSpaceBoundaryFrameInfo {
-                .frameIndex = 0,
-                .frameTime = 0.0f,
-                .commandBuffer = commandBuffer,
-                .camera = camera,
-                .model= parameterSpaceBoundary
-        };
+        FrameInfo<VklCurveModel2D> parameterSpaceBoundaryFrameInfo{.frameIndex = 0,
+                                                                   .frameTime = 0.0f,
+                                                                   .commandBuffer = commandBuffer,
+                                                                   .camera = camera,
+                                                                   .model = parameterSpaceBoundary};
 
         paramCurveRenderSystem.renderObject(parameterSpaceBoundaryFrameInfo, paramLineRenderSystemPushConstantList);
 
-        for (auto &curve: curves) {
+        for (auto &curve : curves) {
             auto modelBuffer = VklGeometryModelBuffer<BezierCurve2D>::instance();
             auto geometryModel = modelBuffer->getGeometryModel(device_, curve.get());
 
-            FrameInfo<VklCurveModel2D> curveModelFrameInfo{0,
-                                                           0.0f,
-                                                           commandBuffer,
-                                                           camera,
-                                                           *geometryModel->curveMesh};
+            FrameInfo<VklCurveModel2D> curveModelFrameInfo{0, 0.0f, commandBuffer, camera, *geometryModel->curveMesh};
 
             paramCurveRenderSystem.renderObject(curveModelFrameInfo, paramLineRenderSystemPushConstantList);
         }
@@ -254,7 +237,7 @@ public:
         renderer_.exportCurrentImageToPPM();
     }
 
-private:
+  private:
     VklDevice &device_;
     VklOffscreenRenderer renderer_{device_, 1024, 1024, 2};
 };
