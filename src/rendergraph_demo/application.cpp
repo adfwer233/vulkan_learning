@@ -47,6 +47,18 @@ void Application::run() {
                                                                                             {{std::format("{}/first_triangle_shader.vert.spv", SHADER_DIR), VK_SHADER_STAGE_VERTEX_BIT},
                                                                                              {std::format("{}/first_triangle_shader.frag.spv", SHADER_DIR), VK_SHADER_STAGE_FRAGMENT_BIT}});
 
+    simple_render_pass_obj->recordFunction = [&](VkCommandBuffer commandBuffer, uint32_t frame_index) {
+        FrameInfo<VklModel> frameInfo{
+            .frameIndex = static_cast<int>(frame_index) % 2,
+            .frameTime = 0,
+            .commandBuffer = commandBuffer,
+            .camera = scene.camera,
+            .model = *scene.objects.front()->models.front(),
+        };
+
+        simple_render_system->renderObject(frameInfo);
+    };
+
     std::vector<VkCommandBuffer> commandBuffers;
 
     uint32_t currentFrame = 0;
@@ -66,18 +78,6 @@ void Application::run() {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 
-    // for (int i = 0; i < 2; i++) {
-    //
-    //     VkCommandBufferBeginInfo beginInfo{};
-    //     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    //
-    //     if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-    //         throw std::runtime_error("failed to begin recording command buffer!");
-    //     }
-    //
-    //     vkEndCommandBuffer(commandBuffers[i]);
-    // }
-
     while (not glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -94,44 +94,7 @@ void Application::run() {
             throw std::runtime_error("failed to begin recording command buffer!");
         }
 
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = simple_render_pass_obj->renderPass;
-        renderPassInfo.framebuffer = simple_render_pass_obj->instances[currentFrame]->framebuffer;
-
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = {simple_render_pass_obj->descriptor_p->width, simple_render_pass_obj->descriptor_p->height};
-
-        std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
-        clearValues[1].depthStencil = {1.0f, 0};
-        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassInfo.pClearValues = clearValues.data();
-
-        vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(simple_render_pass_obj->descriptor_p->width);
-        viewport.height = static_cast<float>(simple_render_pass_obj->descriptor_p->height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        VkRect2D scissor{{0, 0}, {1024, 1024}};
-        vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
-        vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
-
-        FrameInfo<VklModel> frameInfo{
-            .frameIndex = static_cast<int>(currentFrame) % 2,
-            .frameTime = 0,
-            .commandBuffer = commandBuffers[currentFrame],
-            .camera = scene.camera,
-            .model = *scene.objects.front()->models.front(),
-        };
-
-        simple_render_system->renderObject(frameInfo);
-
-        vkCmdEndRenderPass(commandBuffers[currentFrame]);
+        renderGraph.render(commandBuffers[currentFrame], currentFrame);
 
         vkEndCommandBuffer(commandBuffers[currentFrame]);
 

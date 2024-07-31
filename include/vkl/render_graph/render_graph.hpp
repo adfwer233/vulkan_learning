@@ -3,6 +3,7 @@
 #include <iostream>
 #include <format>
 #include <vector>
+#include <optional>
 
 #include "../core/vkl_renderer.hpp"
 #include "meta_programming/type_list.hpp"
@@ -123,6 +124,8 @@ template<> struct RenderGraphPassDerived<RenderGraphRenderPass>: public RenderGr
     std::vector<RenderGraphPassInstance<RenderGraphRenderPass> *> instances;
     RenderGraphPassDescriptor<RenderGraphRenderPass>* descriptor_p;
     VkRenderPass renderPass;
+
+    std::optional<std::function<void(VkCommandBuffer, uint32_t)>> recordFunction = std::nullopt;
 
     template<typename RenderSystemType>
     RenderSystemType* getRenderSystem(VklDevice& device, const std::string &name, std::vector<VklShaderModuleInfo>&& shader_info) {
@@ -708,53 +711,47 @@ struct RenderGraph {
     }
 
     void render(VkCommandBuffer commandBuffer, uint32_t frame_index) {
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        VkRect2D scissor{{0, 0}, {1024, 1024}};
 
-    }
+        /**
+         * Execute render passes
+         */
+        for (auto render_pass: passes_generator<RenderGraphRenderPass>()) {
+            uint32_t width = render_pass->descriptor_p->width;
+            uint32_t height = render_pass->descriptor_p->height;
 
-    /*
-     * Tasks
-     */
-    struct TaskBase {
-        size_t index;
-        virtual size_t TaskTypeIndex() {
-            return 0;
+            viewport.width = width;
+            viewport.height = height;
+            scissor.extent = { width, height };
+            vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+            vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+            VkRenderPassBeginInfo renderPassInfo{};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = render_pass->renderPass;
+            renderPassInfo.framebuffer = render_pass->instances[frame_index]->framebuffer;
+
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = {width, height};
+
+            std::array<VkClearValue, 2> clearValues{};
+            clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
+            clearValues[1].depthStencil = {1.0f, 0};
+            renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+            renderPassInfo.pClearValues = clearValues.data();
+
+            vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+            if (render_pass->recordFunction.has_value()) {
+                render_pass->recordFunction.value()(commandBuffer, frame_index);
+            }
+
+            vkCmdEndRenderPass(commandBuffer);
         }
-    };
-
-    template<RenderGraphPass T>
-    struct Task: TaskBase {
-        size_t TaskTypeIndex() override {
-            return PassTypeIndex<T>();
-        }
-    };
-
-    std::vector<TaskBase> tasks;
-
-//    template<RenderGraphPass T>
-//    void addPass(RenderGraphPassDescriptor<T> &&descriptor){
-//        Task<T> task;
-//        auto& descriptorVector = std::get<PassTypeIndex<RenderGraphRenderPass>()>(passDescriptors);
-//        task.index = descriptor.size();
-//        tasks.push_back(task);
-//
-//        descriptorVector.push_back(descriptor);
-//    }
-
-    void execute(VkCommandBuffer commandBuffer) {
-//        for (auto task: tasks) {
-//            if (task.TaskTypeIndex() == PassTypeIndex<RenderGraphRenderPass>()) {
-//                auto &descriptor = std::get<PassTypeIndex<RenderGraphRenderPass>()>(passDescriptors)[task.index];
-//            } else if (task.TaskTypeIndex() == PassTypeIndex<RenderGraphComputePass>()) {
-//                auto &descriptor = std::get<PassTypeIndex<RenderGraphComputePass>()>(passDescriptors)[task.index];
-//            } else if (task.TaskTypeIndex() == PassTypeIndex<RenderGraphTransferPass>()) {
-//                auto &descriptor = std::get<PassTypeIndex<RenderGraphTransferPass>()>(passDescriptors)[task.index];
-//            } else if (task.TaskTypeIndex() == PassTypeIndex<RenderGraphImagePresentPass>()) {
-//                auto &descriptor = std::get<PassTypeIndex<RenderGraphImagePresentPass>()>(passDescriptors)[task.index];
-//            } else if (task.TaskTypeIndex() == PassTypeIndex<RenderGraphFrameSyncBeginPass>()) {
-//                auto &descriptor = std::get<PassTypeIndex<RenderGraphFrameSyncBeginPass>()>(passDescriptors)[task.index];
-//            } else if (task.TaskTypeIndex() == PassTypeIndex<RenderGraphFrameSyncEndPass>()) {
-//                auto &descriptor = std::get<PassTypeIndex<RenderGraphFrameSyncEndPass>()>(passDescriptors)[task.index];
-//            }
-//        }
     }
 };
